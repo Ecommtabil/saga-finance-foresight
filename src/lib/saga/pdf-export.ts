@@ -14,6 +14,25 @@ import {
 const NAVY: [number, number, number] = [30, 41, 82];
 const MUTED: [number, number, number] = [100, 116, 139];
 
+// ===== A4 layout constants (pt) =====
+const PAGE_W = 595.28;
+const PAGE_H = 841.89;
+const MARGIN_X = 40;
+const MARGIN_TOP = 40;
+const MARGIN_BOTTOM = 56; // reserva espaço para rodapé + linha divisória
+const CONTENT_W = PAGE_W - MARGIN_X * 2; // 515.28
+const CONTENT_BOTTOM = PAGE_H - MARGIN_BOTTOM; // 785.89
+
+// Tipografia (pt) — hierarquia consistente para impressão
+const FS_TITLE = 20;
+const FS_SECTION = 13;
+const FS_SUB = 11;
+const FS_BODY = 10;
+const FS_TABLE = 9;
+const FS_TABLE_HEAD = 9;
+const FS_CAPTION = 9;
+const FS_FOOTER = 8;
+
 export type RelatorioOpcoes = {
   nomeArquivo?: string;
   observacao?: string;
