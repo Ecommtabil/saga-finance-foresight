@@ -23,10 +23,21 @@ export function gerarPlanilhaModeloEstatistica(): Blob {
     "Impostos",
     "Volume de Vendas",
   ];
-  const wsSeries = XLSX.utils.aoa_to_sheet([headerSeries]);
+  const meses: string[] = [];
+  for (let ano = 2024; ano <= 2025; ano++) {
+    for (let m = 1; m <= 12; m++) {
+      meses.push(`${ano}-${String(m).padStart(2, "0")}`);
+    }
+  }
+  const sampleSeries = meses.map((p) => [p, "", "", "", "", "", "", ""]);
+  const wsSeries = XLSX.utils.aoa_to_sheet([headerSeries, ...sampleSeries]);
   XLSX.utils.book_append_sheet(wb, wsSeries, "Series");
 
-  const wsDespesas = XLSX.utils.aoa_to_sheet([["Periodo", "Despesas"]]);
+  const sampleDespesas = meses.map((p) => [p, "Marketing", ""]);
+  const wsDespesas = XLSX.utils.aoa_to_sheet([
+    ["Periodo", "Descrição", "Despesas"],
+    ...sampleDespesas,
+  ]);
   XLSX.utils.book_append_sheet(wb, wsDespesas, "Despesas");
 
   const wsInstr = XLSX.utils.aoa_to_sheet([
@@ -35,7 +46,8 @@ export function gerarPlanilhaModeloEstatistica(): Blob {
     ["1. A primeira coluna de cada aba deve conter o Período (ano, mês, trimestre ou label livre)."],
     ["2. Cada coluna adicional é uma série numérica que será analisada no SAGA."],
     ["3. Aba 'Series': receitas, custos, taxas, comissões, fretes, impostos e volume de vendas."],
-    ["4. Aba 'Despesas': lançamentos de despesas por período (pode incluir mais colunas se quiser)."],
+    ["4. Aba 'Despesas': formato longo — Periodo, Descrição (categoria) e Despesas (valor)."],
+    ["   Cada categoria em 'Descrição' vira uma série própria (ex.: 'Despesas — Marketing')."],
     ["5. Você pode adicionar quantas linhas (períodos) e colunas (séries) desejar em qualquer aba."],
     ["6. Os períodos são casados entre as abas pela primeira coluna — use os mesmos rótulos."],
     ["7. Use ponto como separador decimal. Cabeçalhos claros viram os nomes das séries no SAGA."],
@@ -62,7 +74,7 @@ export function baixarPlanilhaModeloEstatistica() {
 
 export async function parsePlanilhaEstatistica(file: File): Promise<DatasetEstatistico> {
   const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type: "array" });
+  const wb = XLSX.read(buf, { type: "array", cellDates: true });
   const sheetNames = wb.SheetNames.filter(
     (n) => !n.toLowerCase().startsWith("instru"),
   );
@@ -72,23 +84,65 @@ export async function parsePlanilhaEstatistica(file: File): Promise<DatasetEstat
   const periodosSet = new Set<string>();
   const seriesMap = new Map<string, Map<string, number>>();
 
+  const normPeriodo = (v: unknown, fallback: number): string => {
+    if (v === null || v === undefined || v === "") return String(fallback);
+    if (v instanceof Date) {
+      const y = v.getUTCFullYear();
+      const m = String(v.getUTCMonth() + 1).padStart(2, "0");
+      return `${y}-${m}`;
+    }
+    return String(v).trim();
+  };
+  const normHeader = (h: string) =>
+    h.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
   for (const sheetName of sheetNames) {
     const ws = wb.Sheets[sheetName];
     const rows = XLSX.utils.sheet_to_json<(string | number | null)[]>(ws, {
       header: 1,
       blankrows: false,
       defval: null,
+      raw: false,
     });
     if (rows.length < 2) continue;
     const header = rows[0].map((v) => String(v ?? "").trim());
     if (header.length < 2) continue;
+    const headerNorm = header.map(normHeader);
+    const descIdx = headerNorm.findIndex((h) => h === "descricao" || h === "descrição");
+    const isLongFormat = descIdx > 0 && header.length >= 3;
     const multiAba = sheetNames.length > 1;
+
+    if (isLongFormat) {
+      // Formato longo: Periodo | Descrição | valor1 [| valor2 ...]
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.every((v) => v === null || v === "")) continue;
+        const periodo = normPeriodo(row[0], i);
+        if (!periodosSet.has(periodo)) {
+          periodosSet.add(periodo);
+          periodosOrdem.push(periodo);
+        }
+        const categoria = String(row[descIdx] ?? "").trim() || "Sem categoria";
+        for (let c = 1; c < header.length; c++) {
+          if (c === descIdx) continue;
+          const nomeCol = header[c] || `Coluna ${c}`;
+          const base = multiAba ? `${sheetName} — ${categoria}` : `${nomeCol} — ${categoria}`;
+          const raw = row[c];
+          const num =
+            typeof raw === "number"
+              ? raw
+              : parseFloat(String(raw ?? "").replace(",", "."));
+          if (!seriesMap.has(base)) seriesMap.set(base, new Map());
+          seriesMap.get(base)!.set(periodo, Number.isFinite(num) ? num : NaN);
+        }
+      }
+      continue;
+    }
+
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
       if (!row || row.every((v) => v === null || v === "")) continue;
-      const label = row[0];
-      const periodo =
-        label === null || label === undefined ? String(i) : String(label).trim();
+      const periodo = normPeriodo(row[0], i);
       if (!periodosSet.has(periodo)) {
         periodosSet.add(periodo);
         periodosOrdem.push(periodo);
