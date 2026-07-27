@@ -57,54 +57,54 @@ export function gerarRelatorioPDF(
 
   // ===== Capa / cabeçalho =====
   doc.setFillColor(...NAVY);
-  doc.rect(0, 0, 595, 90, "F");
+  doc.rect(0, 0, PAGE_W, 96, "F");
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.text("SAGA — Relatório de Análise", 40, 45);
+  doc.setFontSize(FS_TITLE);
+  doc.text("SAGA — Relatório de Análise", MARGIN_X, 46);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.text(nomeEmpresa, 40, 65);
+  doc.setFontSize(FS_SUB);
+  doc.text(nomeEmpresa, MARGIN_X, 68);
   const agora = new Date();
   const dataStr = agora.toLocaleDateString("pt-BR");
   const horaStr = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const exportadoEm = `${dataStr} às ${horaStr}`;
-  doc.text(`Emitido em ${exportadoEm}`, 40, 80);
+  doc.setFontSize(FS_BODY);
+  doc.text(`Emitido em ${exportadoEm}`, MARGIN_X, 84);
 
   doc.setTextColor(0, 0, 0);
-  let y = 120;
+  let y = 124;
 
   // Observação/cabeçalho curto informado pelo usuário
   const obs = (opcoes.observacao ?? "").trim();
   if (obs) {
-    const larguraTexto = 515;
+    const larguraTexto = CONTENT_W - 20;
     const linhas = doc.splitTextToSize(obs, larguraTexto) as string[];
-    const altura = 18 + linhas.length * 13;
+    const altura = 20 + linhas.length * 13;
     doc.setFillColor(241, 245, 249);
     doc.setDrawColor(...NAVY);
     doc.setLineWidth(0.8);
-    doc.rect(40, y, 515, altura, "FD");
+    doc.rect(MARGIN_X, y, CONTENT_W, altura, "FD");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(...NAVY);
-    doc.text("OBSERVAÇÃO", 50, y + 14);
+    doc.text("OBSERVAÇÃO", MARGIN_X + 10, y + 14);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(FS_BODY);
     doc.setTextColor(30, 41, 59);
-    doc.text(linhas, 50, y + 30);
+    doc.text(linhas, MARGIN_X + 10, y + 30);
     doc.setTextColor(0, 0, 0);
-    y += altura + 20;
+    y += altura + 24;
   }
 
   // Ficha da empresa
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.text("Identificação", 40, y);
+  sectionTitle(doc, "Identificação", y);
   y += 6;
   autoTable(doc, {
     startY: y,
     theme: "plain",
-    styles: { fontSize: 9, cellPadding: 3 },
+    styles: { fontSize: FS_TABLE, cellPadding: 4 },
+    margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
     body: [
       ["Empresa", nomeEmpresa],
       ["Setor", empresa?.setor || "—"],
@@ -121,16 +121,15 @@ export function gerarRelatorioPDF(
   const mg = margens(dados);
   const cr = crescimento(dados);
 
-  y = tableEndY(doc) + 20;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.text("Destaques", 40, y);
+  y = ensureSpace(doc, tableEndY(doc) + 24, 140, nomeEmpresa);
+  sectionTitle(doc, "Destaques", y);
 
   autoTable(doc, {
     startY: y + 6,
     theme: "grid",
-    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-    styles: { fontSize: 10, cellPadding: 6, halign: "right" },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+    styles: { fontSize: FS_BODY, cellPadding: 6, halign: "right" },
+    margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
     columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
     head: [["Indicador", `Ano base (${anoBase})`, "CAGR / Média"]],
     body: [
@@ -148,10 +147,11 @@ export function gerarRelatorioPDF(
   header(doc, "DRE — Demonstração do Resultado", nomeEmpresa);
   const d = dados.dre;
   autoTable(doc, {
-    startY: 110,
+    startY: 100,
     theme: "striped",
-    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-    styles: { fontSize: 9, cellPadding: 4, halign: "right" },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+    styles: { fontSize: FS_TABLE, cellPadding: 4, halign: "right" },
+    margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
     columnStyles: { 0: { halign: "left", cellWidth: 170 } },
     head: [["Conta", ...anos]],
     body: [
@@ -172,15 +172,14 @@ export function gerarRelatorioPDF(
   });
 
   // Margens
-  let yy = tableEndY(doc) + 20;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("Margens (%)", 40, yy);
+  let yy = ensureSpace(doc, tableEndY(doc) + 24, 110, nomeEmpresa);
+  sectionTitle(doc, "Margens (%)", yy, FS_SUB);
   autoTable(doc, {
     startY: yy + 6,
     theme: "grid",
-    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-    styles: { fontSize: 9, cellPadding: 4, halign: "right" },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+    styles: { fontSize: FS_TABLE, cellPadding: 4, halign: "right" },
+    margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
     columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
     head: [["Margem", ...anos]],
     body: [
@@ -198,15 +197,14 @@ export function gerarRelatorioPDF(
   const liq = indicadoresLiquidez(dados);
   const end = indicadoresEndividamento(dados);
 
-  yy = 110;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("Rentabilidade", 40, yy);
+  yy = 100;
+  sectionTitle(doc, "Rentabilidade", yy, FS_SUB);
   autoTable(doc, {
     startY: yy + 6,
     theme: "grid",
-    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-    styles: { fontSize: 9, cellPadding: 4, halign: "right" },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+    styles: { fontSize: FS_TABLE, cellPadding: 4, halign: "right" },
+    margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
     columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
     head: [["Indicador", ...anos]],
     body: [
@@ -217,15 +215,14 @@ export function gerarRelatorioPDF(
   });
 
   if (liq) {
-    yy = tableEndY(doc) + 16;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Liquidez", 40, yy);
+    yy = ensureSpace(doc, tableEndY(doc) + 20, 110, nomeEmpresa);
+    sectionTitle(doc, "Liquidez", yy, FS_SUB);
     autoTable(doc, {
       startY: yy + 6,
       theme: "grid",
-      headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-      styles: { fontSize: 9, cellPadding: 4, halign: "right" },
+      headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+      styles: { fontSize: FS_TABLE, cellPadding: 4, halign: "right" },
+      margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
       columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
       head: [["Índice", ...anos]],
       body: [
@@ -237,15 +234,14 @@ export function gerarRelatorioPDF(
   }
 
   if (end) {
-    yy = tableEndY(doc) + 16;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("Endividamento", 40, yy);
+    yy = ensureSpace(doc, tableEndY(doc) + 20, 110, nomeEmpresa);
+    sectionTitle(doc, "Endividamento", yy, FS_SUB);
     autoTable(doc, {
       startY: yy + 6,
       theme: "grid",
-      headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-      styles: { fontSize: 9, cellPadding: 4, halign: "right" },
+      headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+      styles: { fontSize: FS_TABLE, cellPadding: 4, halign: "right" },
+      margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
       columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
       head: [["Indicador", ...anos]],
       body: [
@@ -261,33 +257,38 @@ export function gerarRelatorioPDF(
   if (graficos.length > 0) {
     doc.addPage();
     header(doc, "Gráficos — DRE e Indicadores", nomeEmpresa);
-    let gy = 100;
-    const imgW = 515;
-    const imgH = 240; // proporção 900x420
+    let gy = 96;
+    const imgW = CONTENT_W;
+    const imgH = Math.round((imgW * 420) / 900); // preserva proporção 900x420 ≈ 240
+    const legendaLineH = 11;
+    const gapAposGrafico = 24;
     for (const g of graficos) {
-      // quebra de página se não couber título + gráfico + legenda
-      if (gy + imgH + 60 > 800) {
+      // pré-calcula altura da legenda para decidir quebra de página cedo
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(FS_CAPTION);
+      const linhas = doc.splitTextToSize(g.legenda, imgW) as string[];
+      const blocoH = 14 + imgH + 6 + linhas.length * legendaLineH + gapAposGrafico;
+      if (gy + blocoH > CONTENT_BOTTOM) {
         doc.addPage();
         header(doc, "Gráficos — DRE e Indicadores", nomeEmpresa);
-        gy = 100;
+        gy = 96;
       }
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
+      doc.setFontSize(FS_SUB);
       doc.setTextColor(...NAVY);
-      doc.text(g.titulo, 40, gy);
-      gy += 10;
+      doc.text(g.titulo, MARGIN_X, gy);
+      gy += 12;
       try {
-        doc.addImage(g.dataUrl, "PNG", 40, gy, imgW, imgH, undefined, "FAST");
+        doc.addImage(g.dataUrl, "PNG", MARGIN_X, gy, imgW, imgH, undefined, "FAST");
       } catch {
         // se a imagem falhar, apenas pula
       }
       gy += imgH + 6;
       doc.setFont("helvetica", "italic");
-      doc.setFontSize(9);
+      doc.setFontSize(FS_CAPTION);
       doc.setTextColor(...MUTED);
-      const linhas = doc.splitTextToSize(g.legenda, imgW) as string[];
-      doc.text(linhas, 40, gy);
-      gy += linhas.length * 11 + 22;
+      doc.text(linhas, MARGIN_X, gy);
+      gy += linhas.length * legendaLineH + gapAposGrafico;
       doc.setTextColor(0, 0, 0);
     }
   }
@@ -296,11 +297,13 @@ export function gerarRelatorioPDF(
   doc.addPage();
   header(doc, "Valuation (DCF)", nomeEmpresa);
 
+  sectionTitle(doc, "Premissas do modelo", 96, FS_SUB);
   autoTable(doc, {
-    startY: 110,
+    startY: 102,
     theme: "grid",
-    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-    styles: { fontSize: 10, cellPadding: 6, halign: "right" },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+    styles: { fontSize: FS_BODY, cellPadding: 6, halign: "right" },
+    margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
     columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
     head: [["Premissa", "Valor"]],
     body: [
@@ -312,15 +315,14 @@ export function gerarRelatorioPDF(
     ],
   });
 
-  yy = tableEndY(doc) + 16;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("FCFF Projetado e Valor Presente", 40, yy);
+  yy = ensureSpace(doc, tableEndY(doc) + 20, 110, nomeEmpresa);
+  sectionTitle(doc, "FCFF Projetado e Valor Presente", yy, FS_SUB);
   autoTable(doc, {
     startY: yy + 6,
     theme: "striped",
-    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-    styles: { fontSize: 9, cellPadding: 4, halign: "right" },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+    styles: { fontSize: FS_TABLE, cellPadding: 4, halign: "right" },
+    margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
     columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
     head: [["Item", ...v.anos.map(String)]],
     body: [
@@ -329,15 +331,14 @@ export function gerarRelatorioPDF(
     ],
   });
 
-  yy = tableEndY(doc) + 16;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("Ponte EV → Equity Value", 40, yy);
+  yy = ensureSpace(doc, tableEndY(doc) + 20, 160, nomeEmpresa);
+  sectionTitle(doc, "Ponte EV → Equity Value", yy, FS_SUB);
   autoTable(doc, {
     startY: yy + 6,
     theme: "grid",
-    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
-    styles: { fontSize: 10, cellPadding: 6, halign: "right" },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: FS_TABLE_HEAD },
+    styles: { fontSize: FS_BODY, cellPadding: 6, halign: "right" },
+    margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM },
     columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
     head: [["Componente", "Valor"]],
     body: [
@@ -352,17 +353,19 @@ export function gerarRelatorioPDF(
 
   // Rodapé em todas as páginas: identificação · data/hora · paginação
   const total = doc.getNumberOfPages();
+  const footerLineY = PAGE_H - 34;
+  const footerTextY = PAGE_H - 20;
   for (let i = 1; i <= total; i++) {
     doc.setPage(i);
     doc.setDrawColor(...MUTED);
     doc.setLineWidth(0.3);
-    doc.line(40, 808, 555, 808);
+    doc.line(MARGIN_X, footerLineY, PAGE_W - MARGIN_X, footerLineY);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
+    doc.setFontSize(FS_FOOTER);
     doc.setTextColor(...MUTED);
-    doc.text(`SAGA · ${nomeEmpresa}`, 40, 822);
-    doc.text(`Exportado em ${exportadoEm}`, 297.5, 822, { align: "center" });
-    doc.text(`Página ${i} de ${total}`, 555, 822, { align: "right" });
+    doc.text(`SAGA · ${nomeEmpresa}`, MARGIN_X, footerTextY);
+    doc.text(`Exportado em ${exportadoEm}`, PAGE_W / 2, footerTextY, { align: "center" });
+    doc.text(`Página ${i} de ${total}`, PAGE_W - MARGIN_X, footerTextY, { align: "right" });
   }
 
   const slugDefault = nomeEmpresa.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "empresa";
@@ -393,18 +396,35 @@ function linhaDRE(label: string, vals: number[], moeda: string, bold = false) {
 }
 function header(doc: jsPDF, titulo: string, empresa: string) {
   doc.setFillColor(...NAVY);
-  doc.rect(0, 0, 595, 70, "F");
+  doc.rect(0, 0, PAGE_W, 72, "F");
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text(titulo, 40, 35);
+  doc.setFontSize(15);
+  doc.text(titulo, MARGIN_X, 36);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(empresa, 40, 55);
+  doc.setFontSize(FS_BODY);
+  doc.text(empresa, MARGIN_X, 56);
   doc.setTextColor(0, 0, 0);
 }
 function tableEndY(doc: jsPDF): number {
   // jspdf-autotable stores lastAutoTable on the doc instance
   const t = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable;
   return t?.finalY ?? 100;
+}
+
+function sectionTitle(doc: jsPDF, texto: string, y: number, size = FS_SECTION) {
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(size);
+  doc.setTextColor(...NAVY);
+  doc.text(texto, MARGIN_X, y);
+  doc.setTextColor(0, 0, 0);
+}
+
+// Garante espaço vertical suficiente para o próximo bloco; caso contrário,
+// insere quebra de página com cabeçalho e retorna o novo Y de trabalho.
+function ensureSpace(doc: jsPDF, y: number, needed: number, empresa: string): number {
+  if (y + needed <= CONTENT_BOTTOM) return y;
+  doc.addPage();
+  header(doc, "Continuação", empresa);
+  return 96;
 }
