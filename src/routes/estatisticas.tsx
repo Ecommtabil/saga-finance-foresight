@@ -434,16 +434,16 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {foco?.nome} — Série, Tendência e Média Móvel
-            <InfoTooltip text="Área azul: valores observados. Linha tracejada: tendência linear ajustada por mínimos quadrados (y = a·x + b). Linha contínua: média móvel de n períodos, que suaviza oscilações. Coef. angular indica o ganho médio por período; R² mede o quanto a tendência explica a variação (0% = não explica; 100% = ajuste perfeito)." />
+            {shortName(foco?.nome ?? "")} — evolução, tendência e comportamento suavizado
+            <InfoTooltip text="Área azul: resultado real de cada período. Linha tracejada: tendência de fundo (para onde o indicador está caminhando, ignorando oscilações). Linha contínua: média móvel — suaviza altos e baixos para revelar o comportamento sustentado. Ganho/perda por período: quanto o indicador tende a variar a cada novo mês/trimestre. Aderência (R²): o quanto essa tendência explica o comportamento real (100% = trajetória muito clara; próximo de 0% = comportamento errático)." />
           </CardTitle>
         </CardHeader>
         <CardContent>
           {reg && (
             <div className="grid gap-4 md:grid-cols-3 text-sm mb-4">
-              <Metric label="Coef. angular" value={fmtNum(reg.slope, 2)} />
-              <Metric label="Intercepto" value={fmtNum(reg.intercept, 2)} />
-              <Metric label="R²" value={fmtPct(reg.r2, 1)} />
+              <Metric label="Ganho médio por período" value={fmtNum(reg.slope, 2)} />
+              <Metric label="Valor de partida" value={fmtNum(reg.intercept, 2)} />
+              <Metric label="Aderência da tendência (R²)" value={fmtPct(reg.r2, 1)} />
             </div>
           )}
           <div className="h-72">
@@ -461,21 +461,21 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                 <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
                 <Legend />
                 <Area type="monotone" dataKey="valor" name="Valor" stroke="var(--primary)" strokeWidth={2.5} fill="url(#gValor)" />
-                <Line type="monotone" dataKey="tendencia" name="Tendência" stroke="var(--chart-3)" strokeWidth={2} dot={false} strokeDasharray="4 4" />
-                <Line type="monotone" dataKey="mm" name={`MM(${janela})`} stroke="var(--chart-2)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="tendencia" name="Tendência de fundo" stroke="var(--chart-3)" strokeWidth={2} dot={false} strokeDasharray="4 4" />
+                <Line type="monotone" dataKey="mm" name={`Média móvel (${janela} períodos)`} stroke="var(--chart-2)" strokeWidth={2} dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
           {reg && (
             <Interpretacao>
-              A tendência é <strong>{tendDir}</strong>, com variação média de{" "}
-              <strong>{fmtNum(reg.slope, 2)}</strong> por período. O R² de{" "}
-              <strong>{fmtPct(reg.r2, 1)}</strong> indica ajuste <strong>{r2Label}</strong> —{" "}
+              O indicador está em trajetória <strong>{tendDir === "de alta" ? "de crescimento" : tendDir === "de queda" ? "de retração" : "estável"}</strong>, ganhando/perdendo em média{" "}
+              <strong>{fmtNum(reg.slope, 2)}</strong> a cada período. A aderência de{" "}
+              <strong>{fmtPct(reg.r2, 1)}</strong> mostra que essa trajetória é <strong>{r2Label === "forte" ? "clara e consistente" : r2Label === "moderado" ? "visível, mas com oscilações" : "pouco definida"}</strong> —{" "}
               {reg.r2 > 0.7
-                ? "a tendência linear explica bem o comportamento da série."
+                ? "dá para planejar e projetar com boa segurança seguindo essa direção."
                 : reg.r2 > 0.4
-                  ? "há tendência, mas com oscilações relevantes ao redor dela."
-                  : "os dados oscilam demais para que uma reta descreva o comportamento; a média móvel tende a ser mais informativa."}
+                  ? "existe direção, mas o resultado varia bastante — vale acompanhar de perto e olhar a média móvel."
+                  : "os resultados oscilam demais para confiar em uma trajetória; olhe a média móvel e busque as causas da instabilidade."}
             </Interpretacao>
           )}
         </CardContent>
