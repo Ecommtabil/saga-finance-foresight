@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/saga/PageHeader";
 import { useSaga } from "@/lib/saga/context";
 import { baixarPlanilhaModelo } from "@/lib/saga/template";
 import { lerPlanilha, PlanilhaError } from "@/lib/saga/parser";
-import { exportarRelatorioPDF } from "@/lib/saga/pdf-export";
+import { PdfPreviewDialog } from "@/components/saga/PdfPreviewDialog";
 
 export const Route = createFileRoute("/upload")({
   head: () => ({
@@ -26,6 +26,7 @@ function UploadPage() {
   const { modo, dados, setDados, empresa } = useSaga();
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File | undefined) => {
@@ -160,13 +161,21 @@ function UploadPage() {
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => exportarRelatorioPDF(dados, empresa)}
+                onClick={() => setPreviewOpen(true)}
               >
-                <FileDown className="mr-2 h-4 w-4" /> Exportar Relatório PDF
+                <FileDown className="mr-2 h-4 w-4" /> Pré-visualizar Relatório PDF
               </Button>
             </div>
           </CardContent>
         </Card>
+      )}
+      {dados && (
+        <PdfPreviewDialog
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          dados={dados}
+          empresa={empresa}
+        />
       )}
     </div>
   );
