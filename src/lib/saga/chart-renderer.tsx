@@ -22,11 +22,15 @@ export type GraficoPNG = { titulo: string; legenda: string; dataUrl: string };
 // Paleta hex fixa (equivalente ao tema navy do SAGA) — necessária porque
 // CSS vars não sobrevivem à serialização do SVG para PNG.
 const C = {
-  navy: "#1E2952",
-  teal: "#3FA5B0",
-  orange: "#C96A2F",
-  green: "#6DB27B",
-  purple: "#8B5CF6",
+  navy: "#2A3566",
+  periwinkle: "#A9B8E0",
+  teal: "#7FA3C7",
+  coral: "#C85450",
+  mauve: "#9B87C4",
+  // aliases used below
+  orange: "#C85450",
+  green: "#7FA3C7",
+  purple: "#9B87C4",
 };
 
 const W = 900;
@@ -86,8 +90,8 @@ function ChartsMount({
           <YAxis tick={AXIS_STYLE} tickFormatter={(v: number) => v.toLocaleString("pt-BR")} />
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
-          <Bar dataKey="Receita" fill={C.navy} />
-          <Bar dataKey="Lucro Líquido" fill={C.teal} />
+          <Bar dataKey="Receita" fill={C.navy} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="Lucro Líquido" fill={C.periwinkle} radius={[4, 4, 0, 0]} />
         </BarChart>
       </div>
 
@@ -99,8 +103,8 @@ function ChartsMount({
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
           <Line type="monotone" dataKey="M. Bruta" stroke={C.navy} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="M. EBITDA" stroke={C.teal} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="M. Líquida" stroke={C.orange} strokeWidth={2.5} dot />
+          <Line type="monotone" dataKey="M. EBITDA" stroke={C.periwinkle} strokeWidth={2.5} dot />
+          <Line type="monotone" dataKey="M. Líquida" stroke={C.coral} strokeWidth={2.5} dot />
         </LineChart>
       </div>
 
@@ -112,8 +116,8 @@ function ChartsMount({
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
           <Line type="monotone" dataKey="ROE" stroke={C.navy} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="ROA" stroke={C.teal} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="ROIC" stroke={C.green} strokeWidth={2.5} dot />
+          <Line type="monotone" dataKey="ROA" stroke={C.periwinkle} strokeWidth={2.5} dot />
+          <Line type="monotone" dataKey="ROIC" stroke={C.coral} strokeWidth={2.5} dot />
         </LineChart>
       </div>
 
@@ -124,8 +128,8 @@ function ChartsMount({
           <YAxis tick={AXIS_STYLE} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
-          <Bar dataKey="Receita" fill={C.navy} />
-          <Bar dataKey="Lucro" fill={C.orange} />
+          <Bar dataKey="Receita" fill={C.navy} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="Lucro" fill={C.periwinkle} radius={[4, 4, 0, 0]} />
         </BarChart>
       </div>
     </div>
