@@ -9,8 +9,68 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ValuationRouteImport } from './routes/valuation'
+import { Route as UploadRouteImport } from './routes/upload'
+import { Route as SimuladoresRouteImport } from './routes/simuladores'
+import { Route as IndicesRouteImport } from './routes/indices'
+import { Route as IndicadoresRouteImport } from './routes/indicadores'
+import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
+import { Route as EstatisticasRouteImport } from './routes/estatisticas'
+import { Route as EmpresaRouteImport } from './routes/empresa'
+import { Route as DreRouteImport } from './routes/dre'
+import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ValuationRoute = ValuationRouteImport.update({
+  id: '/valuation',
+  path: '/valuation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UploadRoute = UploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SimuladoresRoute = SimuladoresRouteImport.update({
+  id: '/simuladores',
+  path: '/simuladores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndicesRoute = IndicesRouteImport.update({
+  id: '/indices',
+  path: '/indices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndicadoresRoute = IndicadoresRouteImport.update({
+  id: '/indicadores',
+  path: '/indicadores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FluxoCaixaRoute = FluxoCaixaRouteImport.update({
+  id: '/fluxo-caixa',
+  path: '/fluxo-caixa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstatisticasRoute = EstatisticasRouteImport.update({
+  id: '/estatisticas',
+  path: '/estatisticas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresaRoute = EmpresaRouteImport.update({
+  id: '/empresa',
+  path: '/empresa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DreRoute = DreRouteImport.update({
+  id: '/dre',
+  path: '/dre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BalancoRoute = BalancoRouteImport.update({
+  id: '/balanco',
+  path: '/balanco',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +79,172 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/balanco': typeof BalancoRoute
+  '/dre': typeof DreRoute
+  '/empresa': typeof EmpresaRoute
+  '/estatisticas': typeof EstatisticasRoute
+  '/fluxo-caixa': typeof FluxoCaixaRoute
+  '/indicadores': typeof IndicadoresRoute
+  '/indices': typeof IndicesRoute
+  '/simuladores': typeof SimuladoresRoute
+  '/upload': typeof UploadRoute
+  '/valuation': typeof ValuationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/balanco': typeof BalancoRoute
+  '/dre': typeof DreRoute
+  '/empresa': typeof EmpresaRoute
+  '/estatisticas': typeof EstatisticasRoute
+  '/fluxo-caixa': typeof FluxoCaixaRoute
+  '/indicadores': typeof IndicadoresRoute
+  '/indices': typeof IndicesRoute
+  '/simuladores': typeof SimuladoresRoute
+  '/upload': typeof UploadRoute
+  '/valuation': typeof ValuationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/balanco': typeof BalancoRoute
+  '/dre': typeof DreRoute
+  '/empresa': typeof EmpresaRoute
+  '/estatisticas': typeof EstatisticasRoute
+  '/fluxo-caixa': typeof FluxoCaixaRoute
+  '/indicadores': typeof IndicadoresRoute
+  '/indices': typeof IndicesRoute
+  '/simuladores': typeof SimuladoresRoute
+  '/upload': typeof UploadRoute
+  '/valuation': typeof ValuationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/balanco'
+    | '/dre'
+    | '/empresa'
+    | '/estatisticas'
+    | '/fluxo-caixa'
+    | '/indicadores'
+    | '/indices'
+    | '/simuladores'
+    | '/upload'
+    | '/valuation'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/balanco'
+    | '/dre'
+    | '/empresa'
+    | '/estatisticas'
+    | '/fluxo-caixa'
+    | '/indicadores'
+    | '/indices'
+    | '/simuladores'
+    | '/upload'
+    | '/valuation'
+  id:
+    | '__root__'
+    | '/'
+    | '/balanco'
+    | '/dre'
+    | '/empresa'
+    | '/estatisticas'
+    | '/fluxo-caixa'
+    | '/indicadores'
+    | '/indices'
+    | '/simuladores'
+    | '/upload'
+    | '/valuation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BalancoRoute: typeof BalancoRoute
+  DreRoute: typeof DreRoute
+  EmpresaRoute: typeof EmpresaRoute
+  EstatisticasRoute: typeof EstatisticasRoute
+  FluxoCaixaRoute: typeof FluxoCaixaRoute
+  IndicadoresRoute: typeof IndicadoresRoute
+  IndicesRoute: typeof IndicesRoute
+  SimuladoresRoute: typeof SimuladoresRoute
+  UploadRoute: typeof UploadRoute
+  ValuationRoute: typeof ValuationRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/valuation': {
+      id: '/valuation'
+      path: '/valuation'
+      fullPath: '/valuation'
+      preLoaderRoute: typeof ValuationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/upload': {
+      id: '/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/simuladores': {
+      id: '/simuladores'
+      path: '/simuladores'
+      fullPath: '/simuladores'
+      preLoaderRoute: typeof SimuladoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/indices': {
+      id: '/indices'
+      path: '/indices'
+      fullPath: '/indices'
+      preLoaderRoute: typeof IndicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/indicadores': {
+      id: '/indicadores'
+      path: '/indicadores'
+      fullPath: '/indicadores'
+      preLoaderRoute: typeof IndicadoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fluxo-caixa': {
+      id: '/fluxo-caixa'
+      path: '/fluxo-caixa'
+      fullPath: '/fluxo-caixa'
+      preLoaderRoute: typeof FluxoCaixaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estatisticas': {
+      id: '/estatisticas'
+      path: '/estatisticas'
+      fullPath: '/estatisticas'
+      preLoaderRoute: typeof EstatisticasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresa': {
+      id: '/empresa'
+      path: '/empresa'
+      fullPath: '/empresa'
+      preLoaderRoute: typeof EmpresaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dre': {
+      id: '/dre'
+      path: '/dre'
+      fullPath: '/dre'
+      preLoaderRoute: typeof DreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/balanco': {
+      id: '/balanco'
+      path: '/balanco'
+      fullPath: '/balanco'
+      preLoaderRoute: typeof BalancoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +257,17 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BalancoRoute: BalancoRoute,
+  DreRoute: DreRoute,
+  EmpresaRoute: EmpresaRoute,
+  EstatisticasRoute: EstatisticasRoute,
+  FluxoCaixaRoute: FluxoCaixaRoute,
+  IndicadoresRoute: IndicadoresRoute,
+  IndicesRoute: IndicesRoute,
+  SimuladoresRoute: SimuladoresRoute,
+  UploadRoute: UploadRoute,
+  ValuationRoute: ValuationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
