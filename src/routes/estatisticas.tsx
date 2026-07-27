@@ -77,8 +77,9 @@ export const Route = createFileRoute("/estatisticas")({
   component: EstPage,
 });
 
+const shortName = (n: string) => (n.includes("—") ? n.split("—").pop()!.trim() : n);
+
 function EstPage() {
-  const shortName = (n: string) => (n.includes("—") ? n.split("—").pop()!.trim() : n);
   const { statsDataset, setStatsDataset } = useSaga();
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
