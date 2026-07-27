@@ -377,9 +377,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
             <tbody>
               {series.map((s) => {
                 const e = descritiva(s.valores);
-                const nomeCurto = s.nome.includes("—")
-                  ? s.nome.split("—").pop()!.trim()
-                  : s.nome;
+                 const nomeCurto = shortName(s.nome);
                 return (
                   <tr key={s.nome} className="border-t">
                     <td className="p-2 font-medium">{nomeCurto}</td>
@@ -655,13 +653,13 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
             <thead>
               <tr>
                 <th className="p-2"></th>
-                {series.map((s) => <th key={s.nome} className="p-2 text-right text-muted-foreground">{s.nome}</th>)}
+                {series.map((s) => <th key={s.nome} className="p-2 text-right text-muted-foreground">{shortName(s.nome)}</th>)}
               </tr>
             </thead>
             <tbody>
               {series.map((row, i) => (
                 <tr key={row.nome} className="border-t">
-                  <td className="p-2 font-medium text-muted-foreground">{row.nome}</td>
+                  <td className="p-2 font-medium text-muted-foreground">{shortName(row.nome)}</td>
                   {corrMatrix[i].map((v, j) => (
                     <td
                       key={j}
