@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { gerarRelatorioPDF } from "@/lib/saga/pdf-export";
+import { renderizarGraficosParaPDF } from "@/lib/saga/chart-renderer";
 import type { DadosImportados, Empresa } from "@/lib/saga/types";
 
 type Props = {
@@ -33,19 +34,22 @@ export function PdfPreviewDialog({ open, onOpenChange, dados, empresa }: Props) 
     if (open) setNomeArquivo(nomePadrao);
   }, [open, nomePadrao]);
 
-  const gerar = () => {
+  const gerar = async () => {
     setGerando(true);
-    setTimeout(() => {
+    try {
+      const graficos = await renderizarGraficosParaPDF(dados);
       setPdf((prev) => {
         if (prev) URL.revokeObjectURL(prev.url);
         const r = gerarRelatorioPDF(dados, empresa, {
           nomeArquivo: nomeArquivo.trim() || nomePadrao,
           observacao,
+          graficos,
         });
         return { url: r.url, filename: r.filename, save: r.save };
       });
+    } finally {
       setGerando(false);
-    }, 30);
+    }
   };
 
   useEffect(() => {
