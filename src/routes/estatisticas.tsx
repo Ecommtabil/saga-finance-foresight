@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageHeader } from "@/components/saga/PageHeader";
+import { InfoTooltip } from "@/components/saga/InfoTooltip";
 import { useSaga } from "@/lib/saga/context";
 import {
   baixarPlanilhaModeloEstatistica,
@@ -199,7 +200,10 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Recorte de análise</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Recorte de análise
+            <InfoTooltip text="Define a janela de períodos analisada, a série em foco (usada nos gráficos individuais) e a janela n da média móvel. Alterar o recorte recalcula todas as estatísticas abaixo." />
+          </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-4">
           <div className="space-y-1">
@@ -259,7 +263,12 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       )}
 
       <Card>
-        <CardHeader><CardTitle>Estatística Descritiva</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            Estatística Descritiva
+            <InfoTooltip text="Resumo numérico de cada série no recorte selecionado. Média = valor médio; Mediana = valor central (robusta a outliers); Desvio = dispersão em torno da média; CV = desvio ÷ média (comparação entre séries de escalas diferentes); Volatilidade = desvio-padrão dos retornos período a período." />
+          </CardTitle>
+        </CardHeader>
         <CardContent className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
@@ -299,7 +308,10 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
 
       <Card>
         <CardHeader>
-          <CardTitle>{foco?.nome} — Série, Tendência e Média Móvel</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            {foco?.nome} — Série, Tendência e Média Móvel
+            <InfoTooltip text="Área azul: valores observados. Linha tracejada: tendência linear ajustada por mínimos quadrados (y = a·x + b). Linha contínua: média móvel de n períodos, que suaviza oscilações. Coef. angular indica o ganho médio por período; R² mede o quanto a tendência explica a variação (0% = não explica; 100% = ajuste perfeito)." />
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {reg && (
@@ -334,7 +346,12 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle>Distribuição — {foco?.nome}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Distribuição — {foco?.nome}
+              <InfoTooltip text="Histograma: divide os valores em 8 faixas e conta quantas observações caem em cada uma. Ajuda a identificar concentração, assimetria e valores atípicos (outliers) na série em foco." />
+            </CardTitle>
+          </CardHeader>
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -351,7 +368,12 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Retornos período a período — {foco?.nome}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Retornos período a período — {foco?.nome}
+              <InfoTooltip text="Variação percentual entre períodos consecutivos: (valor_t − valor_t−1) ÷ valor_t−1. Barras positivas indicam crescimento; negativas, queda. A amplitude das barras é a base da volatilidade da série." />
+            </CardTitle>
+          </CardHeader>
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -369,7 +391,12 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Matriz de Correlação</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            Matriz de Correlação
+            <InfoTooltip text="Correlação de Pearson entre cada par de séries no recorte. Varia de −1 a +1: próximo de +1 = movem-se juntas; próximo de −1 = movem-se em sentidos opostos; próximo de 0 = sem relação linear. Cores mais intensas indicam correlação mais forte (azul = positiva, vermelho = negativa). Correlação não implica causalidade." />
+          </CardTitle>
+        </CardHeader>
         <CardContent className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
