@@ -377,9 +377,12 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
             <tbody>
               {series.map((s) => {
                 const e = descritiva(s.valores);
+                const nomeCurto = s.nome.includes("—")
+                  ? s.nome.split("—").pop()!.trim()
+                  : s.nome;
                 return (
                   <tr key={s.nome} className="border-t">
-                    <td className="p-2 font-medium">{s.nome}</td>
+                    <td className="p-2 font-medium">{nomeCurto}</td>
                     <td className="p-2 text-right tabular-nums">{e.n}</td>
                     <td className="p-2 text-right tabular-nums">{fmtNum(e.media)}</td>
                     <td className="p-2 text-right tabular-nums">{fmtNum(e.mediana)}</td>
