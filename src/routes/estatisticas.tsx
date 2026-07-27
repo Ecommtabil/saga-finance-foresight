@@ -662,21 +662,67 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Matriz de Correlação (mapa de calor)
-            <InfoTooltip text="Correlação de Pearson entre cada par de séries no recorte. Varia de −1 a +1: próximo de +1 = movem-se juntas; próximo de −1 = movem-se em sentidos opostos; próximo de 0 = sem relação linear. Cores mais intensas indicam correlação mais forte (azul = positiva, vermelho = negativa). Correlação não implica causalidade." />
-          </CardTitle>
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <CardTitle className="flex items-center gap-2">
+              Matriz de Correlação (mapa de calor)
+              <InfoTooltip text="Correlação de Pearson entre cada par de séries no recorte. Varia de −1 a +1: próximo de +1 = movem-se juntas; próximo de −1 = movem-se em sentidos opostos; próximo de 0 = sem relação linear. Cores mais intensas indicam correlação mais forte (azul = positiva, vermelho = negativa). Correlação não implica causalidade." />
+            </CardTitle>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  Variáveis ({corrSeries.length}/{series.length})
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-64 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs uppercase text-muted-foreground">Séries no heatmap</span>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => setCorrSelecionadas(series.map((s) => s.nome))}
+                    >Todas</Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => setCorrSelecionadas([])}
+                    >Nenhuma</Button>
+                  </div>
+                </div>
+                <div className="max-h-64 overflow-y-auto space-y-1.5">
+                  {series.map((s) => {
+                    const marcada = corrSeries.some((c) => c.nome === s.nome) &&
+                      (corrSelecionadas === null || corrSelecionadas.includes(s.nome));
+                    return (
+                      <label key={s.nome} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={marcada}
+                          onCheckedChange={() => toggleCorr(s.nome)}
+                        />
+                        <span className="truncate">{shortName(s.nome)}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                {corrSelecionadas && corrSelecionadas.length < 2 && (
+                  <p className="mt-2 text-xs text-muted-foreground">Selecione ao menos 2 séries — mostrando todas.</p>
+                )}
+              </PopoverContent>
+            </Popover>
+          </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr>
                 <th className="p-2"></th>
-                {series.map((s) => <th key={s.nome} className="p-2 text-right text-muted-foreground">{shortName(s.nome)}</th>)}
+                {corrSeries.map((s) => <th key={s.nome} className="p-2 text-right text-muted-foreground">{shortName(s.nome)}</th>)}
               </tr>
             </thead>
             <tbody>
-              {series.map((row, i) => (
+              {corrSeries.map((row, i) => (
                 <tr key={row.nome} className="border-t">
                   <td className="p-2 font-medium text-muted-foreground">{shortName(row.nome)}</td>
                   {corrMatrix[i].map((v, j) => (
@@ -695,7 +741,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
               ))}
             </tbody>
           </table>
-          {maxPar && series.length > 1 && (
+          {maxPar && corrSeries.length > 1 && (
             <Interpretacao>
               O par mais correlacionado é <strong>{maxPar.a}</strong> ×{" "}
               <strong>{maxPar.b}</strong>, com r = <strong>{maxPar.v.toFixed(2)}</strong>{" "}
