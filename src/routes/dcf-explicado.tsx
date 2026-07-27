@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell,
-  LineChart, Line, Legend,
+  AreaChart, Area,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -260,23 +260,56 @@ function SensitivityChart({
   return (
     <div className="mt-4 h-56">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+        <AreaChart data={data} margin={{ top: 8, right: 12, left: -8, bottom: 8 }}>
+          <defs>
+            <linearGradient id="grad-sens" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.32} />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} stroke="var(--border)" strokeOpacity={0.6} />
           <XAxis
             dataKey="x"
             fontSize={11}
             stroke="var(--muted-foreground)"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={6}
             tickFormatter={(x: number) => fmtPct(x)}
             label={{ value: label, position: "insideBottom", offset: -2, fontSize: 11 }}
           />
-          <YAxis fontSize={11} stroke="var(--muted-foreground)" tickFormatter={(x: number) => fmtNum(x)} />
+          <YAxis
+            fontSize={11}
+            stroke="var(--muted-foreground)"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={4}
+            tickFormatter={(x: number) => fmtNum(x)}
+          />
           <Tooltip
+            cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
+            contentStyle={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              borderRadius: 10,
+              boxShadow: "0 8px 24px -12px rgba(0,0,0,0.18)",
+              fontSize: 12,
+            }}
             formatter={(x: number) => `${moeda} ${fmtNum(x)}`}
             labelFormatter={(x: number) => `${label} = ${fmtPct(x)}`}
           />
-          <Legend />
-          <Line type="monotone" dataKey="equity" stroke="var(--primary)" strokeWidth={2} dot={false} name="Equity Value" />
-        </LineChart>
+          <Area
+            type="monotone"
+            dataKey="equity"
+            name="Equity Value"
+            stroke="var(--primary)"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            fill="url(#grad-sens)"
+            dot={false}
+            activeDot={{ r: 5, strokeWidth: 2, stroke: "var(--card)" }}
+          />
+        </AreaChart>
       </ResponsiveContainer>
       <div className="mt-1 text-center text-xs text-muted-foreground">
         Atualmente em <b>{fmtPct(current)}</b>
