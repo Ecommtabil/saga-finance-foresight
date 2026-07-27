@@ -529,16 +529,6 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            Matriz de Correlação
-            <InfoTooltip text="Correlação de Pearson entre cada par de séries no recorte. Varia de −1 a +1: próximo de +1 = movem-se juntas; próximo de −1 = movem-se em sentidos opostos; próximo de 0 = sem relação linear. Cores mais intensas indicam correlação mais forte (azul = positiva, vermelho = negativa). Correlação não implica causalidade." />
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="hidden" />
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
             Regressão bivariada — dispersão X × Y
             <InfoTooltip text="Escolha duas séries: X (variável explicativa) e Y (variável explicada). O gráfico plota cada período como um ponto (X, Y) e ajusta uma reta de mínimos quadrados y = a·x + b. O coeficiente angular a mede quanto Y varia para cada unidade de X. R² indica o quanto de Y é explicado por X (0% a 100%). r é a correlação de Pearson entre X e Y." />
           </CardTitle>
