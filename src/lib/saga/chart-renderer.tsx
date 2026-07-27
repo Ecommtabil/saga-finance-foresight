@@ -90,8 +90,8 @@ function ChartsMount({
           <YAxis tick={AXIS_STYLE} tickFormatter={(v: number) => v.toLocaleString("pt-BR")} />
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
-          <Bar dataKey="Receita" fill={C.navy} />
-          <Bar dataKey="Lucro Líquido" fill={C.teal} />
+          <Bar dataKey="Receita" fill={C.navy} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="Lucro Líquido" fill={C.periwinkle} radius={[4, 4, 0, 0]} />
         </BarChart>
       </div>
 
@@ -103,8 +103,8 @@ function ChartsMount({
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
           <Line type="monotone" dataKey="M. Bruta" stroke={C.navy} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="M. EBITDA" stroke={C.teal} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="M. Líquida" stroke={C.orange} strokeWidth={2.5} dot />
+          <Line type="monotone" dataKey="M. EBITDA" stroke={C.periwinkle} strokeWidth={2.5} dot />
+          <Line type="monotone" dataKey="M. Líquida" stroke={C.coral} strokeWidth={2.5} dot />
         </LineChart>
       </div>
 
@@ -116,8 +116,8 @@ function ChartsMount({
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
           <Line type="monotone" dataKey="ROE" stroke={C.navy} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="ROA" stroke={C.teal} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="ROIC" stroke={C.green} strokeWidth={2.5} dot />
+          <Line type="monotone" dataKey="ROA" stroke={C.periwinkle} strokeWidth={2.5} dot />
+          <Line type="monotone" dataKey="ROIC" stroke={C.coral} strokeWidth={2.5} dot />
         </LineChart>
       </div>
 
@@ -128,8 +128,8 @@ function ChartsMount({
           <YAxis tick={AXIS_STYLE} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
-          <Bar dataKey="Receita" fill={C.navy} />
-          <Bar dataKey="Lucro" fill={C.orange} />
+          <Bar dataKey="Receita" fill={C.navy} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="Lucro" fill={C.periwinkle} radius={[4, 4, 0, 0]} />
         </BarChart>
       </div>
     </div>
