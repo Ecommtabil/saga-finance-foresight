@@ -102,7 +102,6 @@ export async function parsePlanilhaEstatistica(file: File): Promise<DatasetEstat
       header: 1,
       blankrows: false,
       defval: null,
-      raw: false,
     });
     if (rows.length < 2) continue;
     const header = rows[0].map((v) => String(v ?? "").trim());
