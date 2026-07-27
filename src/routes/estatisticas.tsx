@@ -20,6 +20,9 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Scatter,
+  ScatterChart,
+  ZAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -204,6 +207,52 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
   }));
 
   const corrMatrix = series.map((a) => series.map((b) => correlacaoS(a.valores, b.valores)));
+
+  // --- Regressão bivariada (Y vs X) ---
+  const [xSerie, setXSerie] = useState<string>(dataset.series[0]?.nome ?? "");
+  const [ySerie, setYSerie] = useState<string>(dataset.series[1]?.nome ?? dataset.series[0]?.nome ?? "");
+  const serieX = series.find((s) => s.nome === xSerie) ?? series[0];
+  const serieY = series.find((s) => s.nome === ySerie) ?? series[Math.min(1, series.length - 1)];
+  const bivar = useMemo(() => {
+    if (!serieX || !serieY) return null;
+    const pts: { x: number; y: number; periodo: string }[] = [];
+    const n = Math.min(serieX.valores.length, serieY.valores.length);
+    for (let i = 0; i < n; i++) {
+      const x = serieX.valores[i];
+      const y = serieY.valores[i];
+      if (Number.isFinite(x) && Number.isFinite(y)) {
+        pts.push({ x, y, periodo: periodos[i] });
+      }
+    }
+    if (pts.length < 2) return { pts, slope: 0, intercept: 0, r2: 0, r: 0, linha: [] as { x: number; y: number }[] };
+    const mx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+    const my = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+    const num = pts.reduce((s, p) => s + (p.x - mx) * (p.y - my), 0);
+    const den = pts.reduce((s, p) => s + (p.x - mx) ** 2, 0);
+    const slope = den ? num / den : 0;
+    const intercept = my - slope * mx;
+    const ssTot = pts.reduce((s, p) => s + (p.y - my) ** 2, 0);
+    const ssRes = pts.reduce((s, p) => s + (p.y - (intercept + slope * p.x)) ** 2, 0);
+    const r2 = ssTot ? 1 - ssRes / ssTot : 0;
+    const r = correlacaoS(pts.map((p) => p.x), pts.map((p) => p.y));
+    const xs = pts.map((p) => p.x);
+    const xMin = Math.min(...xs);
+    const xMax = Math.max(...xs);
+    const linha = [
+      { x: xMin, y: intercept + slope * xMin },
+      { x: xMax, y: intercept + slope * xMax },
+    ];
+    return { pts, slope, intercept, r2, r, linha };
+  }, [serieX, serieY, periodos]);
+
+  const fmtCoef = (v: number) => {
+    const abs = Math.abs(v);
+    const d = abs === 0 ? 2 : abs < 1 ? 4 : abs < 100 ? 2 : 0;
+    return v.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
+  };
+  const equacao = bivar
+    ? `y = ${fmtCoef(bivar.slope)} · x ${bivar.intercept >= 0 ? "+" : "−"} ${fmtCoef(Math.abs(bivar.intercept))}`
+    : "";
 
   const amostraFraca = fim - ini + 1 < 8;
 
@@ -480,7 +529,121 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            Matriz de Correlação
+            Regressão bivariada — dispersão X × Y
+            <InfoTooltip text="Escolha duas séries: X (variável explicativa) e Y (variável explicada). O gráfico plota cada período como um ponto (X, Y) e ajusta uma reta de mínimos quadrados y = a·x + b. O coeficiente angular a mede quanto Y varia para cada unidade de X. R² indica o quanto de Y é explicado por X (0% a 100%). r é a correlação de Pearson entre X e Y." />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1">
+              <Label className="text-xs uppercase text-muted-foreground">Variável X (explicativa)</Label>
+              <Select value={serieX?.nome} onValueChange={setXSerie}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {series.map((s) => (
+                    <SelectItem key={s.nome} value={s.nome}>{s.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs uppercase text-muted-foreground">Variável Y (explicada)</Label>
+              <Select value={serieY?.nome} onValueChange={setYSerie}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {series.map((s) => (
+                    <SelectItem key={s.nome} value={s.nome}>{s.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {bivar && bivar.pts.length >= 2 ? (
+            <>
+              <div className="grid gap-4 md:grid-cols-4 text-sm">
+                <Metric label="Equação" value={equacao} />
+                <Metric label="Coef. angular (a)" value={fmtCoef(bivar.slope)} />
+                <Metric label="R²" value={fmtPct(bivar.r2, 1)} />
+                <Metric label="Correlação r" value={bivar.r.toFixed(2)} />
+              </div>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.5} />
+                    <XAxis
+                      type="number"
+                      dataKey="x"
+                      name={serieX?.nome}
+                      tickLine={false}
+                      axisLine={false}
+                      fontSize={12}
+                      domain={["dataMin", "dataMax"]}
+                      label={{ value: serieX?.nome, position: "insideBottom", offset: -5, fontSize: 11 }}
+                    />
+                    <YAxis
+                      type="number"
+                      dataKey="y"
+                      name={serieY?.nome}
+                      tickLine={false}
+                      axisLine={false}
+                      fontSize={12}
+                      label={{ value: serieY?.nome, angle: -90, position: "insideLeft", fontSize: 11 }}
+                    />
+                    <ZAxis range={[80, 80]} />
+                    <Tooltip
+                      cursor={{ strokeDasharray: "3 3" }}
+                      contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }}
+                      formatter={(v: number) => fmtNum(v, 2)}
+                      labelFormatter={() => ""}
+                    />
+                    <Legend />
+                    <Scatter name="Observações" data={bivar.pts} fill="var(--primary)" />
+                    <Scatter
+                      name={`Reta ajustada — ${equacao}`}
+                      data={bivar.linha}
+                      line={{ stroke: "var(--chart-3)", strokeWidth: 2 }}
+                      lineType="joint"
+                      shape={() => <g />}
+                      legendType="line"
+                    />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+              <Interpretacao>
+                A cada 1 unidade de <strong>{serieX?.nome}</strong>,{" "}
+                <strong>{serieY?.nome}</strong> varia em média{" "}
+                <strong>{fmtCoef(bivar.slope)}</strong> unidade(s)
+                {bivar.slope >= 0 ? " no mesmo sentido" : " no sentido oposto"}. O R² de{" "}
+                <strong>{fmtPct(bivar.r2, 1)}</strong> indica que{" "}
+                {bivar.r2 > 0.7
+                  ? "a variável X explica bem o comportamento de Y — a reta ajustada é confiável."
+                  : bivar.r2 > 0.4
+                    ? "há relação relevante, mas outras variáveis também influenciam Y."
+                    : "X explica pouco de Y — os pontos se dispersam bastante em torno da reta e a previsão é frágil."}{" "}
+                A correlação r = <strong>{bivar.r.toFixed(2)}</strong> confirma associação linear{" "}
+                <strong>
+                  {Math.abs(bivar.r) > 0.7 ? "forte" : Math.abs(bivar.r) > 0.4 ? "moderada" : "fraca"}
+                </strong>
+                . Correlação não implica causalidade — use este resultado como pista, não como prova.
+              </Interpretacao>
+            </>
+          ) : (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Dados insuficientes</AlertTitle>
+              <AlertDescription>
+                Selecione duas séries com ao menos 2 pares de observações válidas no recorte.
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            Matriz de Correlação (mapa de calor)
             <InfoTooltip text="Correlação de Pearson entre cada par de séries no recorte. Varia de −1 a +1: próximo de +1 = movem-se juntas; próximo de −1 = movem-se em sentidos opostos; próximo de 0 = sem relação linear. Cores mais intensas indicam correlação mais forte (azul = positiva, vermelho = negativa). Correlação não implica causalidade." />
           </CardTitle>
         </CardHeader>
