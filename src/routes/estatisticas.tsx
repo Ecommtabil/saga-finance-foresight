@@ -51,6 +51,17 @@ import {
 import { fmtNum, fmtPct } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
 
+function Interpretacao({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-4 rounded-md border-l-4 border-primary bg-primary/5 p-3 text-sm leading-relaxed text-foreground">
+      <div className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-1">
+        Interpretação
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/estatisticas")({
   head: () => ({
     meta: [
