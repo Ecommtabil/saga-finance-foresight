@@ -45,8 +45,11 @@ export function gerarRelatorioPDF(
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
   doc.text(nomeEmpresa, 40, 65);
-  const dataStr = new Date().toLocaleDateString("pt-BR");
-  doc.text(`Emitido em ${dataStr}`, 40, 80);
+  const agora = new Date();
+  const dataStr = agora.toLocaleDateString("pt-BR");
+  const horaStr = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const exportadoEm = `${dataStr} às ${horaStr}`;
+  doc.text(`Emitido em ${exportadoEm}`, 40, 80);
 
   doc.setTextColor(0, 0, 0);
   let y = 120;
@@ -291,15 +294,19 @@ export function gerarRelatorioPDF(
     ],
   });
 
-  // Rodapé em todas as páginas
+  // Rodapé em todas as páginas: identificação · data/hora · paginação
   const total = doc.getNumberOfPages();
   for (let i = 1; i <= total; i++) {
     doc.setPage(i);
+    doc.setDrawColor(...MUTED);
+    doc.setLineWidth(0.3);
+    doc.line(40, 808, 555, 808);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(...MUTED);
-    doc.text(`SAGA · ${nomeEmpresa} · ${dataStr}`, 40, 820);
-    doc.text(`Página ${i} de ${total}`, 555, 820, { align: "right" });
+    doc.text(`SAGA · ${nomeEmpresa}`, 40, 822);
+    doc.text(`Exportado em ${exportadoEm}`, 297.5, 822, { align: "center" });
+    doc.text(`Página ${i} de ${total}`, 555, 822, { align: "right" });
   }
 
   const slugDefault = nomeEmpresa.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "empresa";
