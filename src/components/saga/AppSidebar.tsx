@@ -11,6 +11,7 @@ import {
   Calculator,
   BarChart3,
   Sliders,
+  GraduationCap,
 } from "lucide-react";
 import {
   Sidebar,
@@ -38,6 +39,7 @@ const ANALISE = [
   { title: "Indicadores", url: "/indicadores", icon: Gauge, apenasCompleta: false },
   { title: "Índices Econômicos", url: "/indices", icon: Percent, apenasCompleta: false },
   { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: false },
+  { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: false },
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
   { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
 ] as const;
