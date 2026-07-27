@@ -18,6 +18,7 @@ import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
 import { Route as EstatisticasRouteImport } from './routes/estatisticas'
 import { Route as EmpresaRouteImport } from './routes/empresa'
 import { Route as DreRouteImport } from './routes/dre'
+import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -66,6 +67,11 @@ const DreRoute = DreRouteImport.update({
   path: '/dre',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DcfExplicadoRoute = DcfExplicadoRouteImport.update({
+  id: '/dcf-explicado',
+  path: '/dcf-explicado',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BalancoRoute = BalancoRouteImport.update({
   id: '/balanco',
   path: '/balanco',
@@ -80,6 +86,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/balanco': typeof BalancoRoute
+  '/dcf-explicado': typeof DcfExplicadoRoute
   '/dre': typeof DreRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/balanco': typeof BalancoRoute
+  '/dcf-explicado': typeof DcfExplicadoRoute
   '/dre': typeof DreRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/balanco': typeof BalancoRoute
+  '/dcf-explicado': typeof DcfExplicadoRoute
   '/dre': typeof DreRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/balanco'
+    | '/dcf-explicado'
     | '/dre'
     | '/empresa'
     | '/estatisticas'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/balanco'
+    | '/dcf-explicado'
     | '/dre'
     | '/empresa'
     | '/estatisticas'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/balanco'
+    | '/dcf-explicado'
     | '/dre'
     | '/empresa'
     | '/estatisticas'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BalancoRoute: typeof BalancoRoute
+  DcfExplicadoRoute: typeof DcfExplicadoRoute
   DreRoute: typeof DreRoute
   EmpresaRoute: typeof EmpresaRoute
   EstatisticasRoute: typeof EstatisticasRoute
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dcf-explicado': {
+      id: '/dcf-explicado'
+      path: '/dcf-explicado'
+      fullPath: '/dcf-explicado'
+      preLoaderRoute: typeof DcfExplicadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/balanco': {
       id: '/balanco'
       path: '/balanco'
@@ -258,6 +278,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BalancoRoute: BalancoRoute,
+  DcfExplicadoRoute: DcfExplicadoRoute,
   DreRoute: DreRoute,
   EmpresaRoute: EmpresaRoute,
   EstatisticasRoute: EstatisticasRoute,
@@ -271,3 +292,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
