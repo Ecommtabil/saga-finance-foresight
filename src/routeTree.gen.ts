@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as UploadRouteImport } from './routes/upload'
+import { Route as SimuladoresRouteImport } from './routes/simuladores'
 import { Route as IndicesRouteImport } from './routes/indices'
 import { Route as IndicadoresRouteImport } from './routes/indicadores'
 import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
@@ -28,6 +29,11 @@ const ValuationRoute = ValuationRouteImport.update({
 const UploadRoute = UploadRouteImport.update({
   id: '/upload',
   path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SimuladoresRoute = SimuladoresRouteImport.update({
+  id: '/simuladores',
+  path: '/simuladores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndicesRoute = IndicesRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/fluxo-caixa': typeof FluxoCaixaRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/fluxo-caixa': typeof FluxoCaixaRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/fluxo-caixa': typeof FluxoCaixaRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/fluxo-caixa'
     | '/indicadores'
     | '/indices'
+    | '/simuladores'
     | '/upload'
     | '/valuation'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/fluxo-caixa'
     | '/indicadores'
     | '/indices'
+    | '/simuladores'
     | '/upload'
     | '/valuation'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/fluxo-caixa'
     | '/indicadores'
     | '/indices'
+    | '/simuladores'
     | '/upload'
     | '/valuation'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   FluxoCaixaRoute: typeof FluxoCaixaRoute
   IndicadoresRoute: typeof IndicadoresRoute
   IndicesRoute: typeof IndicesRoute
+  SimuladoresRoute: typeof SimuladoresRoute
   UploadRoute: typeof UploadRoute
   ValuationRoute: typeof ValuationRoute
 }
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/upload'
       fullPath: '/upload'
       preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/simuladores': {
+      id: '/simuladores'
+      path: '/simuladores'
+      fullPath: '/simuladores'
+      preLoaderRoute: typeof SimuladoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/indices': {
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   FluxoCaixaRoute: FluxoCaixaRoute,
   IndicadoresRoute: IndicadoresRoute,
   IndicesRoute: IndicesRoute,
+  SimuladoresRoute: SimuladoresRoute,
   UploadRoute: UploadRoute,
   ValuationRoute: ValuationRoute,
 }
