@@ -13,38 +13,32 @@ export interface DatasetEstatistico {
 
 export function gerarPlanilhaModeloEstatistica(): Blob {
   const wb = XLSX.utils.book_new();
-  const header = [
+  const headerSeries = [
     "Periodo",
     "Receita",
-    "EBITDA",
-    "Lucro Liquido",
-    "Volume",
-    "Ticket Medio",
+    "Custos",
+    "Taxas",
+    "Comissoes",
+    "Fretes",
+    "Impostos",
+    "Volume de Vendas",
   ];
-  const rows: (string | number)[][] = [header];
-  const anos = 12;
-  for (let i = 0; i < anos; i++) {
-    const t = 2013 + i;
-    rows.push([
-      String(t),
-      1000 + i * 120 + (i % 3) * 40,
-      250 + i * 35 + (i % 2) * 20,
-      120 + i * 22,
-      500 + i * 45,
-      12 + i * 0.6,
-    ]);
-  }
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  XLSX.utils.book_append_sheet(wb, ws, "Series");
+  const wsSeries = XLSX.utils.aoa_to_sheet([headerSeries]);
+  XLSX.utils.book_append_sheet(wb, wsSeries, "Series");
+
+  const wsDespesas = XLSX.utils.aoa_to_sheet([["Periodo", "Despesas"]]);
+  XLSX.utils.book_append_sheet(wb, wsDespesas, "Despesas");
 
   const wsInstr = XLSX.utils.aoa_to_sheet([
     ["Instruções — Módulo Estatístico SAGA"],
     [],
-    ["1. A primeira coluna deve conter o período (ano, mês, trimestre ou label livre)."],
-    ["2. Cada coluna adicional é uma série numérica que será analisada."],
-    ["3. Você pode adicionar quantas linhas (períodos) e colunas (séries) desejar."],
-    ["4. Use ponto como separador decimal. Deixe células vazias apenas se necessário."],
-    ["5. Nomeie cada coluna com um cabeçalho claro — ele será o nome da série no SAGA."],
+    ["1. A primeira coluna de cada aba deve conter o Período (ano, mês, trimestre ou label livre)."],
+    ["2. Cada coluna adicional é uma série numérica que será analisada no SAGA."],
+    ["3. Aba 'Series': receitas, custos, taxas, comissões, fretes, impostos e volume de vendas."],
+    ["4. Aba 'Despesas': lançamentos de despesas por período (pode incluir mais colunas se quiser)."],
+    ["5. Você pode adicionar quantas linhas (períodos) e colunas (séries) desejar em qualquer aba."],
+    ["6. Os períodos são casados entre as abas pela primeira coluna — use os mesmos rótulos."],
+    ["7. Use ponto como separador decimal. Cabeçalhos claros viram os nomes das séries no SAGA."],
   ]);
   XLSX.utils.book_append_sheet(wb, wsInstr, "Instrucoes");
 
@@ -69,38 +63,65 @@ export function baixarPlanilhaModeloEstatistica() {
 export async function parsePlanilhaEstatistica(file: File): Promise<DatasetEstatistico> {
   const buf = await file.arrayBuffer();
   const wb = XLSX.read(buf, { type: "array" });
-  const sheetName =
-    wb.SheetNames.find((n) => n.toLowerCase().includes("serie")) ??
-    wb.SheetNames.find((n) => n.toLowerCase() !== "instrucoes") ??
-    wb.SheetNames[0];
-  if (!sheetName) throw new Error("Planilha vazia ou sem abas.");
-  const ws = wb.Sheets[sheetName];
-  const rows = XLSX.utils.sheet_to_json<(string | number | null)[]>(ws, {
-    header: 1,
-    blankrows: false,
-    defval: null,
-  });
-  if (rows.length < 2) throw new Error("Planilha precisa de cabeçalho + ao menos 1 linha.");
-  const header = rows[0].map((v) => String(v ?? "").trim());
-  if (header.length < 2) throw new Error("Planilha precisa de pelo menos 2 colunas.");
-  const periodos: string[] = [];
-  const cols: number[][] = header.slice(1).map(() => []);
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (!row || row.every((v) => v === null || v === "")) continue;
-    const label = row[0];
-    periodos.push(label === null || label === undefined ? String(i) : String(label));
-    for (let c = 1; c < header.length; c++) {
-      const raw = row[c];
-      const num = typeof raw === "number" ? raw : parseFloat(String(raw ?? "").replace(",", "."));
-      cols[c - 1].push(Number.isFinite(num) ? num : NaN);
+  const sheetNames = wb.SheetNames.filter(
+    (n) => !n.toLowerCase().startsWith("instru"),
+  );
+  if (!sheetNames.length) throw new Error("Planilha vazia ou sem abas.");
+
+  const periodosOrdem: string[] = [];
+  const periodosSet = new Set<string>();
+  const seriesMap = new Map<string, Map<string, number>>();
+
+  for (const sheetName of sheetNames) {
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json<(string | number | null)[]>(ws, {
+      header: 1,
+      blankrows: false,
+      defval: null,
+    });
+    if (rows.length < 2) continue;
+    const header = rows[0].map((v) => String(v ?? "").trim());
+    if (header.length < 2) continue;
+    const multiAba = sheetNames.length > 1;
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row || row.every((v) => v === null || v === "")) continue;
+      const label = row[0];
+      const periodo =
+        label === null || label === undefined ? String(i) : String(label).trim();
+      if (!periodosSet.has(periodo)) {
+        periodosSet.add(periodo);
+        periodosOrdem.push(periodo);
+      }
+      for (let c = 1; c < header.length; c++) {
+        const nomeCol = header[c] || `Coluna ${c}`;
+        const nomeSerie = multiAba ? `${sheetName} · ${nomeCol}` : nomeCol;
+        const raw = row[c];
+        const num =
+          typeof raw === "number"
+            ? raw
+            : parseFloat(String(raw ?? "").replace(",", "."));
+        if (!seriesMap.has(nomeSerie)) seriesMap.set(nomeSerie, new Map());
+        seriesMap.get(nomeSerie)!.set(periodo, Number.isFinite(num) ? num : NaN);
+      }
     }
   }
-  const series: SerieEstatistica[] = header.slice(1).map((nome, i) => ({
-    nome: nome || `Série ${i + 1}`,
-    valores: cols[i],
-  }));
-  return { periodos, series, nomeArquivo: file.name };
+
+  if (!periodosOrdem.length) {
+    throw new Error("Nenhuma linha de dados encontrada nas abas da planilha.");
+  }
+  if (!seriesMap.size) {
+    throw new Error("Nenhuma série numérica encontrada. Verifique os cabeçalhos.");
+  }
+
+  const series: SerieEstatistica[] = Array.from(seriesMap.entries()).map(
+    ([nome, mapa]) => ({
+      nome,
+      valores: periodosOrdem.map((p) => (mapa.has(p) ? mapa.get(p)! : NaN)),
+    }),
+  );
+
+  return { periodos: periodosOrdem, series, nomeArquivo: file.name };
 }
 
 // ============= Cálculos =============
