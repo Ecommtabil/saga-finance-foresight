@@ -103,21 +103,22 @@ function EstPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        titulo="Análises Estatísticas"
-        subtitulo="Módulo independente — importe sua própria planilha e trabalhe ranges customizados."
+        titulo="Inteligência de Dados do Negócio"
+        subtitulo="Transforme os números da sua operação em decisões — importe sua planilha e explore o período que quiser."
       />
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileSpreadsheet className="h-5 w-5" />
-            Fonte de dados estatísticos
+            Base de dados do seu negócio
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Baixe a planilha modelo, preencha com quantos períodos e séries desejar (mensal, trimestral, anual)
-            e faça o upload aqui. Este módulo é <strong>totalmente independente</strong> do restante do SAGA.
+            Baixe o modelo, preencha com os números da sua empresa (receita, custos, despesas, volume — em qualquer periodicidade)
+            e envie de volta. Esta área funciona <strong>de forma independente</strong> do restante do SAGA para você
+            analisar cenários e recortes sem afetar as demais telas.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={() => baixarPlanilhaModeloEstatistica()}>
@@ -170,9 +171,9 @@ function EstPage() {
       ) : (
         <Alert>
           <FileSpreadsheet className="h-4 w-4" />
-          <AlertTitle>Nenhum dataset carregado</AlertTitle>
+              <AlertTitle>Ainda não há dados carregados</AlertTitle>
           <AlertDescription>
-            Envie uma planilha para liberar descritiva, tendência, correlação, média móvel, volatilidade e histograma.
+            Envie sua planilha para desbloquear análises de desempenho, tendências, sazonalidade, relação entre indicadores e comportamento de resultados período a período.
           </AlertDescription>
         </Alert>
       )}
