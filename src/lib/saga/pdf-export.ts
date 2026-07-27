@@ -75,6 +75,13 @@ export function gerarRelatorioPDF(
   doc.setTextColor(0, 0, 0);
   let y = 124;
 
+  // Métricas usadas no Resumo Executivo (e reaproveitadas mais abaixo)
+  const v = calcularValuation(dados);
+  const mg = margens(dados);
+  const cr = crescimento(dados);
+  const rentCapa = indicadoresRentabilidade(dados);
+  const liqCapa = indicadoresLiquidez(dados);
+
   // Observação/cabeçalho curto informado pelo usuário
   const obs = (opcoes.observacao ?? "").trim();
   if (obs) {
@@ -97,6 +104,64 @@ export function gerarRelatorioPDF(
     y += altura + 24;
   }
 
+  // ===== Resumo Executivo (capa) =====
+  sectionTitle(doc, "Resumo Executivo", y);
+  y += 10;
+
+  const kpis: { label: string; valor: string }[] = [
+    { label: `Receita Líquida (${anoBase})`, valor: fmt(dados.dre.receitaLiquida[4], moeda) },
+    { label: `Lucro Líquido (${anoBase})`, valor: fmt(dados.dre.lucroLiquido[4], moeda) },
+    { label: "Margem EBITDA", valor: fmtPct(mg.ebitda[4]) },
+    { label: "Margem Líquida", valor: fmtPct(mg.liquida[4]) },
+    { label: "CAGR Receita", valor: fmtPct(cr.cagrReceita) },
+    { label: "ROE (ano base)", valor: fmtPct(rentCapa.roe[4]) },
+    { label: "Enterprise Value", valor: fmt(v.ev, moeda) },
+    { label: "Equity Value", valor: fmt(v.equity, moeda) },
+  ];
+
+  const cols = 4;
+  const rows = Math.ceil(kpis.length / cols);
+  const gap = 8;
+  const cardW = (CONTENT_W - gap * (cols - 1)) / cols;
+  const cardH = 46;
+  for (let i = 0; i < kpis.length; i++) {
+    const r = Math.floor(i / cols);
+    const c = i % cols;
+    const cx = MARGIN_X + c * (cardW + gap);
+    const cy = y + r * (cardH + gap);
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(...NAVY);
+    doc.setLineWidth(0.4);
+    doc.rect(cx, cy, cardW, cardH, "FD");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(...MUTED);
+    doc.text(kpis[i].label, cx + 8, cy + 14);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(...NAVY);
+    doc.text(kpis[i].valor, cx + 8, cy + 34);
+  }
+  y += rows * (cardH + gap) + 6;
+  doc.setTextColor(0, 0, 0);
+
+  // Narrativa curta baseada nas métricas
+  const tendencia = cr.cagrReceita >= 0 ? "crescimento" : "retração";
+  const rentTxt = mg.liquida[4] >= 0 ? "resultado positivo" : "resultado negativo";
+  const liqTxt = liqCapa ? `liquidez corrente de ${fmtNum(liqCapa.corrente[4], 2)}` : "estrutura simplificada de dados";
+  const narrativa =
+    `No período ${dados.anos[0]}–${anoBase}, ${nomeEmpresa} apresentou ${tendencia} de receita ` +
+    `(CAGR ${fmtPct(cr.cagrReceita)}) e ${rentTxt} (margem líquida ${fmtPct(mg.liquida[4])} no ano base), ` +
+    `com ${liqTxt}. O valuation por DCF (WACC ${fmtPct(v.wacc)} e g ${fmtPct(v.g)}) indica ` +
+    `Enterprise Value de ${fmt(v.ev, moeda)} e Equity Value de ${fmt(v.equity, moeda)}.`;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(FS_BODY);
+  doc.setTextColor(30, 41, 59);
+  const narrLines = doc.splitTextToSize(narrativa, CONTENT_W) as string[];
+  doc.text(narrLines, MARGIN_X, y + 4);
+  y += narrLines.length * 13 + 18;
+  doc.setTextColor(0, 0, 0);
+
   // Ficha da empresa
   sectionTitle(doc, "Identificação", y);
   y += 6;
@@ -117,10 +182,6 @@ export function gerarRelatorioPDF(
   });
 
   // ===== Highlights =====
-  const v = calcularValuation(dados);
-  const mg = margens(dados);
-  const cr = crescimento(dados);
-
   y = ensureSpace(doc, tableEndY(doc) + 24, 140, nomeEmpresa);
   sectionTitle(doc, "Destaques", y);
 
