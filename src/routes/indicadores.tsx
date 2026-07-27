@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
@@ -67,6 +67,7 @@ function ChartCard({
     series.forEach((s) => (row[s.name] = pct ? s.data[i] * 100 : s.data[i]));
     return row;
   });
+  const gradId = `grad-${titulo.replace(/\W+/g, "")}`;
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -75,20 +76,58 @@ function ChartCard({
       <CardContent>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 8, right: 16, left: -8, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="ano" stroke="var(--muted-foreground)" fontSize={11} />
+            <AreaChart data={data} margin={{ top: 12, right: 16, left: -12, bottom: 0 }}>
+              <defs>
+                {series.map((s, idx) => (
+                  <linearGradient key={s.name} id={`${gradId}-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={s.color} stopOpacity={0.28} />
+                    <stop offset="100%" stopColor={s.color} stopOpacity={0} />
+                  </linearGradient>
+                ))}
+              </defs>
+              <CartesianGrid vertical={false} stroke="var(--border)" strokeOpacity={0.6} />
+              <XAxis
+                dataKey="ano"
+                stroke="var(--muted-foreground)"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
               <YAxis
                 stroke="var(--muted-foreground)"
                 fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={4}
                 tickFormatter={(v: number) => (pct ? `${v.toFixed(0)}%` : v.toFixed(1))}
               />
-              <Tooltip formatter={(v: number) => (pct ? `${v.toFixed(1)}%` : v.toFixed(2))} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              {series.map((s) => (
-                <Line key={s.name} type="monotone" dataKey={s.name} stroke={s.color} strokeWidth={2} dot />
+              <Tooltip
+                cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
+                contentStyle={{
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 10,
+                  boxShadow: "0 8px 24px -12px rgba(0,0,0,0.18)",
+                  fontSize: 12,
+                }}
+                formatter={(v: number) => (pct ? `${v.toFixed(1)}%` : v.toFixed(2))}
+              />
+              <Legend iconType="plainline" wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+              {series.map((s, idx) => (
+                <Area
+                  key={s.name}
+                  type="monotone"
+                  dataKey={s.name}
+                  stroke={s.color}
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                  fill={`url(#${gradId}-${idx})`}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "var(--card)" }}
+                />
               ))}
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
