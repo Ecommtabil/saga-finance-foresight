@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Download, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
+import { Download, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, FileDown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/saga/PageHeader";
 import { useSaga } from "@/lib/saga/context";
 import { baixarPlanilhaModelo } from "@/lib/saga/template";
 import { lerPlanilha, PlanilhaError } from "@/lib/saga/parser";
+import { exportarRelatorioPDF } from "@/lib/saga/pdf-export";
 
 export const Route = createFileRoute("/upload")({
   head: () => ({
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/upload")({
 });
 
 function UploadPage() {
-  const { modo, dados, setDados } = useSaga();
+  const { modo, dados, setDados, empresa } = useSaga();
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -156,6 +157,12 @@ function UploadPage() {
               </Button>
               <Button asChild variant="outline">
                 <Link to="/valuation">Ver Valuation</Link>
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => exportarRelatorioPDF(dados, empresa)}
+              >
+                <FileDown className="mr-2 h-4 w-4" /> Exportar Relatório PDF
               </Button>
             </div>
           </CardContent>
