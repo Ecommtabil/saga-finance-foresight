@@ -281,7 +281,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       const v = corrMatrix[i][j];
       if (Math.abs(v) > maxAbs) {
         maxAbs = Math.abs(v);
-        maxPar = { a: series[i].nome, b: series[j].nome, v };
+        maxPar = { a: shortName(series[i].nome), b: shortName(series[j].nome), v };
       }
     }
   }
