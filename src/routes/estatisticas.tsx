@@ -210,7 +210,22 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
     mm: Number.isFinite(mm[i]) ? mm[i] : null,
   }));
 
-  const corrMatrix = series.map((a) => series.map((b) => correlacaoS(a.valores, b.valores)));
+  const [corrSelecionadas, setCorrSelecionadas] = useState<string[] | null>(null);
+  const corrSeries = useMemo(() => {
+    if (!corrSelecionadas) return series;
+    const set = new Set(corrSelecionadas);
+    const filtradas = series.filter((s) => set.has(s.nome));
+    return filtradas.length >= 2 ? filtradas : series;
+  }, [series, corrSelecionadas]);
+  const corrMatrix = corrSeries.map((a) =>
+    corrSeries.map((b) => correlacaoS(a.valores, b.valores)),
+  );
+  const toggleCorr = (nome: string) => {
+    setCorrSelecionadas((prev) => {
+      const base = prev ?? series.map((s) => s.nome);
+      return base.includes(nome) ? base.filter((n) => n !== nome) : [...base, nome];
+    });
+  };
 
   // --- Regressão bivariada (Y vs X) ---
   const [xSerie, setXSerie] = useState<string>(dataset.series[0]?.nome ?? "");
