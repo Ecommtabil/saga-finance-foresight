@@ -17,6 +17,7 @@ const MUTED: [number, number, number] = [100, 116, 139];
 export type RelatorioOpcoes = {
   nomeArquivo?: string;
   observacao?: string;
+  graficos?: { titulo: string; legenda: string; dataUrl: string }[];
 };
 
 export function gerarRelatorioPDF(
@@ -234,6 +235,42 @@ export function gerarRelatorioPDF(
         ["Cobertura de Juros", ...end.coberturaJuros.map((x) => fmtNum(x, 2))],
       ],
     });
+  }
+
+  // ===== Gráficos (opcional) =====
+  const graficos = opcoes.graficos ?? [];
+  if (graficos.length > 0) {
+    doc.addPage();
+    header(doc, "Gráficos — DRE e Indicadores", nomeEmpresa);
+    let gy = 100;
+    const imgW = 515;
+    const imgH = 240; // proporção 900x420
+    for (const g of graficos) {
+      // quebra de página se não couber título + gráfico + legenda
+      if (gy + imgH + 60 > 800) {
+        doc.addPage();
+        header(doc, "Gráficos — DRE e Indicadores", nomeEmpresa);
+        gy = 100;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(...NAVY);
+      doc.text(g.titulo, 40, gy);
+      gy += 10;
+      try {
+        doc.addImage(g.dataUrl, "PNG", 40, gy, imgW, imgH, undefined, "FAST");
+      } catch {
+        // se a imagem falhar, apenas pula
+      }
+      gy += imgH + 6;
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(...MUTED);
+      const linhas = doc.splitTextToSize(g.legenda, imgW) as string[];
+      doc.text(linhas, 40, gy);
+      gy += linhas.length * 11 + 22;
+      doc.setTextColor(0, 0, 0);
+    }
   }
 
   // ===== Valuation =====
