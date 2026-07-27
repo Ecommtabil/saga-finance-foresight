@@ -208,6 +208,52 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
 
   const corrMatrix = series.map((a) => series.map((b) => correlacaoS(a.valores, b.valores)));
 
+  // --- Regressão bivariada (Y vs X) ---
+  const [xSerie, setXSerie] = useState<string>(dataset.series[0]?.nome ?? "");
+  const [ySerie, setYSerie] = useState<string>(dataset.series[1]?.nome ?? dataset.series[0]?.nome ?? "");
+  const serieX = series.find((s) => s.nome === xSerie) ?? series[0];
+  const serieY = series.find((s) => s.nome === ySerie) ?? series[Math.min(1, series.length - 1)];
+  const bivar = useMemo(() => {
+    if (!serieX || !serieY) return null;
+    const pts: { x: number; y: number; periodo: string }[] = [];
+    const n = Math.min(serieX.valores.length, serieY.valores.length);
+    for (let i = 0; i < n; i++) {
+      const x = serieX.valores[i];
+      const y = serieY.valores[i];
+      if (Number.isFinite(x) && Number.isFinite(y)) {
+        pts.push({ x, y, periodo: periodos[i] });
+      }
+    }
+    if (pts.length < 2) return { pts, slope: 0, intercept: 0, r2: 0, r: 0, linha: [] as { x: number; y: number }[] };
+    const mx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+    const my = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+    const num = pts.reduce((s, p) => s + (p.x - mx) * (p.y - my), 0);
+    const den = pts.reduce((s, p) => s + (p.x - mx) ** 2, 0);
+    const slope = den ? num / den : 0;
+    const intercept = my - slope * mx;
+    const ssTot = pts.reduce((s, p) => s + (p.y - my) ** 2, 0);
+    const ssRes = pts.reduce((s, p) => s + (p.y - (intercept + slope * p.x)) ** 2, 0);
+    const r2 = ssTot ? 1 - ssRes / ssTot : 0;
+    const r = correlacaoS(pts.map((p) => p.x), pts.map((p) => p.y));
+    const xs = pts.map((p) => p.x);
+    const xMin = Math.min(...xs);
+    const xMax = Math.max(...xs);
+    const linha = [
+      { x: xMin, y: intercept + slope * xMin },
+      { x: xMax, y: intercept + slope * xMax },
+    ];
+    return { pts, slope, intercept, r2, r, linha };
+  }, [serieX, serieY, periodos]);
+
+  const fmtCoef = (v: number) => {
+    const abs = Math.abs(v);
+    const d = abs === 0 ? 2 : abs < 1 ? 4 : abs < 100 ? 2 : 0;
+    return v.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
+  };
+  const equacao = bivar
+    ? `y = ${fmtCoef(bivar.slope)} · x ${bivar.intercept >= 0 ? "+" : "−"} ${fmtCoef(Math.abs(bivar.intercept))}`
+    : "";
+
   const amostraFraca = fim - ini + 1 < 8;
 
   // --- Interpretações dinâmicas ---
