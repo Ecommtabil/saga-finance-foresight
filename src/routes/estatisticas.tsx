@@ -295,12 +295,12 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
   // par mais correlacionado (excluindo diagonal)
   let maxAbs = 0;
   let maxPar: { a: string; b: string; v: number } | null = null;
-  for (let i = 0; i < series.length; i++) {
-    for (let j = i + 1; j < series.length; j++) {
+  for (let i = 0; i < corrSeries.length; i++) {
+    for (let j = i + 1; j < corrSeries.length; j++) {
       const v = corrMatrix[i][j];
       if (Math.abs(v) > maxAbs) {
         maxAbs = Math.abs(v);
-        maxPar = { a: shortName(series[i].nome), b: shortName(series[j].nome), v };
+        maxPar = { a: shortName(corrSeries[i].nome), b: shortName(corrSeries[j].nome), v };
       }
     }
   }
