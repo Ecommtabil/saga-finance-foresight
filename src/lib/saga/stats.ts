@@ -33,9 +33,10 @@ export function gerarPlanilhaModeloEstatistica(): Blob {
   const wsSeries = XLSX.utils.aoa_to_sheet([headerSeries, ...sampleSeries]);
   XLSX.utils.book_append_sheet(wb, wsSeries, "Series");
 
-  const sampleDespesas = meses.map((p) => [p, "Marketing", ""]);
+  const catsDespesas = ["Marketing", "Salarios", "Aluguel", "Logistica", "Outros"];
+  const sampleDespesas = meses.map((p) => [p, ...catsDespesas.map(() => "")]);
   const wsDespesas = XLSX.utils.aoa_to_sheet([
-    ["Periodo", "Descrição", "Despesas"],
+    ["Periodo", ...catsDespesas],
     ...sampleDespesas,
   ]);
   XLSX.utils.book_append_sheet(wb, wsDespesas, "Despesas");
@@ -45,9 +46,9 @@ export function gerarPlanilhaModeloEstatistica(): Blob {
     [],
     ["1. A primeira coluna de cada aba deve conter o Período (ano, mês, trimestre ou label livre)."],
     ["2. Cada coluna adicional é uma série numérica que será analisada no SAGA."],
-    ["3. Aba 'Series': receitas, custos, taxas, comissões, fretes, impostos e volume de vendas."],
-    ["4. Aba 'Despesas': formato longo — Periodo, Descrição (categoria) e Despesas (valor)."],
-    ["   Cada categoria em 'Descrição' vira uma série própria (ex.: 'Despesas — Marketing')."],
+    ["3. Aba 'Series': Periodo, Receita, Custos, Taxas, Comissoes, Fretes, Impostos, Volume de Vendas."],
+    ["4. Aba 'Despesas': Periodo na coluna A e cada categoria de despesa em uma coluna a partir de B2."],
+    ["   Ex.: Marketing, Salarios, Aluguel, Logistica, Outros — adicione/renomeie livremente."],
     ["5. Você pode adicionar quantas linhas (períodos) e colunas (séries) desejar em qualquer aba."],
     ["6. Os períodos são casados entre as abas pela primeira coluna — use os mesmos rótulos."],
     ["7. Use ponto como separador decimal. Cabeçalhos claros viram os nomes das séries no SAGA."],
@@ -148,7 +149,7 @@ export async function parsePlanilhaEstatistica(file: File): Promise<DatasetEstat
       }
       for (let c = 1; c < header.length; c++) {
         const nomeCol = header[c] || `Coluna ${c}`;
-        const nomeSerie = multiAba ? `${sheetName} · ${nomeCol}` : nomeCol;
+        const nomeSerie = multiAba ? `${sheetName} — ${nomeCol}` : nomeCol;
         const raw = row[c];
         const num =
           typeof raw === "number"
