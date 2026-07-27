@@ -51,6 +51,17 @@ import {
 import { fmtNum, fmtPct } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
 
+function Interpretacao({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-4 rounded-md border-l-4 border-primary bg-primary/5 p-3 text-sm leading-relaxed text-foreground">
+      <div className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-1">
+        Interpretação
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/estatisticas")({
   head: () => ({
     meta: [
@@ -196,6 +207,36 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
 
   const amostraFraca = fim - ini + 1 < 8;
 
+  // --- Interpretações dinâmicas ---
+  const focoDesc = foco ? descritiva(foco.valores) : null;
+  const focoVol = foco ? volatilidadeS(foco.valores) : 0;
+  const cvLabel = focoDesc
+    ? focoDesc.cv < 0.15 ? "baixa" : focoDesc.cv < 0.35 ? "moderada" : "alta"
+    : "";
+  const tendDir = reg ? (reg.slope > 0 ? "de alta" : reg.slope < 0 ? "de queda" : "estável") : "";
+  const r2Label = reg
+    ? reg.r2 > 0.7 ? "forte" : reg.r2 > 0.4 ? "moderado" : "fraco"
+    : "";
+  const retMedio = rets.length ? rets.reduce((a, b) => a + b, 0) / rets.length : 0;
+  const retPos = rets.filter((v) => v > 0).length;
+  const retNeg = rets.filter((v) => v < 0).length;
+  const histTop = hist.length
+    ? hist.reduce((a, b) => (b.freq > a.freq ? b : a), hist[0])
+    : null;
+  const histTotal = hist.reduce((s, b) => s + b.freq, 0);
+  // par mais correlacionado (excluindo diagonal)
+  let maxAbs = 0;
+  let maxPar: { a: string; b: string; v: number } | null = null;
+  for (let i = 0; i < series.length; i++) {
+    for (let j = i + 1; j < series.length; j++) {
+      const v = corrMatrix[i][j];
+      if (Math.abs(v) > maxAbs) {
+        maxAbs = Math.abs(v);
+        maxPar = { a: series[i].nome, b: series[j].nome, v };
+      }
+    }
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -303,6 +344,20 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
               })}
             </tbody>
           </table>
+          {focoDesc && (
+            <Interpretacao>
+              A série <strong>{foco?.nome}</strong> tem média de{" "}
+              <strong>{fmtNum(focoDesc.media)}</strong> e mediana de{" "}
+              <strong>{fmtNum(focoDesc.mediana)}</strong>
+              {Math.abs(focoDesc.media - focoDesc.mediana) / (Math.abs(focoDesc.media) || 1) > 0.15
+                ? " — a diferença sugere presença de valores atípicos que puxam a média."
+                : " — média e mediana próximas indicam distribuição equilibrada."}{" "}
+              O coeficiente de variação de <strong>{fmtPct(focoDesc.cv)}</strong> aponta dispersão{" "}
+              <strong>{cvLabel}</strong>, e a volatilidade dos retornos é{" "}
+              <strong>{fmtPct(focoVol)}</strong>
+              {focoVol > 0.2 ? " (série instável entre períodos)." : " (série relativamente estável)."}
+            </Interpretacao>
+          )}
         </CardContent>
       </Card>
 
@@ -341,6 +396,18 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          {reg && (
+            <Interpretacao>
+              A tendência é <strong>{tendDir}</strong>, com variação média de{" "}
+              <strong>{fmtNum(reg.slope, 2)}</strong> por período. O R² de{" "}
+              <strong>{fmtPct(reg.r2, 1)}</strong> indica ajuste <strong>{r2Label}</strong> —{" "}
+              {reg.r2 > 0.7
+                ? "a tendência linear explica bem o comportamento da série."
+                : reg.r2 > 0.4
+                  ? "há tendência, mas com oscilações relevantes ao redor dela."
+                  : "os dados oscilam demais para que uma reta descreva o comportamento; a média móvel tende a ser mais informativa."}
+            </Interpretacao>
+          )}
         </CardContent>
       </Card>
 
@@ -364,6 +431,15 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            {histTop && histTotal > 0 && (
+              <Interpretacao>
+                A faixa mais frequente é <strong>{histTop.faixa}</strong>, concentrando{" "}
+                <strong>{fmtPct(histTop.freq / histTotal, 0)}</strong> das observações.{" "}
+                {histTop.freq / histTotal > 0.4
+                  ? "Distribuição concentrada — os valores se repetem em torno de uma faixa dominante."
+                  : "Distribuição dispersa — os valores se espalham por várias faixas, indicando maior variabilidade."}
+              </Interpretacao>
+            )}
           </CardContent>
         </Card>
 
@@ -386,6 +462,17 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            {rets.length > 0 && (
+              <Interpretacao>
+                Retorno médio por período de <strong>{fmtPct(retMedio, 2)}</strong>, com{" "}
+                <strong>{retPos}</strong> alta(s) e <strong>{retNeg}</strong> queda(s) no recorte.{" "}
+                {retPos > retNeg * 1.5
+                  ? "Predominância clara de períodos positivos."
+                  : retNeg > retPos * 1.5
+                    ? "Predominância de períodos negativos — tendência de retração."
+                    : "Altas e quedas se alternam de forma equilibrada."}
+              </Interpretacao>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -425,6 +512,25 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
               ))}
             </tbody>
           </table>
+          {maxPar && series.length > 1 && (
+            <Interpretacao>
+              O par mais correlacionado é <strong>{maxPar.a}</strong> ×{" "}
+              <strong>{maxPar.b}</strong>, com r = <strong>{maxPar.v.toFixed(2)}</strong>{" "}
+              — correlação{" "}
+              <strong>
+                {Math.abs(maxPar.v) > 0.7 ? "forte" : Math.abs(maxPar.v) > 0.4 ? "moderada" : "fraca"}
+              </strong>{" "}
+              {maxPar.v >= 0 ? "positiva" : "negativa"}
+              {Math.abs(maxPar.v) > 0.7
+                ? maxPar.v > 0
+                  ? " — as séries tendem a subir e descer juntas."
+                  : " — quando uma sobe, a outra tende a cair."
+                : Math.abs(maxPar.v) > 0.4
+                  ? " — existe relação, mas com ruído."
+                  : " — praticamente sem relação linear entre as séries."}
+              . Lembre-se: correlação não implica causalidade.
+            </Interpretacao>
+          )}
         </CardContent>
       </Card>
     </div>
