@@ -14,7 +14,12 @@ import {
 const NAVY: [number, number, number] = [30, 41, 82];
 const MUTED: [number, number, number] = [100, 116, 139];
 
-export function exportarRelatorioPDF(dados: DadosImportados, empresa: Empresa | null) {
+export function gerarRelatorioPDF(dados: DadosImportados, empresa: Empresa | null): {
+  blob: Blob;
+  url: string;
+  filename: string;
+  save: () => void;
+} {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const moeda = empresa?.moeda ?? "R$";
   const anos = dados.anos.map(String);
@@ -267,7 +272,14 @@ export function exportarRelatorioPDF(dados: DadosImportados, empresa: Empresa | 
   }
 
   const slug = nomeEmpresa.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "empresa";
-  doc.save(`saga-relatorio-${slug}-${anoBase}.pdf`);
+  const filename = `saga-relatorio-${slug}-${anoBase}.pdf`;
+  const blob = doc.output("blob");
+  const url = URL.createObjectURL(blob);
+  return { blob, url, filename, save: () => doc.save(filename) };
+}
+
+export function exportarRelatorioPDF(dados: DadosImportados, empresa: Empresa | null) {
+  gerarRelatorioPDF(dados, empresa).save();
 }
 
 function fmt(n: number, moeda: string) {
