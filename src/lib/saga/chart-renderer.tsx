@@ -2,8 +2,8 @@ import { createRoot } from "react-dom/client";
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -96,29 +96,39 @@ function ChartsMount({
       </div>
 
       <div data-chart="margens">
-        <LineChart width={W} height={H} data={margensData} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="ano" tick={AXIS_STYLE} />
-          <YAxis tick={AXIS_STYLE} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
+        <AreaChart width={W} height={H} data={margensData} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
+          <defs>
+            <linearGradient id="g-m-bruta" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.navy} stopOpacity={0.25} /><stop offset="100%" stopColor={C.navy} stopOpacity={0} /></linearGradient>
+            <linearGradient id="g-m-ebitda" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.periwinkle} stopOpacity={0.25} /><stop offset="100%" stopColor={C.periwinkle} stopOpacity={0} /></linearGradient>
+            <linearGradient id="g-m-liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.coral} stopOpacity={0.25} /><stop offset="100%" stopColor={C.coral} stopOpacity={0} /></linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} stroke="#e2e8f0" />
+          <XAxis dataKey="ano" tick={AXIS_STYLE} tickLine={false} axisLine={false} tickMargin={8} />
+          <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} tickMargin={4} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
           <Tooltip />
-          <Legend wrapperStyle={LEGEND_STYLE} />
-          <Line type="monotone" dataKey="M. Bruta" stroke={C.navy} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="M. EBITDA" stroke={C.periwinkle} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="M. Líquida" stroke={C.coral} strokeWidth={2.5} dot />
-        </LineChart>
+          <Legend iconType="plainline" wrapperStyle={LEGEND_STYLE} />
+          <Area type="monotone" dataKey="M. Bruta" stroke={C.navy} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-bruta)" dot={{ r: 3, fill: C.navy, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area type="monotone" dataKey="M. EBITDA" stroke={C.periwinkle} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-ebitda)" dot={{ r: 3, fill: C.periwinkle, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area type="monotone" dataKey="M. Líquida" stroke={C.coral} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-liq)" dot={{ r: 3, fill: C.coral, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+        </AreaChart>
       </div>
 
       <div data-chart="retornos">
-        <LineChart width={W} height={H} data={retornosData} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="ano" tick={AXIS_STYLE} />
-          <YAxis tick={AXIS_STYLE} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
+        <AreaChart width={W} height={H} data={retornosData} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
+          <defs>
+            <linearGradient id="g-r-roe" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.navy} stopOpacity={0.25} /><stop offset="100%" stopColor={C.navy} stopOpacity={0} /></linearGradient>
+            <linearGradient id="g-r-roa" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.periwinkle} stopOpacity={0.25} /><stop offset="100%" stopColor={C.periwinkle} stopOpacity={0} /></linearGradient>
+            <linearGradient id="g-r-roic" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.coral} stopOpacity={0.25} /><stop offset="100%" stopColor={C.coral} stopOpacity={0} /></linearGradient>
+          </defs>
+          <CartesianGrid vertical={false} stroke="#e2e8f0" />
+          <XAxis dataKey="ano" tick={AXIS_STYLE} tickLine={false} axisLine={false} tickMargin={8} />
+          <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} tickMargin={4} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
           <Tooltip />
-          <Legend wrapperStyle={LEGEND_STYLE} />
-          <Line type="monotone" dataKey="ROE" stroke={C.navy} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="ROA" stroke={C.periwinkle} strokeWidth={2.5} dot />
-          <Line type="monotone" dataKey="ROIC" stroke={C.coral} strokeWidth={2.5} dot />
-        </LineChart>
+          <Legend iconType="plainline" wrapperStyle={LEGEND_STYLE} />
+          <Area type="monotone" dataKey="ROE" stroke={C.navy} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roe)" dot={{ r: 3, fill: C.navy, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area type="monotone" dataKey="ROA" stroke={C.periwinkle} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roa)" dot={{ r: 3, fill: C.periwinkle, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area type="monotone" dataKey="ROIC" stroke={C.coral} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roic)" dot={{ r: 3, fill: C.coral, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+        </AreaChart>
       </div>
 
       <div data-chart="crescimento">
