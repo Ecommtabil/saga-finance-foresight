@@ -485,8 +485,8 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              Distribuição — {foco?.nome}
-              <InfoTooltip text="Histograma: divide os valores em 8 faixas e conta quantas observações caem em cada uma. Ajuda a identificar concentração, assimetria e valores atípicos (outliers) na série em foco." />
+              Faixas de resultado — {shortName(foco?.nome ?? "")}
+              <InfoTooltip text="Agrupa os períodos em 8 faixas de valor e mostra em quantos meses/trimestres o indicador ficou em cada faixa. Ajuda a enxergar onde o resultado mais se concentra, se há meses excepcionais (para cima ou para baixo) e o padrão típico da operação." />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -497,17 +497,17 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                   <XAxis dataKey="faixa" tickLine={false} axisLine={false} fontSize={11} interval={0} angle={-25} textAnchor="end" height={60} />
                   <YAxis tickLine={false} axisLine={false} fontSize={12} />
                   <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
-                  <Bar dataKey="freq" name="Frequência" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="freq" name="Quantidade de períodos" fill="var(--primary)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
             {histTop && histTotal > 0 && (
               <Interpretacao>
-                A faixa mais frequente é <strong>{histTop.faixa}</strong>, concentrando{" "}
-                <strong>{fmtPct(histTop.freq / histTotal, 0)}</strong> das observações.{" "}
+                O resultado típico está na faixa <strong>{histTop.faixa}</strong>, presente em{" "}
+                <strong>{fmtPct(histTop.freq / histTotal, 0)}</strong> dos períodos analisados.{" "}
                 {histTop.freq / histTotal > 0.4
-                  ? "Distribuição concentrada — os valores se repetem em torno de uma faixa dominante."
-                  : "Distribuição dispersa — os valores se espalham por várias faixas, indicando maior variabilidade."}
+                  ? "Comportamento previsível — a operação entrega resultados dentro de uma faixa dominante, o que facilita metas e planejamento."
+                  : "Comportamento disperso — os resultados variam bastante entre períodos, sinal de que a operação ainda depende de fatores instáveis."}
               </Interpretacao>
             )}
           </CardContent>
@@ -516,8 +516,8 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              Retornos período a período — {foco?.nome}
-              <InfoTooltip text="Variação percentual entre períodos consecutivos: (valor_t − valor_t−1) ÷ valor_t−1. Barras positivas indicam crescimento; negativas, queda. A amplitude das barras é a base da volatilidade da série." />
+              Crescimento período a período — {shortName(foco?.nome ?? "")}
+              <InfoTooltip text="Quanto o indicador cresceu ou caiu (%) em relação ao período anterior. Barras verdes/positivas = crescimento; barras negativas = retração. O tamanho das barras mostra o quanto a operação balança de um período para o outro." />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -528,19 +528,19 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                   <XAxis dataKey="periodo" tickLine={false} axisLine={false} fontSize={12} />
                   <YAxis tickLine={false} axisLine={false} fontSize={12} tickFormatter={(v) => fmtPct(v, 0)} />
                   <Tooltip formatter={(v: number) => fmtPct(v, 2)} contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
-                  <Bar dataKey="retorno" name="Retorno %" radius={[4, 4, 0, 0]} fill="var(--chart-3)" />
+                  <Bar dataKey="retorno" name="Variação %" radius={[4, 4, 0, 0]} fill="var(--chart-3)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
             {rets.length > 0 && (
               <Interpretacao>
-                Retorno médio por período de <strong>{fmtPct(retMedio, 2)}</strong>, com{" "}
-                <strong>{retPos}</strong> alta(s) e <strong>{retNeg}</strong> queda(s) no recorte.{" "}
+                Crescimento médio de <strong>{fmtPct(retMedio, 2)}</strong> por período, com{" "}
+                <strong>{retPos}</strong> período(s) de alta e <strong>{retNeg}</strong> de queda no recorte.{" "}
                 {retPos > retNeg * 1.5
-                  ? "Predominância clara de períodos positivos."
+                  ? "Ciclo predominantemente positivo — a operação vem entregando crescimento sustentado."
                   : retNeg > retPos * 1.5
-                    ? "Predominância de períodos negativos — tendência de retração."
-                    : "Altas e quedas se alternam de forma equilibrada."}
+                    ? "Ciclo predominantemente negativo — atenção: a operação vem perdendo tração."
+                    : "Ciclo equilibrado — altas e quedas se alternam, indicando operação em ritmo estável ou dependente de sazonalidade."}
               </Interpretacao>
             )}
           </CardContent>
@@ -550,14 +550,14 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            Regressão bivariada — dispersão X × Y
-            <InfoTooltip text="Escolha duas séries: X (variável explicativa) e Y (variável explicada). O gráfico plota cada período como um ponto (X, Y) e ajusta uma reta de mínimos quadrados y = a·x + b. O coeficiente angular a mede quanto Y varia para cada unidade de X. R² indica o quanto de Y é explicado por X (0% a 100%). r é a correlação de Pearson entre X e Y." />
+            Relação de causa e efeito — como um indicador impacta o outro
+            <InfoTooltip text="Escolha o indicador que você acredita ser a causa (X, ex.: investimento em marketing) e o que sofre o efeito (Y, ex.: receita). Cada ponto é um período. A reta mostra a relação média entre os dois. Impacto médio (coef. angular) = quanto Y muda para cada unidade a mais de X. Explicação (R²) = quanto de Y é explicado por X (100% = X sozinho basta; 0% = outros fatores dominam). Força da relação (r): −1 a +1." />
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1">
-              <Label className="text-xs uppercase text-muted-foreground">Variável X (explicativa)</Label>
+              <Label className="text-xs uppercase text-muted-foreground">Causa (X) — o que você controla</Label>
               <Select value={serieX?.nome} onValueChange={setXSerie}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -568,7 +568,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs uppercase text-muted-foreground">Variável Y (explicada)</Label>
+              <Label className="text-xs uppercase text-muted-foreground">Efeito (Y) — o resultado esperado</Label>
               <Select value={serieY?.nome} onValueChange={setYSerie}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -584,9 +584,9 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
             <>
               <div className="grid gap-4 md:grid-cols-4 text-sm">
                 <Metric label="Equação" value={equacao} />
-                <Metric label="Coef. angular (a)" value={fmtCoef(bivar.slope)} />
-                <Metric label="R²" value={fmtPct(bivar.r2, 1)} />
-                <Metric label="Correlação r" value={bivar.r.toFixed(2)} />
+                <Metric label="Impacto médio (Δ Y por 1 de X)" value={fmtCoef(bivar.slope)} />
+                <Metric label="Explicação (R²)" value={fmtPct(bivar.r2, 1)} />
+                <Metric label="Força da relação (r)" value={bivar.r.toFixed(2)} />
               </div>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
@@ -619,9 +619,9 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                       labelFormatter={() => ""}
                     />
                     <Legend />
-                    <Scatter name="Observações" data={bivar.pts} fill="var(--primary)" />
+                    <Scatter name="Períodos observados" data={bivar.pts} fill="var(--primary)" />
                     <Scatter
-                      name={`Reta ajustada — ${equacao}`}
+                      name={`Relação estimada — ${equacao}`}
                       data={bivar.linha}
                       line={{ stroke: "var(--chart-3)", strokeWidth: 2 }}
                       lineType="joint"
@@ -632,29 +632,29 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                 </ResponsiveContainer>
               </div>
               <Interpretacao>
-                A cada 1 unidade de <strong>{serieX?.nome}</strong>,{" "}
-                <strong>{serieY?.nome}</strong> varia em média{" "}
-                <strong>{fmtCoef(bivar.slope)}</strong> unidade(s)
-                {bivar.slope >= 0 ? " no mesmo sentido" : " no sentido oposto"}. O R² de{" "}
-                <strong>{fmtPct(bivar.r2, 1)}</strong> indica que{" "}
+                Cada unidade adicional de <strong>{shortName(serieX?.nome ?? "")}</strong> tende a{" "}
+                {bivar.slope >= 0 ? "somar" : "reduzir"} em média{" "}
+                <strong>{fmtCoef(Math.abs(bivar.slope))}</strong> em{" "}
+                <strong>{shortName(serieY?.nome ?? "")}</strong>. A explicação de{" "}
+                <strong>{fmtPct(bivar.r2, 1)}</strong> significa que{" "}
                 {bivar.r2 > 0.7
-                  ? "a variável X explica bem o comportamento de Y — a reta ajustada é confiável."
+                  ? "esse indicador é uma alavanca importante do resultado — mexer nele muda o placar."
                   : bivar.r2 > 0.4
-                    ? "há relação relevante, mas outras variáveis também influenciam Y."
-                    : "X explica pouco de Y — os pontos se dispersam bastante em torno da reta e a previsão é frágil."}{" "}
-                A correlação r = <strong>{bivar.r.toFixed(2)}</strong> confirma associação linear{" "}
+                    ? "ele influencia o resultado, mas outros fatores também pesam — não é o único gargalo/alavanca."
+                    : "ele explica pouco do resultado — mexer só nele provavelmente não move a agulha; busque outras causas."}{" "}
+                A força da relação (r = <strong>{bivar.r.toFixed(2)}</strong>) é{" "}
                 <strong>
                   {Math.abs(bivar.r) > 0.7 ? "forte" : Math.abs(bivar.r) > 0.4 ? "moderada" : "fraca"}
                 </strong>
-                . Correlação não implica causalidade — use este resultado como pista, não como prova.
+                . Importante: relação estatística é uma <em>pista</em> de gestão, não prova de causa — valide no dia a dia da operação antes de decidir grandes mudanças.
               </Interpretacao>
             </>
           ) : (
             <Alert>
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Dados insuficientes</AlertTitle>
+              <AlertTitle>Poucos dados para analisar</AlertTitle>
               <AlertDescription>
-                Selecione duas séries com ao menos 2 pares de observações válidas no recorte.
+                Escolha dois indicadores com pelo menos 2 períodos preenchidos em comum dentro do recorte.
               </AlertDescription>
             </Alert>
           )}
@@ -665,18 +665,18 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         <CardHeader>
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <CardTitle className="flex items-center gap-2">
-              Matriz de Correlação (mapa de calor)
-              <InfoTooltip text="Correlação de Pearson entre cada par de séries no recorte. Varia de −1 a +1: próximo de +1 = movem-se juntas; próximo de −1 = movem-se em sentidos opostos; próximo de 0 = sem relação linear. Cores mais intensas indicam correlação mais forte (azul = positiva, vermelho = negativa). Correlação não implica causalidade." />
+              Mapa de relacionamentos entre indicadores
+              <InfoTooltip text="Mostra como cada par de indicadores do seu negócio se movimenta em conjunto. Varia de −1 a +1: perto de +1 = sobem e caem juntos (ex.: marketing e receita); perto de −1 = quando um sobe o outro cai (ex.: eficiência e custo); perto de 0 = não há relação clara. Azul mais escuro = relação positiva forte; vermelho mais escuro = relação inversa forte. Ajuda a mapear alavancas e gargalos — lembre-se: correlação sinaliza padrão, não prova causa." />
             </CardTitle>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm">
-                  Variáveis ({corrSeries.length}/{series.length})
+                  Indicadores ({corrSeries.length}/{series.length})
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-64 p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs uppercase text-muted-foreground">Séries no heatmap</span>
+                  <span className="text-xs uppercase text-muted-foreground">Indicadores no mapa</span>
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"
@@ -708,7 +708,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                   })}
                 </div>
                 {corrSelecionadas && corrSelecionadas.length < 2 && (
-                  <p className="mt-2 text-xs text-muted-foreground">Selecione ao menos 2 séries — mostrando todas.</p>
+                  <p className="mt-2 text-xs text-muted-foreground">Selecione pelo menos 2 indicadores — mostrando todos.</p>
                 )}
               </PopoverContent>
             </Popover>
@@ -744,21 +744,21 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
           </table>
           {maxPar && corrSeries.length > 1 && (
             <Interpretacao>
-              O par mais correlacionado é <strong>{maxPar.a}</strong> ×{" "}
-              <strong>{maxPar.b}</strong>, com r = <strong>{maxPar.v.toFixed(2)}</strong>{" "}
-              — correlação{" "}
+              O par com maior conexão é <strong>{maxPar.a}</strong> ×{" "}
+              <strong>{maxPar.b}</strong>, com força de <strong>{maxPar.v.toFixed(2)}</strong>{" "}
+              — relação{" "}
               <strong>
                 {Math.abs(maxPar.v) > 0.7 ? "forte" : Math.abs(maxPar.v) > 0.4 ? "moderada" : "fraca"}
               </strong>{" "}
-              {maxPar.v >= 0 ? "positiva" : "negativa"}
+              {maxPar.v >= 0 ? "no mesmo sentido" : "em sentido oposto"}
               {Math.abs(maxPar.v) > 0.7
                 ? maxPar.v > 0
-                  ? " — as séries tendem a subir e descer juntas."
-                  : " — quando uma sobe, a outra tende a cair."
+                  ? " — quando um cresce, o outro tende a acompanhar; boa dupla para acompanhar em conjunto."
+                  : " — quando um sobe, o outro cai; possível relação de eficiência ou substituição, vale investigar."
                 : Math.abs(maxPar.v) > 0.4
-                  ? " — existe relação, mas com ruído."
-                  : " — praticamente sem relação linear entre as séries."}
-              . Lembre-se: correlação não implica causalidade.
+                  ? " — existe influência, mas outros fatores também pesam."
+                  : " — sem padrão claro entre os dois indicadores no período."}
+              . Use como <em>hipótese</em> de gestão e valide na operação.
             </Interpretacao>
           )}
         </CardContent>
