@@ -14,7 +14,16 @@ import {
 const NAVY: [number, number, number] = [30, 41, 82];
 const MUTED: [number, number, number] = [100, 116, 139];
 
-export function gerarRelatorioPDF(dados: DadosImportados, empresa: Empresa | null): {
+export type RelatorioOpcoes = {
+  nomeArquivo?: string;
+  observacao?: string;
+};
+
+export function gerarRelatorioPDF(
+  dados: DadosImportados,
+  empresa: Empresa | null,
+  opcoes: RelatorioOpcoes = {},
+): {
   blob: Blob;
   url: string;
   filename: string;
@@ -41,6 +50,28 @@ export function gerarRelatorioPDF(dados: DadosImportados, empresa: Empresa | nul
 
   doc.setTextColor(0, 0, 0);
   let y = 120;
+
+  // Observação/cabeçalho curto informado pelo usuário
+  const obs = (opcoes.observacao ?? "").trim();
+  if (obs) {
+    const larguraTexto = 515;
+    const linhas = doc.splitTextToSize(obs, larguraTexto) as string[];
+    const altura = 18 + linhas.length * 13;
+    doc.setFillColor(241, 245, 249);
+    doc.setDrawColor(...NAVY);
+    doc.setLineWidth(0.8);
+    doc.rect(40, y, 515, altura, "FD");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...NAVY);
+    doc.text("OBSERVAÇÃO", 50, y + 14);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(30, 41, 59);
+    doc.text(linhas, 50, y + 30);
+    doc.setTextColor(0, 0, 0);
+    y += altura + 20;
+  }
 
   // Ficha da empresa
   doc.setFont("helvetica", "bold");
@@ -271,8 +302,10 @@ export function gerarRelatorioPDF(dados: DadosImportados, empresa: Empresa | nul
     doc.text(`Página ${i} de ${total}`, 555, 820, { align: "right" });
   }
 
-  const slug = nomeEmpresa.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "empresa";
-  const filename = `saga-relatorio-${slug}-${anoBase}.pdf`;
+  const slugDefault = nomeEmpresa.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "empresa";
+  const nomeInformado = (opcoes.nomeArquivo ?? "").trim();
+  const base = nomeInformado || `saga-relatorio-${slugDefault}-${anoBase}`;
+  const filename = base.toLowerCase().endsWith(".pdf") ? base : `${base}.pdf`;
   const blob = doc.output("blob");
   const url = URL.createObjectURL(blob);
   return { blob, url, filename, save: () => doc.save(filename) };
