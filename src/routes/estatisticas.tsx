@@ -312,7 +312,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             Recorte de análise
-            <InfoTooltip text="Define a janela de períodos analisada, a série em foco (usada nos gráficos individuais) e a janela n da média móvel. Alterar o recorte recalcula todas as estatísticas abaixo." />
+            <InfoTooltip text="Escolha o intervalo de tempo que quer estudar (ex.: últimos 12 meses, um trimestre específico), o indicador principal em foco e a janela da média móvel (nº de períodos usados para suavizar oscilações e enxergar a tendência sem ruído). Trocar o recorte recalcula tudo abaixo automaticamente." />
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-4">
@@ -339,7 +339,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs uppercase text-muted-foreground">Série em foco</Label>
+            <Label className="text-xs uppercase text-muted-foreground">Indicador em foco</Label>
             <Select value={foco?.nome} onValueChange={setSerieFoco}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -350,7 +350,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs uppercase text-muted-foreground">Janela média móvel</Label>
+            <Label className="text-xs uppercase text-muted-foreground">Suavização (média móvel)</Label>
             <Input
               type="number"
               min={2}
@@ -365,9 +365,9 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       {amostraFraca && (
         <Alert>
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Amostra pequena (n = {fim - ini + 1})</AlertTitle>
+          <AlertTitle>Poucos períodos no recorte ({fim - ini + 1})</AlertTitle>
           <AlertDescription>
-            Com menos de 8 observações, resultados estatísticos são indicativos. Amplie o range para maior robustez.
+            Com menos de 8 períodos os resultados servem de indicação, mas não de conclusão. Amplie o intervalo para ganhar confiança nas leituras.
           </AlertDescription>
         </Alert>
       )}
@@ -375,23 +375,23 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            Estatística Descritiva
-            <InfoTooltip text="Resumo numérico de cada série no recorte selecionado. Média = valor médio; Mediana = valor central (robusta a outliers); Desvio = dispersão em torno da média; CV = desvio ÷ média (comparação entre séries de escalas diferentes); Volatilidade = desvio-padrão dos retornos período a período." />
+            Radar de desempenho — visão geral dos indicadores
+            <InfoTooltip text="Panorama de cada indicador no período escolhido. Média = valor típico; Mediana = valor central, menos influenciado por meses fora da curva; Desvio = quanto os resultados oscilam; CV = oscilação relativa (permite comparar indicadores de tamanhos diferentes, como receita e volume); Oscilação % = variação típica de um período para o outro (quanto maior, mais instável o indicador)." />
           </CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
-                <th className="p-2 text-left">Série</th>
-                <th className="p-2 text-right">n</th>
+                <th className="p-2 text-left">Indicador</th>
+                <th className="p-2 text-right">Períodos</th>
                 <th className="p-2 text-right">Média</th>
                 <th className="p-2 text-right">Mediana</th>
                 <th className="p-2 text-right">Desvio</th>
                 <th className="p-2 text-right">CV</th>
-                <th className="p-2 text-right">Mín</th>
-                <th className="p-2 text-right">Máx</th>
-                <th className="p-2 text-right">Volatilidade</th>
+                <th className="p-2 text-right">Pior</th>
+                <th className="p-2 text-right">Melhor</th>
+                <th className="p-2 text-right">Oscilação %</th>
               </tr>
             </thead>
             <tbody>
@@ -416,16 +416,16 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
           </table>
           {focoDesc && (
             <Interpretacao>
-              A série <strong>{foco?.nome}</strong> tem média de{" "}
+              <strong>{shortName(foco?.nome ?? "")}</strong> apresenta desempenho médio de{" "}
               <strong>{fmtNum(focoDesc.media)}</strong> e mediana de{" "}
               <strong>{fmtNum(focoDesc.mediana)}</strong>
               {Math.abs(focoDesc.media - focoDesc.mediana) / (Math.abs(focoDesc.media) || 1) > 0.15
-                ? " — a diferença sugere presença de valores atípicos que puxam a média."
-                : " — média e mediana próximas indicam distribuição equilibrada."}{" "}
-              O coeficiente de variação de <strong>{fmtPct(focoDesc.cv)}</strong> aponta dispersão{" "}
-              <strong>{cvLabel}</strong>, e a volatilidade dos retornos é{" "}
+                ? " — a diferença mostra que existem meses fora da curva puxando o resultado médio (vale investigar picos ou quedas pontuais)."
+                : " — média e mediana próximas indicam desempenho consistente ao longo do período."}{" "}
+              A oscilação relativa (CV) é de <strong>{fmtPct(focoDesc.cv)}</strong>, ou seja, previsibilidade{" "}
+              <strong>{cvLabel === "baixa" ? "alta" : cvLabel === "alta" ? "baixa" : "média"}</strong>. A variação típica de um período para outro é de{" "}
               <strong>{fmtPct(focoVol)}</strong>
-              {focoVol > 0.2 ? " (série instável entre períodos)." : " (série relativamente estável)."}
+              {focoVol > 0.2 ? " — resultado instável, difícil de prever sem planejamento." : " — comportamento estável, favorece previsões e metas."}.
             </Interpretacao>
           )}
         </CardContent>
