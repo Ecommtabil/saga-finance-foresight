@@ -22,11 +22,15 @@ export type GraficoPNG = { titulo: string; legenda: string; dataUrl: string };
 // Paleta hex fixa (equivalente ao tema navy do SAGA) — necessária porque
 // CSS vars não sobrevivem à serialização do SVG para PNG.
 const C = {
-  navy: "#1E2952",
-  teal: "#3FA5B0",
-  orange: "#C96A2F",
-  green: "#6DB27B",
-  purple: "#8B5CF6",
+  navy: "#2A3566",
+  periwinkle: "#A9B8E0",
+  teal: "#7FA3C7",
+  coral: "#C85450",
+  mauve: "#9B87C4",
+  // aliases used below
+  orange: "#C85450",
+  green: "#7FA3C7",
+  purple: "#9B87C4",
 };
 
 const W = 900;
