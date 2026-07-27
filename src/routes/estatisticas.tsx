@@ -360,11 +360,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                   <XAxis dataKey="periodo" tickLine={false} axisLine={false} fontSize={12} />
                   <YAxis tickLine={false} axisLine={false} fontSize={12} tickFormatter={(v) => fmtPct(v, 0)} />
                   <Tooltip formatter={(v: number) => fmtPct(v, 2)} contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
-                  <Bar dataKey="retorno" name="Retorno %" radius={[4, 4, 0, 0]}>
-                    {rets.map((v, i) => (
-                      <cell key={i} />
-                    ))}
-                  </Bar>
+                  <Bar dataKey="retorno" name="Retorno %" radius={[4, 4, 0, 0]} fill="var(--chart-3)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
