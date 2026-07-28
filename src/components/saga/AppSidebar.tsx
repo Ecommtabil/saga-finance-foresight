@@ -12,6 +12,7 @@ import {
   BarChart3,
   Sliders,
   GraduationCap,
+  Stethoscope,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +38,7 @@ const ANALISE = [
   { title: "Balanço Patrimonial", url: "/balanco", icon: Scale, apenasCompleta: true },
   { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Waves, apenasCompleta: true },
   { title: "Indicadores", url: "/indicadores", icon: Gauge, apenasCompleta: false },
+  { title: "Diagnóstico", url: "/diagnostico", icon: Stethoscope, apenasCompleta: false },
   { title: "Índices Econômicos", url: "/indices", icon: Percent, apenasCompleta: false },
   { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: false },
   { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: false },
