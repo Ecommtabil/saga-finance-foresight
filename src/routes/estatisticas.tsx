@@ -184,6 +184,7 @@ function EstPage() {
 }
 
 function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEstatistico }) {
+  const { empresa } = useSaga();
   const total = dataset.periodos.length;
   const [range, setRange] = useState<[number, number]>([0, total - 1]);
   const [serieFoco, setSerieFoco] = useState<string>(dataset.series[0]?.nome ?? "");
