@@ -18,6 +18,7 @@ import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
 import { Route as EstatisticasRouteImport } from './routes/estatisticas'
 import { Route as EmpresaRouteImport } from './routes/empresa'
 import { Route as DreRouteImport } from './routes/dre'
+import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
@@ -67,6 +68,11 @@ const DreRoute = DreRouteImport.update({
   path: '/dre',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiagnosticoRoute = DiagnosticoRouteImport.update({
+  id: '/diagnostico',
+  path: '/diagnostico',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DcfExplicadoRoute = DcfExplicadoRouteImport.update({
   id: '/dcf-explicado',
   path: '/dcf-explicado',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/balanco': typeof BalancoRoute
   '/dcf-explicado': typeof DcfExplicadoRoute
+  '/diagnostico': typeof DiagnosticoRoute
   '/dre': typeof DreRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/balanco': typeof BalancoRoute
   '/dcf-explicado': typeof DcfExplicadoRoute
+  '/diagnostico': typeof DiagnosticoRoute
   '/dre': typeof DreRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/balanco': typeof BalancoRoute
   '/dcf-explicado': typeof DcfExplicadoRoute
+  '/diagnostico': typeof DiagnosticoRoute
   '/dre': typeof DreRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/balanco'
     | '/dcf-explicado'
+    | '/diagnostico'
     | '/dre'
     | '/empresa'
     | '/estatisticas'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/balanco'
     | '/dcf-explicado'
+    | '/diagnostico'
     | '/dre'
     | '/empresa'
     | '/estatisticas'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/'
     | '/balanco'
     | '/dcf-explicado'
+    | '/diagnostico'
     | '/dre'
     | '/empresa'
     | '/estatisticas'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BalancoRoute: typeof BalancoRoute
   DcfExplicadoRoute: typeof DcfExplicadoRoute
+  DiagnosticoRoute: typeof DiagnosticoRoute
   DreRoute: typeof DreRoute
   EmpresaRoute: typeof EmpresaRoute
   EstatisticasRoute: typeof EstatisticasRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diagnostico': {
+      id: '/diagnostico'
+      path: '/diagnostico'
+      fullPath: '/diagnostico'
+      preLoaderRoute: typeof DiagnosticoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dcf-explicado': {
       id: '/dcf-explicado'
       path: '/dcf-explicado'
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BalancoRoute: BalancoRoute,
   DcfExplicadoRoute: DcfExplicadoRoute,
+  DiagnosticoRoute: DiagnosticoRoute,
   DreRoute: DreRoute,
   EmpresaRoute: EmpresaRoute,
   EstatisticasRoute: EstatisticasRoute,
