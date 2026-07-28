@@ -229,6 +229,9 @@ function DiagnosticoPage() {
           titulo: "Margem Operacional",
           valor: fmtPct(mOp),
           status: classificar(mOp, 0.1, 0.04),
+          delta: d(mOp, prev !== null ? m.operacional[prev] : undefined),
+          deltaLabel,
+          pctPoints: true,
           interpretacao:
             mOp >= 0.1
               ? "Operação rentável mesmo após depreciação."
@@ -241,6 +244,9 @@ function DiagnosticoPage() {
           titulo: "Margem Líquida",
           valor: fmtPct(mLiq),
           status: classificar(mLiq, 0.08, 0.03),
+          delta: d(mLiq, prev !== null ? m.liquida[prev] : undefined),
+          deltaLabel,
+          pctPoints: true,
           interpretacao:
             mLiq >= 0.08
               ? "Cada real de receita gera lucro final relevante."
@@ -258,6 +264,9 @@ function DiagnosticoPage() {
           titulo: "ROE",
           valor: fmtPct(roe),
           status: classificar(roe, 0.15, 0.08),
+          delta: d(roe, prev !== null ? rent.roe[prev] : undefined),
+          deltaLabel,
+          pctPoints: true,
           interpretacao:
             roe >= 0.15
               ? "Excelente retorno sobre o capital do sócio."
@@ -270,6 +279,9 @@ function DiagnosticoPage() {
           titulo: "ROA",
           valor: fmtPct(roa),
           status: classificar(roa, 0.08, 0.04),
+          delta: d(roa, prev !== null ? rent.roa[prev] : undefined),
+          deltaLabel,
+          pctPoints: true,
           interpretacao:
             roa >= 0.08
               ? "Ativos bem aproveitados na geração de lucro."
@@ -282,6 +294,9 @@ function DiagnosticoPage() {
           titulo: "ROIC",
           valor: fmtPct(roic),
           status: classificar(roic, 0.12, 0.06),
+          delta: d(roic, prev !== null ? rent.roic[prev] : undefined),
+          deltaLabel,
+          pctPoints: true,
           interpretacao:
             roic >= 0.12
               ? "Capital investido gera valor acima do custo típico."
@@ -294,6 +309,8 @@ function DiagnosticoPage() {
           titulo: "Giro do Ativo",
           valor: isFinite(giroAtivo) ? fmtMult(giroAtivo, 2) : "—",
           status: classificar(giroAtivo, 1, 0.5),
+          delta: d(giroAtivo, prev !== null ? giroFor(prev) : undefined),
+          deltaLabel,
           interpretacao: !isFinite(giroAtivo)
             ? "Disponível apenas no modo Contabilidade Completa."
             : giroAtivo >= 1
@@ -312,6 +329,8 @@ function DiagnosticoPage() {
           titulo: "Dívida / PL",
           valor: isFinite(divPL) ? fmtMult(divPL, 2) : "—",
           status: classificar(divPL, 0.5, 1, false),
+          delta: d(divPL, prev !== null ? end?.dividaSobrePL[prev] : undefined),
+          deltaLabel,
           interpretacao: !isFinite(divPL)
             ? "Disponível apenas no modo Contabilidade Completa."
             : divPL <= 0.5
@@ -325,6 +344,9 @@ function DiagnosticoPage() {
           titulo: "Dívida / Ativo",
           valor: isFinite(divAtivo) ? fmtPct(divAtivo) : "—",
           status: classificar(divAtivo, 0.3, 0.5, false),
+          delta: d(divAtivo, prev !== null ? end?.dividaSobreAtivo[prev] : undefined),
+          deltaLabel,
+          pctPoints: true,
           interpretacao: !isFinite(divAtivo)
             ? "Disponível apenas no modo Contabilidade Completa."
             : divAtivo <= 0.3
@@ -338,6 +360,8 @@ function DiagnosticoPage() {
           titulo: "Cobertura de Juros",
           valor: isFinite(cobJuros) ? fmtMult(cobJuros, 2) : "—",
           status: classificar(cobJuros, 3, 1.5),
+          delta: d(cobJuros, prev !== null ? end?.coberturaJuros[prev] : undefined),
+          deltaLabel,
           interpretacao: !isFinite(cobJuros)
             ? "Disponível apenas no modo Contabilidade Completa."
             : cobJuros >= 3
@@ -351,6 +375,8 @@ function DiagnosticoPage() {
           titulo: "Liquidez Corrente",
           valor: isFinite(liqCorr) ? fmtMult(liqCorr, 2) : "—",
           status: classificar(liqCorr, 1.5, 1),
+          delta: d(liqCorr, prev !== null ? liq?.corrente[prev] : undefined),
+          deltaLabel,
           interpretacao: !isFinite(liqCorr)
             ? "Disponível apenas no modo Contabilidade Completa."
             : liqCorr >= 1.5
