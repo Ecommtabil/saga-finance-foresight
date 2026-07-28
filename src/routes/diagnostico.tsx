@@ -412,6 +412,9 @@ function DiagnosticoPage() {
               status={c.status}
               interpretacao={c.interpretacao}
               referencia={c.referencia}
+              delta={c.delta}
+              deltaLabel={c.deltaLabel}
+              pctPoints={c.pctPoints}
             />
           ))}
         </Secao>
