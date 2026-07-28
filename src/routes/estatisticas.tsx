@@ -7,6 +7,7 @@ import {
   FileSpreadsheet,
   RefreshCw,
   X,
+  FileDown,
 } from "lucide-react";
 import {
   Area,
@@ -55,6 +56,7 @@ import {
 } from "@/lib/saga/stats";
 import { fmtNum, fmtPct } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
+import { gerarRelatorioEstatisticasPDF } from "@/lib/saga/stats-pdf";
 
 function Interpretacao({ children }: { children: React.ReactNode }) {
   return (
