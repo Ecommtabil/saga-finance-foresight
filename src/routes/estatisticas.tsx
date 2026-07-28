@@ -306,6 +306,41 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
     }
   }
 
+  // --- Narrativa de causa e efeito (top pares) ---
+  type Par = { a: string; b: string; v: number };
+  const paresRanqueados: Par[] = [];
+  for (let i = 0; i < corrSeries.length; i++) {
+    for (let j = i + 1; j < corrSeries.length; j++) {
+      const v = corrMatrix[i][j];
+      if (!Number.isFinite(v)) continue;
+      paresRanqueados.push({
+        a: shortName(corrSeries[i].nome),
+        b: shortName(corrSeries[j].nome),
+        v,
+      });
+    }
+  }
+  paresRanqueados.sort((x, y) => Math.abs(y.v) - Math.abs(x.v));
+  const topPares = paresRanqueados.filter((p) => Math.abs(p.v) >= 0.4).slice(0, 5);
+
+  const hipotese = (p: Par) => {
+    const forca = Math.abs(p.v) > 0.7 ? "forte" : "moderada";
+    if (p.v >= 0) {
+      return `Quando ${p.a} cresce, ${p.b} tende a crescer junto (relação ${forca}). Hipótese: ${p.a} pode estar puxando ${p.b} — vale testar se aumentar ${p.a} de forma controlada gera mais ${p.b}.`;
+    }
+    return `Quando ${p.a} sobe, ${p.b} tende a cair (relação inversa ${forca}). Hipótese: pode haver relação de eficiência, substituição ou trade-off entre ${p.a} e ${p.b} — investigue se um está roubando espaço do outro.`;
+  };
+  const comoValidar = (p: Par) => {
+    const passos = [
+      `Isole o efeito: rode um recorte curto (ex.: 1–2 meses) mudando apenas ${p.a} e observando ${p.b}, com o resto da operação estável.`,
+      `Compare com um período de referência sem essa alteração para separar sazonalidade e efeitos externos.`,
+      `Enriqueça a base: adicione variáveis de contexto (calendário promocional, campanhas ativas, sazonalidade do setor, câmbio, feriados) para descartar causas escondidas.`,
+      `Aumente a granularidade: se hoje analisa mensal, tente semanal ou diário — relações reais tendem a aparecer também no curto prazo.`,
+      `Segmente: quebre por canal, praça, produto ou cliente e veja se a relação se mantém em todos os cortes ou só em alguns.`,
+    ];
+    return passos;
+  };
+
   return (
     <div className="space-y-6">
       <Card>
