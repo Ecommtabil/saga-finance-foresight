@@ -162,11 +162,9 @@ function ScoreGauge({ score }: { score: number }) {
 function ScoreSummary({
   secoes,
   pesos,
-  onPesosChange,
 }: {
   secoes: { titulo: string; cards: { status: Status }[] }[];
   pesos: number[];
-  onPesosChange: (i: number, v: number) => void;
 }) {
   const secoesScore = secoes.map((s) => ({
     titulo: s.titulo,
@@ -268,35 +266,94 @@ function ScoreSummary({
                       <span>{cs.rotulo}</span>
                       <span className="tabular-nums">peso {pesoRel.toFixed(0)}%</span>
                     </div>
-                    <div className="mt-2">
-                      <Slider
-                        value={[pesos[i]]}
-                        min={0}
-                        max={100}
-                        step={1}
-                        onValueChange={(v) => onPesosChange(i, v[0])}
-                        aria-label={`Peso ${s.titulo}`}
-                      />
-                    </div>
                   </div>
                 );
               })}
             </div>
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>Ajuste os pesos conforme a prioridade do seu negócio.</span>
-              <button
-                type="button"
-                className="text-primary underline-offset-2 hover:underline"
-                onClick={() => {
-                  onPesosChange(0, 34);
-                  onPesosChange(1, 33);
-                  onPesosChange(2, 33);
-                }}
-              >
-                Redefinir pesos
-              </button>
-            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Ajuste os pesos na aba <b>Parâmetros</b> para refletir a prioridade
+              do seu negócio.
+            </p>
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ParametrosTab({
+  pesos,
+  onPesosChange,
+}: {
+  pesos: number[];
+  onPesosChange: (i: number, v: number) => void;
+}) {
+  const rotulos = ["Lucratividade", "Gestão", "Endividamento"];
+  const descricoes = [
+    "Peso das margens (Bruta, EBITDA, Operacional e Líquida) no score final.",
+    "Peso dos retornos (ROE, ROA, ROIC) e giro do ativo no score final.",
+    "Peso da estrutura de capital, cobertura de juros e liquidez no score final.",
+  ];
+  const total = pesos.reduce((a, b) => a + b, 0) || 1;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Parâmetros do Score</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <p className="text-sm text-muted-foreground">
+          Defina a importância relativa de cada dimensão do diagnóstico. O Score
+          Financeiro Consolidado é recalculado em tempo real usando média
+          ponderada. Os valores abaixo são normalizados para 100%.
+        </p>
+        <div className="space-y-5">
+          {rotulos.map((rot, i) => {
+            const rel = (pesos[i] / total) * 100;
+            return (
+              <div key={rot} className="space-y-2">
+                <div className="flex items-baseline justify-between">
+                  <div>
+                    <div className="text-sm font-medium">{rot}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {descricoes[i]}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold tabular-nums">
+                      {pesos[i]}
+                    </div>
+                    <div className="text-[10px] uppercase text-muted-foreground">
+                      {rel.toFixed(0)}% do total
+                    </div>
+                  </div>
+                </div>
+                <Slider
+                  value={[pesos[i]]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={(v) => onPesosChange(i, v[0])}
+                  aria-label={`Peso ${rot}`}
+                />
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex items-center justify-between border-t pt-4">
+          <span className="text-xs text-muted-foreground">
+            Soma bruta dos pesos: <b className="tabular-nums">{total}</b>
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              onPesosChange(0, 34);
+              onPesosChange(1, 33);
+              onPesosChange(2, 33);
+            }}
+          >
+            Redefinir padrão
+          </Button>
         </div>
       </CardContent>
     </Card>
