@@ -367,7 +367,7 @@ function DiagnosticoPage() {
   const exportar = () => {
     gerarDiagnosticoPDF({
       empresa: empresa?.nome || "Empresa",
-      anoBase: dados.anos[last],
+      anoBase: anoAtual,
       secoes,
     });
   };
@@ -376,12 +376,29 @@ function DiagnosticoPage() {
     <div className="space-y-6">
       <PageHeader
         titulo="Diagnóstico"
-        subtitulo={`Leitura consolidada do ano base (${dados.anos[last]}) com semáforo de saúde financeira.`}
+        subtitulo={`Leitura do período ${anoAtual}${anoAnterior !== null ? ` (variações vs ${anoAnterior})` : ""}.`}
         action={
-          <Button onClick={exportar} size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Exportar PDF
-          </Button>
+          <div className="flex items-center gap-2">
+            <Select
+              value={String(anoAtual)}
+              onValueChange={(v) => setAnoSelecionado(Number(v))}
+            >
+              <SelectTrigger className="h-9 w-[140px]">
+                <SelectValue placeholder="Período" />
+              </SelectTrigger>
+              <SelectContent>
+                {anosDisponiveis.map((a) => (
+                  <SelectItem key={a} value={String(a)}>
+                    {a}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={exportar} size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Exportar PDF
+            </Button>
+          </div>
         }
       />
 
