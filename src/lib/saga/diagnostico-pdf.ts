@@ -21,6 +21,9 @@ export interface DiagCard {
   status: DiagStatus;
   interpretacao: string;
   referencia: string;
+  delta?: number;
+  deltaLabel?: string;
+  pctPoints?: boolean;
 }
 
 export interface DiagSecao {

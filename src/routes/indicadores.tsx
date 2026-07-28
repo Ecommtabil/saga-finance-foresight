@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   AreaChart,
   Area,
@@ -10,6 +11,13 @@ import {
   Legend,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PageHeader } from "@/components/saga/PageHeader";
 import { EmptyState } from "@/components/saga/EmptyState";
 import { useSaga } from "@/lib/saga/context";
@@ -137,6 +145,7 @@ function ChartCard({
 
 function IndicadoresPage() {
   const { dados, modo } = useSaga();
+  const [anoBase, setAnoBase] = useState<number | null>(null);
   if (!dados) return <><PageHeader titulo="Indicadores" /><EmptyState titulo="Indicadores indisponíveis" /></>;
 
   const m = margens(dados);
@@ -145,11 +154,29 @@ function IndicadoresPage() {
   const rent = indicadoresRentabilidade(dados);
   const ciclo = cicloCaixa(dados);
   const cresc = crescimento(dados);
-  const last = 4;
+  const anoSel = anoBase ?? dados.anos[dados.anos.length - 1];
+  const last = Math.max(0, dados.anos.indexOf(anoSel));
 
   return (
     <div className="space-y-6">
-      <PageHeader titulo="Indicadores Financeiros" subtitulo="Ano base + evolução em 5 anos." />
+      <PageHeader
+        titulo="Indicadores Financeiros"
+        subtitulo={`Período base: ${dados.anos[last]} · evolução em ${dados.anos.length} anos.`}
+        action={
+          <Select value={String(dados.anos[last])} onValueChange={(v) => setAnoBase(Number(v))}>
+            <SelectTrigger className="h-9 w-[140px]">
+              <SelectValue placeholder="Período" />
+            </SelectTrigger>
+            <SelectContent>
+              {dados.anos.map((a) => (
+                <SelectItem key={a} value={String(a)}>
+                  {a}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      />
 
       <div className="grid gap-3 md:grid-cols-4">
         <Kpi titulo="Margem Líquida" valor={fmtPct(m.liquida[last])} sub="Ano base" />
