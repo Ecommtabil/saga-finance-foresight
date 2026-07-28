@@ -392,6 +392,9 @@ function DiagnosticoPage() {
   const [anoSelecionado, setAnoSelecionado] = useState<number | null>(
     anosDisponiveis.length ? anosDisponiveis[anosDisponiveis.length - 1] : null,
   );
+  const [pesos, setPesos] = useState<number[]>([34, 33, 33]);
+  const atualizarPeso = (i: number, v: number) =>
+    setPesos((prev) => prev.map((p, idx) => (idx === i ? v : p)));
   if (!dados) {
     return (
       <>
@@ -675,7 +678,7 @@ function DiagnosticoPage() {
         }
       />
 
-      <ScoreSummary secoes={secoes} />
+      <ScoreSummary secoes={secoes} pesos={pesos} onPesosChange={atualizarPeso} />
 
       {secoes.map((sec) => (
         <Secao key={sec.titulo} titulo={sec.titulo}>
