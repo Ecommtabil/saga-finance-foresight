@@ -634,6 +634,8 @@ function DiagnosticoPage() {
         }
       />
 
+      <ScoreSummary secoes={secoes} />
+
       {secoes.map((sec) => (
         <Secao key={sec.titulo} titulo={sec.titulo}>
           {sec.cards.map((c) => (
