@@ -157,6 +157,9 @@ function UploadPage() {
                 <Link to="/indicadores">Ver Indicadores</Link>
               </Button>
               <Button asChild variant="outline">
+                <Link to="/diagnostico">Ver Diagnóstico</Link>
+              </Button>
+              <Button asChild variant="outline">
                 <Link to="/valuation">Ver Valuation</Link>
               </Button>
               <Button
