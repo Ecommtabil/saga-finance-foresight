@@ -1,7 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PageHeader } from "@/components/saga/PageHeader";
 import { EmptyState } from "@/components/saga/EmptyState";
 import { useSaga } from "@/lib/saga/context";
@@ -53,14 +61,29 @@ function IndicadorCard({
   status,
   interpretacao,
   referencia,
+  delta,
+  deltaLabel,
+  pctPoints,
 }: {
   titulo: string;
   valor: string;
   status: Status;
   interpretacao: string;
   referencia: string;
+  delta?: number;
+  deltaLabel?: string;
+  pctPoints?: boolean;
 }) {
   const s = STATUS_STYLE[status];
+  const hasDelta = delta !== undefined && isFinite(delta);
+  const deltaPositive = hasDelta && delta! > 0.0001;
+  const deltaNegative = hasDelta && delta! < -0.0001;
+  const DeltaIcon = deltaPositive ? TrendingUp : deltaNegative ? TrendingDown : Minus;
+  const deltaText = hasDelta
+    ? pctPoints
+      ? `${delta! > 0 ? "+" : ""}${(delta! * 100).toFixed(1)} p.p.`
+      : `${delta! > 0 ? "+" : ""}${delta!.toFixed(2)}`
+    : null;
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
@@ -75,7 +98,27 @@ function IndicadorCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-semibold tabular-nums">{valor}</div>
+        <div className="flex items-baseline gap-2">
+          <div className="text-2xl font-semibold tabular-nums">{valor}</div>
+          {hasDelta && (
+            <span
+              className={`inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums ${
+                deltaPositive
+                  ? "text-emerald-700"
+                  : deltaNegative
+                    ? "text-red-700"
+                    : "text-muted-foreground"
+              }`}
+              title={deltaLabel}
+            >
+              <DeltaIcon className="h-3 w-3" />
+              {deltaText}
+            </span>
+          )}
+        </div>
+        {deltaLabel && hasDelta && (
+          <p className="mt-0.5 text-[10px] text-muted-foreground">{deltaLabel}</p>
+        )}
         <p className="mt-2 text-xs text-foreground/80">{interpretacao}</p>
         <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
           Referência: {referencia}
@@ -98,6 +141,10 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
 
 function DiagnosticoPage() {
   const { dados, modo, empresa } = useSaga();
+  const anosDisponiveis = dados?.anos ?? [];
+  const [anoSelecionado, setAnoSelecionado] = useState<number | null>(
+    anosDisponiveis.length ? anosDisponiveis[anosDisponiveis.length - 1] : null,
+  );
   if (!dados) {
     return (
       <>
@@ -107,28 +154,42 @@ function DiagnosticoPage() {
     );
   }
 
-  const last = dados.anos.length - 1;
+  const idx = Math.max(
+    0,
+    dados.anos.indexOf(anoSelecionado ?? dados.anos[dados.anos.length - 1]),
+  );
+  const prev = idx > 0 ? idx - 1 : null;
+  const anoAtual = dados.anos[idx];
+  const anoAnterior = prev !== null ? dados.anos[prev] : null;
+  const deltaLabel = anoAnterior !== null ? `vs ${anoAnterior}` : undefined;
   const m = margens(dados);
   const rent = indicadoresRentabilidade(dados);
   const liq = indicadoresLiquidez(dados);
   const end = indicadoresEndividamento(dados);
 
-  const mBruta = m.bruta[last];
-  const mEbitda = m.ebitda[last];
-  const mOp = m.operacional[last];
-  const mLiq = m.liquida[last];
+  const mBruta = m.bruta[idx];
+  const mEbitda = m.ebitda[idx];
+  const mOp = m.operacional[idx];
+  const mLiq = m.liquida[idx];
 
-  const roe = rent.roe[last];
-  const roa = rent.roa[last];
-  const roic = rent.roic[last];
-  const giroAtivo = dados.balanco
-    ? safeDiv(dados.dre.receitaLiquida[last], dados.balanco.ativoTotal[last])
-    : NaN;
+  const roe = rent.roe[idx];
+  const roa = rent.roa[idx];
+  const roic = rent.roic[idx];
+  const giroFor = (i: number) =>
+    dados.balanco
+      ? safeDiv(dados.dre.receitaLiquida[i], dados.balanco.ativoTotal[i])
+      : NaN;
+  const giroAtivo = giroFor(idx);
 
-  const divPL = end?.dividaSobrePL[last] ?? NaN;
-  const divAtivo = end?.dividaSobreAtivo[last] ?? NaN;
-  const cobJuros = end?.coberturaJuros[last] ?? NaN;
-  const liqCorr = liq?.corrente[last] ?? NaN;
+  const divPL = end?.dividaSobrePL[idx] ?? NaN;
+  const divAtivo = end?.dividaSobreAtivo[idx] ?? NaN;
+  const cobJuros = end?.coberturaJuros[idx] ?? NaN;
+  const liqCorr = liq?.corrente[idx] ?? NaN;
+
+  const d = (curr: number, prevVal: number | undefined) =>
+    prev === null || prevVal === undefined || !isFinite(prevVal) || !isFinite(curr)
+      ? undefined
+      : curr - prevVal;
 
   const secoes: DiagSecao[] = [
     {
@@ -138,6 +199,9 @@ function DiagnosticoPage() {
           titulo: "Margem Bruta",
           valor: fmtPct(mBruta),
           status: classificar(mBruta, 0.4, 0.2),
+          delta: d(mBruta, prev !== null ? m.bruta[prev] : undefined),
+          deltaLabel,
+          pctPoints: true,
           interpretacao:
             mBruta >= 0.4
               ? "Boa eficiência na produção/entrega, sobra saudável após CMV."
@@ -150,6 +214,9 @@ function DiagnosticoPage() {
           titulo: "Margem EBITDA",
           valor: fmtPct(mEbitda),
           status: classificar(mEbitda, 0.15, 0.08),
+          delta: d(mEbitda, prev !== null ? m.ebitda[prev] : undefined),
+          deltaLabel,
+          pctPoints: true,
           interpretacao:
             mEbitda >= 0.15
               ? "Geração de caixa operacional consistente."
