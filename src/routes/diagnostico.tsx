@@ -323,6 +323,7 @@ function IndicadorCard({
   pctPoints?: boolean;
 }) {
   const s = STATUS_STYLE[status];
+  const scoreIndividual = STATUS_SCORE[status];
   const hasDelta = delta !== undefined && isFinite(delta);
   const deltaPositive = hasDelta && delta! > 0.0001;
   const deltaNegative = hasDelta && delta! < -0.0001;
@@ -332,6 +333,13 @@ function IndicadorCard({
       ? `${delta! > 0 ? "+" : ""}${(delta! * 100).toFixed(1)} p.p.`
       : `${delta! > 0 ? "+" : ""}${delta!.toFixed(2)}`
     : null;
+  const semaforoAceso: Record<Status, "top" | "mid" | "bot" | null> = {
+    ruim: "top",
+    atencao: "mid",
+    bom: "bot",
+    neutro: null,
+  };
+  const aceso = semaforoAceso[status];
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
@@ -346,27 +354,61 @@ function IndicadorCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-baseline gap-2">
-          <div className="text-2xl font-semibold tabular-nums">{valor}</div>
-          {hasDelta && (
+        <div className="flex items-start gap-3">
+          <div className="flex flex-col items-center gap-1 rounded-md bg-neutral-900 p-1.5 shadow-inner">
             <span
-              className={`inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums ${
-                deltaPositive
-                  ? "text-emerald-700"
-                  : deltaNegative
-                    ? "text-red-700"
-                    : "text-muted-foreground"
+              className={`h-2.5 w-2.5 rounded-full transition-all ${
+                aceso === "top"
+                  ? "bg-red-500 shadow-[0_0_6px_2px_rgba(239,68,68,0.7)]"
+                  : "bg-red-500/15"
               }`}
-              title={deltaLabel}
-            >
-              <DeltaIcon className="h-3 w-3" />
-              {deltaText}
-            </span>
-          )}
+            />
+            <span
+              className={`h-2.5 w-2.5 rounded-full transition-all ${
+                aceso === "mid"
+                  ? "bg-amber-400 shadow-[0_0_6px_2px_rgba(251,191,36,0.7)]"
+                  : "bg-amber-400/15"
+              }`}
+            />
+            <span
+              className={`h-2.5 w-2.5 rounded-full transition-all ${
+                aceso === "bot"
+                  ? "bg-emerald-500 shadow-[0_0_6px_2px_rgba(16,185,129,0.7)]"
+                  : "bg-emerald-500/15"
+              }`}
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <div className="text-2xl font-semibold tabular-nums">{valor}</div>
+              {hasDelta && (
+                <span
+                  className={`inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums ${
+                    deltaPositive
+                      ? "text-emerald-700"
+                      : deltaNegative
+                        ? "text-red-700"
+                        : "text-muted-foreground"
+                  }`}
+                  title={deltaLabel}
+                >
+                  <DeltaIcon className="h-3 w-3" />
+                  {deltaText}
+                </span>
+              )}
+            </div>
+            <div className="mt-1 flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span>Score</span>
+              <span className={`font-semibold tabular-nums ${s.text}`}>
+                {scoreIndividual !== null ? scoreIndividual : "—"}
+              </span>
+              <span>/100</span>
+            </div>
+            {deltaLabel && hasDelta && (
+              <p className="mt-0.5 text-[10px] text-muted-foreground">{deltaLabel}</p>
+            )}
+          </div>
         </div>
-        {deltaLabel && hasDelta && (
-          <p className="mt-0.5 text-[10px] text-muted-foreground">{deltaLabel}</p>
-        )}
         <p className="mt-2 text-xs text-foreground/80">{interpretacao}</p>
         <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
           Referência: {referencia}
