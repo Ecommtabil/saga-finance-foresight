@@ -55,6 +55,212 @@ const STATUS_STYLE: Record<Status, { dot: string; label: string; text: string }>
   neutro: { dot: "bg-muted-foreground", label: "—", text: "text-muted-foreground" },
 };
 
+const STATUS_SCORE: Record<Status, number | null> = {
+  bom: 100,
+  atencao: 60,
+  ruim: 20,
+  neutro: null,
+};
+
+function classificarScore(score: number): {
+  letra: string;
+  rotulo: string;
+  cor: string;
+  anel: string;
+  faixa: string;
+} {
+  if (score >= 85)
+    return {
+      letra: "A",
+      rotulo: "Excelente",
+      cor: "text-emerald-700",
+      anel: "stroke-emerald-500",
+      faixa: "bg-emerald-50 border-emerald-200",
+    };
+  if (score >= 70)
+    return {
+      letra: "B",
+      rotulo: "Saudável",
+      cor: "text-emerald-700",
+      anel: "stroke-emerald-500",
+      faixa: "bg-emerald-50 border-emerald-200",
+    };
+  if (score >= 55)
+    return {
+      letra: "C",
+      rotulo: "Atenção",
+      cor: "text-amber-700",
+      anel: "stroke-amber-500",
+      faixa: "bg-amber-50 border-amber-200",
+    };
+  if (score >= 40)
+    return {
+      letra: "D",
+      rotulo: "Frágil",
+      cor: "text-orange-700",
+      anel: "stroke-orange-500",
+      faixa: "bg-orange-50 border-orange-200",
+    };
+  return {
+    letra: "E",
+    rotulo: "Crítico",
+    cor: "text-red-700",
+    anel: "stroke-red-500",
+    faixa: "bg-red-50 border-red-200",
+  };
+}
+
+function scoreSecao(cards: { status: Status }[]): number | null {
+  const vals = cards
+    .map((c) => STATUS_SCORE[c.status])
+    .filter((v): v is number => v !== null);
+  if (!vals.length) return null;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+function ScoreGauge({ score }: { score: number }) {
+  const c = classificarScore(score);
+  const size = 168;
+  const stroke = 14;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const dash = (score / 100) * circ;
+  return (
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          strokeWidth={stroke}
+          className="fill-none stroke-muted"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${circ - dash}`}
+          className={`fill-none ${c.anel} transition-all`}
+        />
+      </svg>
+      <div className="absolute flex flex-col items-center">
+        <span className={`text-4xl font-bold tabular-nums ${c.cor}`}>
+          {Math.round(score)}
+        </span>
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          de 100
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function ScoreSummary({
+  secoes,
+}: {
+  secoes: { titulo: string; cards: { status: Status }[] }[];
+}) {
+  const secoesScore = secoes.map((s) => ({
+    titulo: s.titulo,
+    score: scoreSecao(s.cards),
+  }));
+  const scores = secoesScore.map((s) => s.score).filter((v): v is number => v !== null);
+  const overall = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+  const c = classificarScore(overall);
+  const totalCards = secoes.reduce((acc, s) => acc + s.cards.length, 0);
+  const cont = { bom: 0, atencao: 0, ruim: 0, neutro: 0 } as Record<Status, number>;
+  secoes.forEach((s) => s.cards.forEach((k) => (cont[k.status] += 1)));
+
+  return (
+    <Card className={`overflow-hidden border ${c.faixa}`}>
+      <CardContent className="p-6">
+        <div className="grid gap-6 md:grid-cols-[auto_1fr]">
+          <div className="flex flex-col items-center gap-3">
+            <ScoreGauge score={overall} />
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-md bg-white text-lg font-bold shadow-sm ${c.cor}`}
+              >
+                {c.letra}
+              </span>
+              <span className={`text-sm font-semibold ${c.cor}`}>{c.rotulo}</span>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                Score Financeiro Consolidado
+              </div>
+              <p className="mt-1 text-sm text-foreground/80">
+                Nota geral calculada a partir de <b>{totalCards}</b> indicadores nas
+                três dimensões do diagnóstico. Cada indicador contribui conforme
+                seu status: Saudável (100), Atenção (60) e Crítico (20).
+              </p>
+              <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" /> {cont.bom} saudáveis
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-amber-500" /> {cont.atencao} em atenção
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-red-500" /> {cont.ruim} críticos
+                </span>
+                {cont.neutro > 0 && (
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-muted-foreground" /> {cont.neutro} indisponíveis
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {secoesScore.map((s) => {
+                const sc = s.score ?? 0;
+                const cs = classificarScore(sc);
+                return (
+                  <div key={s.titulo} className="rounded-md border bg-white p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        {s.titulo}
+                      </span>
+                      <span className={`text-xs font-semibold ${cs.cor}`}>
+                        {cs.letra}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <span className={`text-xl font-bold tabular-nums ${cs.cor}`}>
+                        {s.score !== null ? Math.round(sc) : "—"}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">/100</span>
+                    </div>
+                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={`h-full rounded-full ${
+                          sc >= 70
+                            ? "bg-emerald-500"
+                            : sc >= 55
+                              ? "bg-amber-500"
+                              : sc >= 40
+                                ? "bg-orange-500"
+                                : "bg-red-500"
+                        }`}
+                        style={{ width: `${Math.max(0, Math.min(100, sc))}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 text-[10px] text-muted-foreground">{cs.rotulo}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function IndicadorCard({
   titulo,
   valor,
