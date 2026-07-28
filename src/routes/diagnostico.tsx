@@ -99,7 +99,7 @@ function DiagnosticoPage() {
     return (
       <>
         <PageHeader titulo="Diagnóstico" />
-        <EmptyState titulo="Diagnóstico indisponível" descricao="Importe uma planilha para gerar o diagnóstico." />
+        <EmptyState titulo="Diagnóstico indisponível" />
       </>
     );
   }
