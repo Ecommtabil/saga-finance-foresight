@@ -306,6 +306,41 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
     }
   }
 
+  // --- Narrativa de causa e efeito (top pares) ---
+  type Par = { a: string; b: string; v: number };
+  const paresRanqueados: Par[] = [];
+  for (let i = 0; i < corrSeries.length; i++) {
+    for (let j = i + 1; j < corrSeries.length; j++) {
+      const v = corrMatrix[i][j];
+      if (!Number.isFinite(v)) continue;
+      paresRanqueados.push({
+        a: shortName(corrSeries[i].nome),
+        b: shortName(corrSeries[j].nome),
+        v,
+      });
+    }
+  }
+  paresRanqueados.sort((x, y) => Math.abs(y.v) - Math.abs(x.v));
+  const topPares = paresRanqueados.filter((p) => Math.abs(p.v) >= 0.4).slice(0, 5);
+
+  const hipotese = (p: Par) => {
+    const forca = Math.abs(p.v) > 0.7 ? "forte" : "moderada";
+    if (p.v >= 0) {
+      return `Quando ${p.a} cresce, ${p.b} tende a crescer junto (relação ${forca}). Hipótese: ${p.a} pode estar puxando ${p.b} — vale testar se aumentar ${p.a} de forma controlada gera mais ${p.b}.`;
+    }
+    return `Quando ${p.a} sobe, ${p.b} tende a cair (relação inversa ${forca}). Hipótese: pode haver relação de eficiência, substituição ou trade-off entre ${p.a} e ${p.b} — investigue se um está roubando espaço do outro.`;
+  };
+  const comoValidar = (p: Par) => {
+    const passos = [
+      `Isole o efeito: rode um recorte curto (ex.: 1–2 meses) mudando apenas ${p.a} e observando ${p.b}, com o resto da operação estável.`,
+      `Compare com um período de referência sem essa alteração para separar sazonalidade e efeitos externos.`,
+      `Enriqueça a base: adicione variáveis de contexto (calendário promocional, campanhas ativas, sazonalidade do setor, câmbio, feriados) para descartar causas escondidas.`,
+      `Aumente a granularidade: se hoje analisa mensal, tente semanal ou diário — relações reais tendem a aparecer também no curto prazo.`,
+      `Segmente: quebre por canal, praça, produto ou cliente e veja se a relação se mantém em todos os cortes ou só em alguns.`,
+    ];
+    return passos;
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -760,6 +795,83 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
                   : " — sem padrão claro entre os dois indicadores no período."}
               . Use como <em>hipótese</em> de gestão e valide na operação.
             </Interpretacao>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            Narrativa de causa e efeito — hipóteses de negócio
+            <InfoTooltip text="A partir das relações mais fortes do mapa de correlações (|r| ≥ 0,4), o SAGA transforma cada par em uma hipótese de gestão em linguagem de negócio e sugere passos práticos para validar com dados adicionais antes de tomar decisão. Correlação sinaliza padrão — a validação confirma (ou descarta) a causa." />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {topPares.length === 0 ? (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Sem relações fortes o suficiente no recorte atual</AlertTitle>
+              <AlertDescription>
+                Nenhum par de indicadores selecionados atingiu força mínima (|r| ≥ 0,40) para gerar uma hipótese confiável. Amplie o intervalo de análise, inclua mais indicadores no mapa ou revise o preenchimento da planilha.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Cada bloco abaixo lê um par de indicadores fortemente relacionados no seu recorte e propõe uma <strong>hipótese de negócio</strong> + um roteiro de <strong>validação com dados adicionais</strong>. Use como ponto de partida da conversa com a operação — não como veredito.
+              </p>
+              <div className="space-y-4">
+                {topPares.map((p, idx) => {
+                  const forca = Math.abs(p.v) > 0.7 ? "forte" : "moderada";
+                  const sentido = p.v >= 0 ? "mesmo sentido" : "sentido oposto";
+                  return (
+                    <div
+                      key={`${p.a}-${p.b}-${idx}`}
+                      className="rounded-lg border p-4 space-y-3 bg-card"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline" className="text-xs">#{idx + 1}</Badge>
+                        <span className="font-semibold">
+                          {p.a} <span className="text-muted-foreground">×</span> {p.b}
+                        </span>
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            "text-xs",
+                            p.v >= 0
+                              ? "bg-primary/10 text-primary"
+                              : "bg-destructive/10 text-destructive",
+                          )}
+                        >
+                          {p.v >= 0 ? "+" : ""}{p.v.toFixed(2)} · {forca} · {sentido}
+                        </Badge>
+                      </div>
+
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-1">
+                          Hipótese de negócio
+                        </div>
+                        <p className="text-sm leading-relaxed">{hipotese(p)}</p>
+                      </div>
+
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-1">
+                          Como validar com dados adicionais
+                        </div>
+                        <ol className="list-decimal pl-5 text-sm space-y-1 leading-relaxed">
+                          {comoValidar(p).map((passo, i) => (
+                            <li key={i}>{passo}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <Interpretacao>
+                Priorize testar primeiro a hipótese <strong>#1</strong>: é a relação mais consistente do seu recorte e, portanto, a alavanca (ou o trade-off) com maior potencial de mover o resultado. Se após um período de teste controlado a relação se mantiver, promova a hipótese a <em>regra de gestão</em>; caso contrário, descarte e siga para a próxima.
+              </Interpretacao>
+            </>
           )}
         </CardContent>
       </Card>
