@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { Download, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import {
   Select,
@@ -159,19 +160,30 @@ function ScoreGauge({ score }: { score: number }) {
 
 function ScoreSummary({
   secoes,
+  pesos,
+  onPesosChange,
 }: {
   secoes: { titulo: string; cards: { status: Status }[] }[];
+  pesos: number[];
+  onPesosChange: (i: number, v: number) => void;
 }) {
   const secoesScore = secoes.map((s) => ({
     titulo: s.titulo,
     score: scoreSecao(s.cards),
   }));
-  const scores = secoesScore.map((s) => s.score).filter((v): v is number => v !== null);
-  const overall = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+  const pares = secoesScore
+    .map((s, i) => ({ score: s.score, peso: pesos[i] ?? 0 }))
+    .filter((p): p is { score: number; peso: number } => p.score !== null);
+  const somaPesosAtivos = pares.reduce((a, b) => a + b.peso, 0);
+  const overall =
+    somaPesosAtivos > 0
+      ? pares.reduce((acc, p) => acc + p.score * p.peso, 0) / somaPesosAtivos
+      : 0;
   const c = classificarScore(overall);
   const totalCards = secoes.reduce((acc, s) => acc + s.cards.length, 0);
   const cont = { bom: 0, atencao: 0, ruim: 0, neutro: 0 } as Record<Status, number>;
   secoes.forEach((s) => s.cards.forEach((k) => (cont[k.status] += 1)));
+  const totalPesos = pesos.reduce((a, b) => a + b, 0);
 
   return (
     <Card className={`overflow-hidden border ${c.faixa}`}>
@@ -195,8 +207,9 @@ function ScoreSummary({
               </div>
               <p className="mt-1 text-sm text-foreground/80">
                 Nota geral calculada a partir de <b>{totalCards}</b> indicadores nas
-                três dimensões do diagnóstico. Cada indicador contribui conforme
-                seu status: Saudável (100), Atenção (60) e Crítico (20).
+                três dimensões do diagnóstico, ponderada pelos pesos ajustáveis
+                abaixo. Cada indicador contribui conforme seu status: Saudável
+                (100), Atenção (60) e Crítico (20).
               </p>
               <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
@@ -216,9 +229,10 @@ function ScoreSummary({
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
-              {secoesScore.map((s) => {
+              {secoesScore.map((s, i) => {
                 const sc = s.score ?? 0;
                 const cs = classificarScore(sc);
+                const pesoRel = totalPesos > 0 ? (pesos[i] / totalPesos) * 100 : 0;
                 return (
                   <div key={s.titulo} className="rounded-md border bg-white p-3">
                     <div className="flex items-center justify-between">
@@ -249,10 +263,37 @@ function ScoreSummary({
                         style={{ width: `${Math.max(0, Math.min(100, sc))}%` }}
                       />
                     </div>
-                    <div className="mt-1 text-[10px] text-muted-foreground">{cs.rotulo}</div>
+                    <div className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground">
+                      <span>{cs.rotulo}</span>
+                      <span className="tabular-nums">peso {pesoRel.toFixed(0)}%</span>
+                    </div>
+                    <div className="mt-2">
+                      <Slider
+                        value={[pesos[i]]}
+                        min={0}
+                        max={100}
+                        step={1}
+                        onValueChange={(v) => onPesosChange(i, v[0])}
+                        aria-label={`Peso ${s.titulo}`}
+                      />
+                    </div>
                   </div>
                 );
               })}
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+              <span>Ajuste os pesos conforme a prioridade do seu negócio.</span>
+              <button
+                type="button"
+                className="text-primary underline-offset-2 hover:underline"
+                onClick={() => {
+                  onPesosChange(0, 34);
+                  onPesosChange(1, 33);
+                  onPesosChange(2, 33);
+                }}
+              >
+                Redefinir pesos
+              </button>
             </div>
           </div>
         </div>
@@ -351,6 +392,9 @@ function DiagnosticoPage() {
   const [anoSelecionado, setAnoSelecionado] = useState<number | null>(
     anosDisponiveis.length ? anosDisponiveis[anosDisponiveis.length - 1] : null,
   );
+  const [pesos, setPesos] = useState<number[]>([34, 33, 33]);
+  const atualizarPeso = (i: number, v: number) =>
+    setPesos((prev) => prev.map((p, idx) => (idx === i ? v : p)));
   if (!dados) {
     return (
       <>
@@ -634,7 +678,7 @@ function DiagnosticoPage() {
         }
       />
 
-      <ScoreSummary secoes={secoes} />
+      <ScoreSummary secoes={secoes} pesos={pesos} onPesosChange={atualizarPeso} />
 
       {secoes.map((sec) => (
         <Secao key={sec.titulo} titulo={sec.titulo}>
