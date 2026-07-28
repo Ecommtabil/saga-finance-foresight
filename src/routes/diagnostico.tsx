@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import {
   Select,
@@ -161,11 +162,9 @@ function ScoreGauge({ score }: { score: number }) {
 function ScoreSummary({
   secoes,
   pesos,
-  onPesosChange,
 }: {
   secoes: { titulo: string; cards: { status: Status }[] }[];
   pesos: number[];
-  onPesosChange: (i: number, v: number) => void;
 }) {
   const secoesScore = secoes.map((s) => ({
     titulo: s.titulo,
@@ -267,35 +266,94 @@ function ScoreSummary({
                       <span>{cs.rotulo}</span>
                       <span className="tabular-nums">peso {pesoRel.toFixed(0)}%</span>
                     </div>
-                    <div className="mt-2">
-                      <Slider
-                        value={[pesos[i]]}
-                        min={0}
-                        max={100}
-                        step={1}
-                        onValueChange={(v) => onPesosChange(i, v[0])}
-                        aria-label={`Peso ${s.titulo}`}
-                      />
-                    </div>
                   </div>
                 );
               })}
             </div>
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>Ajuste os pesos conforme a prioridade do seu negócio.</span>
-              <button
-                type="button"
-                className="text-primary underline-offset-2 hover:underline"
-                onClick={() => {
-                  onPesosChange(0, 34);
-                  onPesosChange(1, 33);
-                  onPesosChange(2, 33);
-                }}
-              >
-                Redefinir pesos
-              </button>
-            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Ajuste os pesos na aba <b>Parâmetros</b> para refletir a prioridade
+              do seu negócio.
+            </p>
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ParametrosTab({
+  pesos,
+  onPesosChange,
+}: {
+  pesos: number[];
+  onPesosChange: (i: number, v: number) => void;
+}) {
+  const rotulos = ["Lucratividade", "Gestão", "Endividamento"];
+  const descricoes = [
+    "Peso das margens (Bruta, EBITDA, Operacional e Líquida) no score final.",
+    "Peso dos retornos (ROE, ROA, ROIC) e giro do ativo no score final.",
+    "Peso da estrutura de capital, cobertura de juros e liquidez no score final.",
+  ];
+  const total = pesos.reduce((a, b) => a + b, 0) || 1;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Parâmetros do Score</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <p className="text-sm text-muted-foreground">
+          Defina a importância relativa de cada dimensão do diagnóstico. O Score
+          Financeiro Consolidado é recalculado em tempo real usando média
+          ponderada. Os valores abaixo são normalizados para 100%.
+        </p>
+        <div className="space-y-5">
+          {rotulos.map((rot, i) => {
+            const rel = (pesos[i] / total) * 100;
+            return (
+              <div key={rot} className="space-y-2">
+                <div className="flex items-baseline justify-between">
+                  <div>
+                    <div className="text-sm font-medium">{rot}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {descricoes[i]}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold tabular-nums">
+                      {pesos[i]}
+                    </div>
+                    <div className="text-[10px] uppercase text-muted-foreground">
+                      {rel.toFixed(0)}% do total
+                    </div>
+                  </div>
+                </div>
+                <Slider
+                  value={[pesos[i]]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={(v) => onPesosChange(i, v[0])}
+                  aria-label={`Peso ${rot}`}
+                />
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex items-center justify-between border-t pt-4">
+          <span className="text-xs text-muted-foreground">
+            Soma bruta dos pesos: <b className="tabular-nums">{total}</b>
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              onPesosChange(0, 34);
+              onPesosChange(1, 33);
+              onPesosChange(2, 33);
+            }}
+          >
+            Redefinir padrão
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -322,6 +380,7 @@ function IndicadorCard({
   pctPoints?: boolean;
 }) {
   const s = STATUS_STYLE[status];
+  const scoreIndividual = STATUS_SCORE[status];
   const hasDelta = delta !== undefined && isFinite(delta);
   const deltaPositive = hasDelta && delta! > 0.0001;
   const deltaNegative = hasDelta && delta! < -0.0001;
@@ -331,6 +390,13 @@ function IndicadorCard({
       ? `${delta! > 0 ? "+" : ""}${(delta! * 100).toFixed(1)} p.p.`
       : `${delta! > 0 ? "+" : ""}${delta!.toFixed(2)}`
     : null;
+  const semaforoAceso: Record<Status, "top" | "mid" | "bot" | null> = {
+    ruim: "top",
+    atencao: "mid",
+    bom: "bot",
+    neutro: null,
+  };
+  const aceso = semaforoAceso[status];
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
@@ -345,27 +411,61 @@ function IndicadorCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-baseline gap-2">
-          <div className="text-2xl font-semibold tabular-nums">{valor}</div>
-          {hasDelta && (
+        <div className="flex items-start gap-3">
+          <div className="flex flex-col items-center gap-1 rounded-md bg-neutral-900 p-1.5 shadow-inner">
             <span
-              className={`inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums ${
-                deltaPositive
-                  ? "text-emerald-700"
-                  : deltaNegative
-                    ? "text-red-700"
-                    : "text-muted-foreground"
+              className={`h-2.5 w-2.5 rounded-full transition-all ${
+                aceso === "top"
+                  ? "bg-red-500 shadow-[0_0_6px_2px_rgba(239,68,68,0.7)]"
+                  : "bg-red-500/15"
               }`}
-              title={deltaLabel}
-            >
-              <DeltaIcon className="h-3 w-3" />
-              {deltaText}
-            </span>
-          )}
+            />
+            <span
+              className={`h-2.5 w-2.5 rounded-full transition-all ${
+                aceso === "mid"
+                  ? "bg-amber-400 shadow-[0_0_6px_2px_rgba(251,191,36,0.7)]"
+                  : "bg-amber-400/15"
+              }`}
+            />
+            <span
+              className={`h-2.5 w-2.5 rounded-full transition-all ${
+                aceso === "bot"
+                  ? "bg-emerald-500 shadow-[0_0_6px_2px_rgba(16,185,129,0.7)]"
+                  : "bg-emerald-500/15"
+              }`}
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <div className="text-2xl font-semibold tabular-nums">{valor}</div>
+              {hasDelta && (
+                <span
+                  className={`inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums ${
+                    deltaPositive
+                      ? "text-emerald-700"
+                      : deltaNegative
+                        ? "text-red-700"
+                        : "text-muted-foreground"
+                  }`}
+                  title={deltaLabel}
+                >
+                  <DeltaIcon className="h-3 w-3" />
+                  {deltaText}
+                </span>
+              )}
+            </div>
+            <div className="mt-1 flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span>Score</span>
+              <span className={`font-semibold tabular-nums ${s.text}`}>
+                {scoreIndividual !== null ? scoreIndividual : "—"}
+              </span>
+              <span>/100</span>
+            </div>
+            {deltaLabel && hasDelta && (
+              <p className="mt-0.5 text-[10px] text-muted-foreground">{deltaLabel}</p>
+            )}
+          </div>
         </div>
-        {deltaLabel && hasDelta && (
-          <p className="mt-0.5 text-[10px] text-muted-foreground">{deltaLabel}</p>
-        )}
         <p className="mt-2 text-xs text-foreground/80">{interpretacao}</p>
         <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
           Referência: {referencia}
@@ -678,31 +778,40 @@ function DiagnosticoPage() {
         }
       />
 
-      <ScoreSummary secoes={secoes} pesos={pesos} onPesosChange={atualizarPeso} />
-
-      {secoes.map((sec) => (
-        <Secao key={sec.titulo} titulo={sec.titulo}>
-          {sec.cards.map((c) => (
-            <IndicadorCard
-              key={c.titulo}
-              titulo={c.titulo}
-              valor={c.valor}
-              status={c.status}
-              interpretacao={c.interpretacao}
-              referencia={c.referencia}
-              delta={c.delta}
-              deltaLabel={c.deltaLabel}
-              pctPoints={c.pctPoints}
-            />
+      <Tabs defaultValue="diagnostico" className="w-full">
+        <TabsList>
+          <TabsTrigger value="diagnostico">Diagnóstico</TabsTrigger>
+          <TabsTrigger value="parametros">Parâmetros</TabsTrigger>
+        </TabsList>
+        <TabsContent value="diagnostico" className="mt-4 space-y-6">
+          <ScoreSummary secoes={secoes} pesos={pesos} />
+          {secoes.map((sec) => (
+            <Secao key={sec.titulo} titulo={sec.titulo}>
+              {sec.cards.map((c) => (
+                <IndicadorCard
+                  key={c.titulo}
+                  titulo={c.titulo}
+                  valor={c.valor}
+                  status={c.status}
+                  interpretacao={c.interpretacao}
+                  referencia={c.referencia}
+                  delta={c.delta}
+                  deltaLabel={c.deltaLabel}
+                  pctPoints={c.pctPoints}
+                />
+              ))}
+            </Secao>
           ))}
-        </Secao>
-      ))}
-
-      {modo === "basica" && (
-        <p className="text-xs text-muted-foreground">
-          Alguns indicadores de gestão e endividamento exigem o Balanço Patrimonial (modo Contabilidade Completa).
-        </p>
-      )}
+          {modo === "basica" && (
+            <p className="text-xs text-muted-foreground">
+              Alguns indicadores de gestão e endividamento exigem o Balanço Patrimonial (modo Contabilidade Completa).
+            </p>
+          )}
+        </TabsContent>
+        <TabsContent value="parametros" className="mt-4">
+          <ParametrosTab pesos={pesos} onPesosChange={atualizarPeso} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
