@@ -778,31 +778,40 @@ function DiagnosticoPage() {
         }
       />
 
-      <ScoreSummary secoes={secoes} pesos={pesos} onPesosChange={atualizarPeso} />
-
-      {secoes.map((sec) => (
-        <Secao key={sec.titulo} titulo={sec.titulo}>
-          {sec.cards.map((c) => (
-            <IndicadorCard
-              key={c.titulo}
-              titulo={c.titulo}
-              valor={c.valor}
-              status={c.status}
-              interpretacao={c.interpretacao}
-              referencia={c.referencia}
-              delta={c.delta}
-              deltaLabel={c.deltaLabel}
-              pctPoints={c.pctPoints}
-            />
+      <Tabs defaultValue="diagnostico" className="w-full">
+        <TabsList>
+          <TabsTrigger value="diagnostico">Diagnóstico</TabsTrigger>
+          <TabsTrigger value="parametros">Parâmetros</TabsTrigger>
+        </TabsList>
+        <TabsContent value="diagnostico" className="mt-4 space-y-6">
+          <ScoreSummary secoes={secoes} pesos={pesos} />
+          {secoes.map((sec) => (
+            <Secao key={sec.titulo} titulo={sec.titulo}>
+              {sec.cards.map((c) => (
+                <IndicadorCard
+                  key={c.titulo}
+                  titulo={c.titulo}
+                  valor={c.valor}
+                  status={c.status}
+                  interpretacao={c.interpretacao}
+                  referencia={c.referencia}
+                  delta={c.delta}
+                  deltaLabel={c.deltaLabel}
+                  pctPoints={c.pctPoints}
+                />
+              ))}
+            </Secao>
           ))}
-        </Secao>
-      ))}
-
-      {modo === "basica" && (
-        <p className="text-xs text-muted-foreground">
-          Alguns indicadores de gestão e endividamento exigem o Balanço Patrimonial (modo Contabilidade Completa).
-        </p>
-      )}
+          {modo === "basica" && (
+            <p className="text-xs text-muted-foreground">
+              Alguns indicadores de gestão e endividamento exigem o Balanço Patrimonial (modo Contabilidade Completa).
+            </p>
+          )}
+        </TabsContent>
+        <TabsContent value="parametros" className="mt-4">
+          <ParametrosTab pesos={pesos} onPesosChange={atualizarPeso} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
