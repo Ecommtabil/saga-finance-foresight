@@ -804,10 +804,32 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Narrativa de causa e efeito — hipóteses de negócio
-            <InfoTooltip text="A partir das relações mais fortes do mapa de correlações (|r| ≥ 0,4), o SAGA transforma cada par em uma hipótese de gestão em linguagem de negócio e sugere passos práticos para validar com dados adicionais antes de tomar decisão. Correlação sinaliza padrão — a validação confirma (ou descarta) a causa." />
-          </CardTitle>
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <CardTitle className="flex items-center gap-2">
+              Narrativa de causa e efeito — hipóteses de negócio
+              <InfoTooltip text="A partir das relações mais fortes do mapa de correlações (|r| ≥ 0,4), o SAGA transforma cada par em uma hipótese de gestão em linguagem de negócio e sugere passos práticos para validar com dados adicionais antes de tomar decisão. Correlação sinaliza padrão — a validação confirma (ou descarta) a causa." />
+            </CardTitle>
+            <Button
+              size="sm"
+              onClick={() =>
+                gerarRelatorioEstatisticasPDF({
+                  empresa: empresa?.nome || "Empresa",
+                  arquivo: dataset.nomeArquivo,
+                  periodoInicial: dataset.periodos[ini] ?? "",
+                  periodoFinal: dataset.periodos[fim] ?? "",
+                  totalPeriodos: fim - ini + 1,
+                  totalSeries: corrSeries.length,
+                  seriesNomes: corrSeries.map((s) => shortName(s.nome)),
+                  corrMatrix,
+                  paresNarrativa: topPares,
+                  hipotese,
+                  comoValidar,
+                })
+              }
+            >
+              <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {topPares.length === 0 ? (
