@@ -4,7 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import {
+  Download,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ArrowUpDown,
+  ArrowDownWideNarrow,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
