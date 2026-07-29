@@ -495,6 +495,21 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
               {focoVol > 0.2 ? " — resultado instável, difícil de prever sem planejamento." : " — comportamento estável, favorece previsões e metas."}.
             </Interpretacao>
           )}
+          <div className="mt-5 rounded-lg border bg-muted/30 p-4">
+            <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3">
+              Dicionário rápido das métricas
+            </div>
+            <div className="grid gap-3 text-sm md:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(glossarioMetricas).map(([chave, texto]) => (
+                <div key={chave} className="flex gap-2">
+                  <span className="font-semibold text-primary min-w-[90px] shrink-0 capitalize">
+                    {chave === "cv" ? "CV" : chave}
+                  </span>
+                  <span className="text-muted-foreground leading-snug">{texto}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
