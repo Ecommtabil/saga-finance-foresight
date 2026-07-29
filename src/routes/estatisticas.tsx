@@ -53,6 +53,7 @@ import {
   mediaMovel,
   histograma,
   retornos,
+  glossarioMetricas,
 } from "@/lib/saga/stats";
 import { fmtNum, fmtPct } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
