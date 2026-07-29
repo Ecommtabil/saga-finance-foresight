@@ -180,6 +180,20 @@ export async function parsePlanilhaEstatistica(file: File): Promise<DatasetEstat
 
 // ============= Cálculos =============
 
+export const glossarioMetricas: Record<string, string> = {
+  media:
+    "Valor médio do indicador no período escolhido. Pense nele como o 'resultado típico' que a operação entrega.",
+  mediana:
+    "Valor que divide os períodos ao meio: metade ficou abaixo, metade acima. É menos distorcida por meses excepcionais (muito bons ou muito ruins).",
+  desvio:
+    "Quanto os resultados costumam fugir da média. Desvio pequeno = resultado previsível; desvio grande = muita oscilação.",
+  cv: "Coeficiente de Variação: compara a oscilação com o tamanho do indicador. Útil para dizer, por exemplo, se a Receita ou o Volume é mais instável, mesmo em escalas diferentes.",
+  pior: "Menor valor observado no recorte. Ajuda a identificar o piso e eventuais períodos de gargalo.",
+  melhor: "Maior valor observado no recorte. Mostra o teto de desempenho alcançado no período.",
+  oscilacao:
+    "Variação típica (%) de um período para o outro. Indica se o indicador sobe e desce suavemente ou dá saltos grandes.",
+};
+
 function clean(arr: number[]): number[] {
   return arr.filter((v) => Number.isFinite(v));
 }

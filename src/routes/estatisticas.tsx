@@ -53,6 +53,7 @@ import {
   mediaMovel,
   histograma,
   retornos,
+  glossarioMetricas,
 } from "@/lib/saga/stats";
 import { fmtNum, fmtPct } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
@@ -414,7 +415,7 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             Radar de desempenho — visão geral dos indicadores
-            <InfoTooltip text="Panorama de cada indicador no período escolhido. Média = valor típico; Mediana = valor central, menos influenciado por meses fora da curva; Desvio = quanto os resultados oscilam; CV = oscilação relativa (permite comparar indicadores de tamanhos diferentes, como receita e volume); Oscilação % = variação típica de um período para o outro (quanto maior, mais instável o indicador)." />
+            <InfoTooltip text="Panorama de cada indicador no período escolhido. Passe o mouse sobre os cabeçalhos da tabela para entender cada métrica." />
           </CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
@@ -423,19 +424,47 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
               <tr>
                 <th className="p-2 text-left">Indicador</th>
                 <th className="p-2 text-right">Períodos</th>
-                <th className="p-2 text-right">Média</th>
-                <th className="p-2 text-right">Mediana</th>
-                <th className="p-2 text-right">Desvio</th>
-                <th className="p-2 text-right">CV</th>
-                <th className="p-2 text-right">Pior</th>
-                <th className="p-2 text-right">Melhor</th>
-                <th className="p-2 text-right">Oscilação %</th>
+                <th className="p-2 text-right">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    Média <InfoTooltip text={glossarioMetricas.media} />
+                  </span>
+                </th>
+                <th className="p-2 text-right">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    Mediana <InfoTooltip text={glossarioMetricas.mediana} />
+                  </span>
+                </th>
+                <th className="p-2 text-right">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    Desvio <InfoTooltip text={glossarioMetricas.desvio} />
+                  </span>
+                </th>
+                <th className="p-2 text-right">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    CV <InfoTooltip text={glossarioMetricas.cv} />
+                  </span>
+                </th>
+                <th className="p-2 text-right">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    Pior <InfoTooltip text={glossarioMetricas.pior} />
+                  </span>
+                </th>
+                <th className="p-2 text-right">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    Melhor <InfoTooltip text={glossarioMetricas.melhor} />
+                  </span>
+                </th>
+                <th className="p-2 text-right">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    Oscilação % <InfoTooltip text={glossarioMetricas.oscilacao} />
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {series.map((s) => {
                 const e = descritiva(s.valores);
-                 const nomeCurto = shortName(s.nome);
+                const nomeCurto = shortName(s.nome);
                 return (
                   <tr key={s.nome} className="border-t">
                     <td className="p-2 font-medium">{nomeCurto}</td>
@@ -466,6 +495,21 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
               {focoVol > 0.2 ? " — resultado instável, difícil de prever sem planejamento." : " — comportamento estável, favorece previsões e metas."}.
             </Interpretacao>
           )}
+          <div className="mt-5 rounded-lg border bg-muted/30 p-4">
+            <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3">
+              Dicionário rápido das métricas
+            </div>
+            <div className="grid gap-3 text-sm md:grid-cols-2 lg:grid-cols-3">
+              {Object.entries(glossarioMetricas).map(([chave, texto]) => (
+                <div key={chave} className="flex gap-2">
+                  <span className="font-semibold text-primary min-w-[90px] shrink-0 capitalize">
+                    {chave === "cv" ? "CV" : chave}
+                  </span>
+                  <span className="text-muted-foreground leading-snug">{texto}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
