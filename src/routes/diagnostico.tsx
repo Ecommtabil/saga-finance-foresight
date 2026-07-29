@@ -916,7 +916,11 @@ function DiagnosticoPage() {
           )}
         </TabsContent>
         <TabsContent value="parametros" className="mt-4">
-          <ParametrosTab pesos={pesos} onPesosChange={atualizarPeso} />
+          <ParametrosTab
+            pesos={pesos}
+            onPesosChange={atualizarPeso}
+            secoes={secoes}
+          />
         </TabsContent>
       </Tabs>
     </div>
