@@ -291,10 +291,13 @@ function ScoreSummary({
 function ParametrosTab({
   pesos,
   onPesosChange,
+  secoes,
 }: {
   pesos: number[];
   onPesosChange: (i: number, v: number) => void;
+  secoes: DiagSecao[];
 }) {
+  const [inverso, setInverso] = useState(false);
   const rotulos = ["Lucratividade", "Gestão", "Endividamento"];
   const descricoes = [
     "Peso das margens (Bruta, EBITDA, Operacional e Líquida) no score final.",
@@ -302,68 +305,165 @@ function ParametrosTab({
     "Peso da estrutura de capital, cobertura de juros e liquidez no score final.",
   ];
   const total = pesos.reduce((a, b) => a + b, 0) || 1;
+
+  const ranking = secoes
+    .flatMap((sec) =>
+      sec.cards
+        .filter((c) => c.status !== "neutro")
+        .map((c) => ({
+          titulo: c.titulo,
+          secao: sec.titulo,
+          status: c.status,
+          score: STATUS_SCORE[c.status] ?? 0,
+        })),
+    )
+    .sort((a, b) => (inverso ? a.score - b.score : b.score - a.score));
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Parâmetros do Score</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <p className="text-sm text-muted-foreground">
-          Defina a importância relativa de cada dimensão do diagnóstico. O Score
-          Financeiro Consolidado é recalculado em tempo real usando média
-          ponderada. Os valores abaixo são normalizados para 100%.
-        </p>
-        <div className="space-y-5">
-          {rotulos.map((rot, i) => {
-            const rel = (pesos[i] / total) * 100;
-            return (
-              <div key={rot} className="space-y-2">
-                <div className="flex items-baseline justify-between">
-                  <div>
-                    <div className="text-sm font-medium">{rot}</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {descricoes[i]}
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Parâmetros do Score</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <p className="text-sm text-muted-foreground">
+            Defina a importância relativa de cada dimensão do diagnóstico. O Score
+            Financeiro Consolidado é recalculado em tempo real usando média
+            ponderada. Os valores abaixo são normalizados para 100%.
+          </p>
+          <div className="space-y-5">
+            {rotulos.map((rot, i) => {
+              const rel = (pesos[i] / total) * 100;
+              return (
+                <div key={rot} className="space-y-2">
+                  <div className="flex items-baseline justify-between">
+                    <div>
+                      <div className="text-sm font-medium">{rot}</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {descricoes[i]}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold tabular-nums">
+                        {pesos[i]}
+                      </div>
+                      <div className="text-[10px] uppercase text-muted-foreground">
+                        {rel.toFixed(0)}% do total
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-semibold tabular-nums">
-                      {pesos[i]}
+                  <Slider
+                    value={[pesos[i]]}
+                    min={0}
+                    max={100}
+                    step={1}
+                    onValueChange={(v) => onPesosChange(i, v[0])}
+                    aria-label={`Peso ${rot}`}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between border-t pt-4">
+            <span className="text-xs text-muted-foreground">
+              Soma bruta dos pesos: <b className="tabular-nums">{total}</b>
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onPesosChange(0, 34);
+                onPesosChange(1, 33);
+                onPesosChange(2, 33);
+              }}
+            >
+              Redefinir padrão
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <CardTitle className="text-base">Ranking dos Indicadores</CardTitle>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Ordenação por score individual ({inverso ? "mais críticos primeiro" : "maior score primeiro"}).
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setInverso((v) => !v)}
+              className="shrink-0"
+            >
+              {inverso ? (
+                <ArrowDownWideNarrow className="mr-2 h-4 w-4" />
+              ) : (
+                <ArrowUpDown className="mr-2 h-4 w-4" />
+              )}
+              {inverso ? "Maior primeiro" : "Críticos primeiro"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {ranking.map((item, i) => {
+              const s = STATUS_STYLE[item.status];
+              return (
+                <div
+                  key={`${item.secao}-${item.titulo}`}
+                  className="flex items-center gap-3 rounded-md border px-3 py-2.5 transition-colors hover:bg-muted/40"
+                >
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                    {i + 1}
+                  </div>
+                  <div
+                    className={`h-2.5 w-2.5 shrink-0 rounded-full ${s.dot}`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate text-sm font-medium">
+                        {item.titulo}
+                      </span>
+                      <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                        {item.secao}
+                      </span>
                     </div>
-                    <div className="text-[10px] uppercase text-muted-foreground">
-                      {rel.toFixed(0)}% do total
+                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={`h-full rounded-full ${
+                          item.score >= 70
+                            ? "bg-emerald-500"
+                            : item.score >= 55
+                              ? "bg-amber-500"
+                              : item.score >= 40
+                                ? "bg-orange-500"
+                                : "bg-red-500"
+                        }`}
+                        style={{ width: `${item.score}%` }}
+                      />
                     </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className={`text-sm font-bold tabular-nums ${s.text}`}>
+                      {item.score}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">/100</div>
                   </div>
                 </div>
-                <Slider
-                  value={[pesos[i]]}
-                  min={0}
-                  max={100}
-                  step={1}
-                  onValueChange={(v) => onPesosChange(i, v[0])}
-                  aria-label={`Peso ${rot}`}
-                />
-              </div>
-            );
-          })}
-        </div>
-        <div className="flex items-center justify-between border-t pt-4">
-          <span className="text-xs text-muted-foreground">
-            Soma bruta dos pesos: <b className="tabular-nums">{total}</b>
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              onPesosChange(0, 34);
-              onPesosChange(1, 33);
-              onPesosChange(2, 33);
-            }}
-          >
-            Redefinir padrão
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+              );
+            })}
+            {ranking.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                Nenhum indicador disponível para o período selecionado.
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
