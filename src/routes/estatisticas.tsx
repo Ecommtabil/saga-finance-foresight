@@ -620,26 +620,94 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
+          <CardTitle className="flex items-center gap-2">
+            Variáveis nos gráficos de faixas e crescimento
+            <InfoTooltip text="Selecione quantas variáveis quiser para comparar lado a lado nos gráficos de Faixas de resultado e Crescimento período a período. Clique em qualquer barra dos gráficos para abrir o detalhamento (drill-down) daquele ponto." />
+          </CardTitle>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm">
+                Selecionar variáveis ({varsAtivas.length}/{series.length})
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72 max-h-80 overflow-y-auto space-y-2">
+              <div className="flex gap-2 pb-2 border-b">
+                <Button variant="ghost" size="sm" onClick={() => setVarsSel(series.map((s) => s.nome))}>
+                  Todas
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setVarsSel(foco ? [foco.nome] : [])}>
+                  Só o foco
+                </Button>
+              </div>
+              {series.map((s) => (
+                <label key={s.nome} className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Checkbox
+                    checked={varsAtivas.some((v) => v.nome === s.nome)}
+                    onCheckedChange={() => toggleVar(s.nome)}
+                  />
+                  <span>{shortName(s.nome)}</span>
+                </label>
+              ))}
+            </PopoverContent>
+          </Popover>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          {varsAtivas.map((s, i) => (
+            <Badge key={s.nome} variant="secondary" className="gap-2">
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ background: CORES[i % CORES.length] }}
+              />
+              {shortName(s.nome)}
+            </Badge>
+          ))}
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              Faixas de resultado — {shortName(foco?.nome ?? "")}
-              <InfoTooltip text="Agrupa os períodos em 8 faixas de valor e mostra em quantos meses/trimestres o indicador ficou em cada faixa. Ajuda a enxergar onde o resultado mais se concentra, se há meses excepcionais (para cima ou para baixo) e o padrão típico da operação." />
+              Faixas de resultado
+              <InfoTooltip text="Agrupa os períodos em 8 faixas de valor e mostra em quantos meses/trimestres cada variável ficou em cada faixa. Clique em uma barra para ver exatamente quais períodos compõem aquela faixa." />
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={hist}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} />
-                  <XAxis dataKey="faixa" tickLine={false} axisLine={false} fontSize={11} interval={0} angle={-25} textAnchor="end" height={60} />
-                  <YAxis tickLine={false} axisLine={false} fontSize={12} />
-                  <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
-                  <Bar dataKey="freq" name="Quantidade de períodos" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+          <CardContent className="space-y-6">
+            {varsAtivas.map((s, vi) => {
+              const h = histograma(s.valores, 8);
+              return (
+                <div key={s.nome}>
+                  <div className="text-xs font-semibold text-muted-foreground mb-1">
+                    {shortName(s.nome)}
+                  </div>
+                  <div className="h-56">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={h}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} />
+                        <XAxis dataKey="faixa" tickLine={false} axisLine={false} fontSize={11} interval={0} angle={-25} textAnchor="end" height={60} />
+                        <YAxis tickLine={false} axisLine={false} fontSize={12} allowDecimals={false} />
+                        <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
+                        <Bar
+                          dataKey="freq"
+                          name="Quantidade de períodos"
+                          fill={CORES[vi % CORES.length]}
+                          radius={[4, 4, 0, 0]}
+                          cursor="pointer"
+                          onClick={(_d: unknown, idx: number) =>
+                            setDrillFaixa({ serie: s.nome, faixa: h[idx]?.faixa ?? "", idx })
+                          }
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              );
+            })}
+            <p className="text-xs text-muted-foreground">
+              Clique em uma barra para ver os períodos que compõem a faixa.
+            </p>
             {histTop && histTotal > 0 && (
               <Interpretacao>
                 O resultado típico está na faixa <strong>{histTop.faixa}</strong>, presente em{" "}
