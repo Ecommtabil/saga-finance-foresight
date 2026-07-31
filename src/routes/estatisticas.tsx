@@ -1112,6 +1112,95 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!drillFaixa} onOpenChange={(o) => !o && setDrillFaixa(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Faixa {drillFaixa?.faixa} — {shortName(drillFaixa?.serie ?? "")}
+            </DialogTitle>
+            <DialogDescription>
+              Períodos em que o indicador ficou dentro desta faixa de valor.
+            </DialogDescription>
+          </DialogHeader>
+          {detalheFaixa && detalheFaixa.itens.length > 0 ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <Metric label="Períodos na faixa" value={String(detalheFaixa.itens.length)} />
+                <Metric label="Participação no recorte" value={fmtPct(detalheFaixa.participacao, 0)} />
+                <Metric label="Média da faixa" value={fmtNum(detalheFaixa.media)} />
+              </div>
+              <div className="max-h-64 overflow-y-auto rounded-md border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="p-2 text-left">Período</th>
+                      <th className="p-2 text-right">Valor</th>
+                      <th className="p-2 text-right">vs. média da faixa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalheFaixa.itens.map((o) => (
+                      <tr key={o.i} className="border-t">
+                        <td className="p-2">{o.periodo}</td>
+                        <td className="p-2 text-right tabular-nums">{fmtNum(o.valor)}</td>
+                        <td className="p-2 text-right tabular-nums">
+                          {fmtNum(o.valor - detalheFaixa.media)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhum período nesta faixa.</p>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!drillPeriodo} onOpenChange={(o) => !o && setDrillPeriodo(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalhamento de {drillPeriodo?.periodo}</DialogTitle>
+            <DialogDescription>
+              Comparação com o período anterior para todas as variáveis selecionadas.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-80 overflow-y-auto rounded-md border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="p-2 text-left">Variável</th>
+                  <th className="p-2 text-right">Anterior</th>
+                  <th className="p-2 text-right">Atual</th>
+                  <th className="p-2 text-right">Variação</th>
+                  <th className="p-2 text-right">Variação %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(detalhePeriodo ?? []).map((d) => (
+                  <tr key={d.nome} className="border-t">
+                    <td className="p-2 font-medium">{d.nome}</td>
+                    <td className="p-2 text-right tabular-nums">{fmtNum(d.anterior)}</td>
+                    <td className="p-2 text-right tabular-nums">{fmtNum(d.atual)}</td>
+                    <td className="p-2 text-right tabular-nums">{fmtNum(d.delta)}</td>
+                    <td
+                      className={cn(
+                        "p-2 text-right tabular-nums font-medium",
+                        d.pct >= 0 ? "text-primary" : "text-destructive",
+                      )}
+                    >
+                      {d.pct >= 0 ? "+" : ""}
+                      {fmtPct(d.pct, 2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
