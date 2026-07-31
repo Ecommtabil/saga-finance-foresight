@@ -215,6 +215,56 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
   const hist = useMemo(() => (foco ? histograma(foco.valores, 8) : []), [foco]);
   const rets = useMemo(() => (foco ? retornos(foco.valores) : []), [foco]);
 
+  // --- Variáveis exibidas nos gráficos de faixas e crescimento ---
+  const [varsSel, setVarsSel] = useState<string[] | null>(null);
+  const varsAtivas = useMemo(() => {
+    const nomes = varsSel ?? (foco ? [foco.nome] : []);
+    const escolhidas = series.filter((s) => nomes.includes(s.nome));
+    return escolhidas.length ? escolhidas : foco ? [foco] : [];
+  }, [varsSel, series, foco]);
+  const toggleVar = (nome: string) => {
+    setVarsSel((prev) => {
+      const base = prev ?? (foco ? [foco.nome] : []);
+      return base.includes(nome) ? base.filter((n) => n !== nome) : [...base, nome];
+    });
+  };
+
+  // --- Drilldowns ---
+  const [drillFaixa, setDrillFaixa] = useState<{ serie: string; faixa: string; idx: number } | null>(null);
+  const [drillPeriodo, setDrillPeriodo] = useState<{ periodo: string; idx: number } | null>(null);
+
+  const detalheFaixa = useMemo(() => {
+    if (!drillFaixa) return null;
+    const s = series.find((x) => x.nome === drillFaixa.serie);
+    if (!s) return null;
+    const vals = s.valores.filter((v) => Number.isFinite(v));
+    if (vals.length < 2) return null;
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const step = (max - min || 1) / 8;
+    const itens = s.valores
+      .map((v, i) => ({ periodo: periodos[i], valor: v, i }))
+      .filter(
+        (o) =>
+          Number.isFinite(o.valor) &&
+          Math.min(7, Math.floor((o.valor - min) / step)) === drillFaixa.idx,
+      );
+    const media = itens.length ? itens.reduce((a, b) => a + b.valor, 0) / itens.length : 0;
+    return { itens, media, participacao: itens.length / (vals.length || 1) };
+  }, [drillFaixa, series, periodos]);
+
+  const detalhePeriodo = useMemo(() => {
+    if (!drillPeriodo) return null;
+    const i = drillPeriodo.idx; // índice do período atual dentro do recorte
+    return varsAtivas.map((s) => {
+      const atual = s.valores[i];
+      const anterior = s.valores[i - 1];
+      const delta = atual - anterior;
+      const pct = anterior ? delta / Math.abs(anterior) : 0;
+      return { nome: shortName(s.nome), atual, anterior, delta, pct };
+    });
+  }, [drillPeriodo, varsAtivas]);
+
   const chartFoco = periodos.map((p, i) => ({
     periodo: p,
     valor: foco?.valores[i] ?? null,
