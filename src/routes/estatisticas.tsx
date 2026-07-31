@@ -734,22 +734,39 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              Crescimento período a período — {shortName(foco?.nome ?? "")}
-              <InfoTooltip text="Quanto o indicador cresceu ou caiu (%) em relação ao período anterior. Barras verdes/positivas = crescimento; barras negativas = retração. O tamanho das barras mostra o quanto a operação balança de um período para o outro." />
+              Crescimento período a período
+              <InfoTooltip text="Quanto cada variável cresceu ou caiu (%) em relação ao período anterior. Barras positivas = crescimento; negativas = retração. Clique em uma barra para abrir o detalhamento daquele período com todas as variáveis selecionadas." />
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={rets.map((v, i) => ({ periodo: periodos[i + 1] ?? String(i + 1), retorno: v }))}>
+                <BarChart data={crescData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} />
                   <XAxis dataKey="periodo" tickLine={false} axisLine={false} fontSize={12} />
                   <YAxis tickLine={false} axisLine={false} fontSize={12} tickFormatter={(v) => fmtPct(v, 0)} />
                   <Tooltip formatter={(v: number) => fmtPct(v, 2)} contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
-                  <Bar dataKey="retorno" name="Variação %" radius={[4, 4, 0, 0]} fill="var(--chart-3)" />
+                  <Legend />
+                  {varsAtivas.map((s, vi) => (
+                    <Bar
+                      key={s.nome}
+                      dataKey={shortName(s.nome)}
+                      name={shortName(s.nome)}
+                      radius={[4, 4, 0, 0]}
+                      fill={CORES[vi % CORES.length]}
+                      cursor="pointer"
+                      onClick={(d: { payload?: { periodo: string; idx: number } }) =>
+                        d?.payload &&
+                        setDrillPeriodo({ periodo: d.payload.periodo, idx: d.payload.idx })
+                      }
+                    />
+                  ))}
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Clique em uma barra para abrir o detalhamento do período.
+            </p>
             {rets.length > 0 && (
               <Interpretacao>
                 Crescimento médio de <strong>{fmtPct(retMedio, 2)}</strong> por período, com{" "}
