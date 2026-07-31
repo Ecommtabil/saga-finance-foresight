@@ -91,6 +91,17 @@ export const Route = createFileRoute("/estatisticas")({
 
 const shortName = (n: string) => (n.includes("—") ? n.split("—").pop()!.trim() : n);
 
+const CORES = [
+  "var(--primary)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "#7FA3C7",
+  "#C85450",
+  "#9B87C4",
+];
+
 function EstPage() {
   const { statsDataset, setStatsDataset } = useSaga();
   const [erro, setErro] = useState<string | null>(null);
