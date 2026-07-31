@@ -34,6 +34,13 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -83,6 +90,17 @@ export const Route = createFileRoute("/estatisticas")({
 });
 
 const shortName = (n: string) => (n.includes("—") ? n.split("—").pop()!.trim() : n);
+
+const CORES = [
+  "var(--primary)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "#7FA3C7",
+  "#C85450",
+  "#9B87C4",
+];
 
 function EstPage() {
   const { statsDataset, setStatsDataset } = useSaga();
@@ -207,6 +225,71 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
   );
   const hist = useMemo(() => (foco ? histograma(foco.valores, 8) : []), [foco]);
   const rets = useMemo(() => (foco ? retornos(foco.valores) : []), [foco]);
+
+  // --- Variáveis exibidas nos gráficos de faixas e crescimento ---
+  const [varsSel, setVarsSel] = useState<string[] | null>(null);
+  const varsAtivas = useMemo(() => {
+    const nomes = varsSel ?? (foco ? [foco.nome] : []);
+    const escolhidas = series.filter((s) => nomes.includes(s.nome));
+    return escolhidas.length ? escolhidas : foco ? [foco] : [];
+  }, [varsSel, series, foco]);
+  const toggleVar = (nome: string) => {
+    setVarsSel((prev) => {
+      const base = prev ?? (foco ? [foco.nome] : []);
+      return base.includes(nome) ? base.filter((n) => n !== nome) : [...base, nome];
+    });
+  };
+
+  // --- Drilldowns ---
+  const [drillFaixa, setDrillFaixa] = useState<{ serie: string; faixa: string; idx: number } | null>(null);
+  const [drillPeriodo, setDrillPeriodo] = useState<{ periodo: string; idx: number } | null>(null);
+
+  const detalheFaixa = useMemo(() => {
+    if (!drillFaixa) return null;
+    const s = series.find((x) => x.nome === drillFaixa.serie);
+    if (!s) return null;
+    const vals = s.valores.filter((v) => Number.isFinite(v));
+    if (vals.length < 2) return null;
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const step = (max - min || 1) / 8;
+    const itens = s.valores
+      .map((v, i) => ({ periodo: periodos[i], valor: v, i }))
+      .filter(
+        (o) =>
+          Number.isFinite(o.valor) &&
+          Math.min(7, Math.floor((o.valor - min) / step)) === drillFaixa.idx,
+      );
+    const media = itens.length ? itens.reduce((a, b) => a + b.valor, 0) / itens.length : 0;
+    return { itens, media, participacao: itens.length / (vals.length || 1) };
+  }, [drillFaixa, series, periodos]);
+
+  const detalhePeriodo = useMemo(() => {
+    if (!drillPeriodo) return null;
+    const i = drillPeriodo.idx; // índice do período atual dentro do recorte
+    return varsAtivas.map((s) => {
+      const atual = s.valores[i];
+      const anterior = s.valores[i - 1];
+      const delta = atual - anterior;
+      const pct = anterior ? delta / Math.abs(anterior) : 0;
+      return { nome: shortName(s.nome), atual, anterior, delta, pct };
+    });
+  }, [drillPeriodo, varsAtivas]);
+
+  const crescData = useMemo(() => {
+    const linhas: Record<string, number | string>[] = [];
+    for (let i = 1; i < periodos.length; i++) {
+      const linha: Record<string, number | string> = { periodo: periodos[i], idx: i };
+      for (const s of varsAtivas) {
+        const ant = s.valores[i - 1];
+        const at = s.valores[i];
+        linha[shortName(s.nome)] =
+          Number.isFinite(ant) && Number.isFinite(at) && ant ? (at - ant) / Math.abs(ant) : 0;
+      }
+      linhas.push(linha);
+    }
+    return linhas;
+  }, [periodos, varsAtivas]);
 
   const chartFoco = periodos.map((p, i) => ({
     periodo: p,
@@ -563,26 +646,94 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
+          <CardTitle className="flex items-center gap-2">
+            Variáveis nos gráficos de faixas e crescimento
+            <InfoTooltip text="Selecione quantas variáveis quiser para comparar lado a lado nos gráficos de Faixas de resultado e Crescimento período a período. Clique em qualquer barra dos gráficos para abrir o detalhamento (drill-down) daquele ponto." />
+          </CardTitle>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm">
+                Selecionar variáveis ({varsAtivas.length}/{series.length})
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72 max-h-80 overflow-y-auto space-y-2">
+              <div className="flex gap-2 pb-2 border-b">
+                <Button variant="ghost" size="sm" onClick={() => setVarsSel(series.map((s) => s.nome))}>
+                  Todas
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setVarsSel(foco ? [foco.nome] : [])}>
+                  Só o foco
+                </Button>
+              </div>
+              {series.map((s) => (
+                <label key={s.nome} className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Checkbox
+                    checked={varsAtivas.some((v) => v.nome === s.nome)}
+                    onCheckedChange={() => toggleVar(s.nome)}
+                  />
+                  <span>{shortName(s.nome)}</span>
+                </label>
+              ))}
+            </PopoverContent>
+          </Popover>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          {varsAtivas.map((s, i) => (
+            <Badge key={s.nome} variant="secondary" className="gap-2">
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ background: CORES[i % CORES.length] }}
+              />
+              {shortName(s.nome)}
+            </Badge>
+          ))}
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              Faixas de resultado — {shortName(foco?.nome ?? "")}
-              <InfoTooltip text="Agrupa os períodos em 8 faixas de valor e mostra em quantos meses/trimestres o indicador ficou em cada faixa. Ajuda a enxergar onde o resultado mais se concentra, se há meses excepcionais (para cima ou para baixo) e o padrão típico da operação." />
+              Faixas de resultado
+              <InfoTooltip text="Agrupa os períodos em 8 faixas de valor e mostra em quantos meses/trimestres cada variável ficou em cada faixa. Clique em uma barra para ver exatamente quais períodos compõem aquela faixa." />
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={hist}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} />
-                  <XAxis dataKey="faixa" tickLine={false} axisLine={false} fontSize={11} interval={0} angle={-25} textAnchor="end" height={60} />
-                  <YAxis tickLine={false} axisLine={false} fontSize={12} />
-                  <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
-                  <Bar dataKey="freq" name="Quantidade de períodos" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+          <CardContent className="space-y-6">
+            {varsAtivas.map((s, vi) => {
+              const h = histograma(s.valores, 8);
+              return (
+                <div key={s.nome}>
+                  <div className="text-xs font-semibold text-muted-foreground mb-1">
+                    {shortName(s.nome)}
+                  </div>
+                  <div className="h-56">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={h}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} />
+                        <XAxis dataKey="faixa" tickLine={false} axisLine={false} fontSize={11} interval={0} angle={-25} textAnchor="end" height={60} />
+                        <YAxis tickLine={false} axisLine={false} fontSize={12} allowDecimals={false} />
+                        <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
+                        <Bar
+                          dataKey="freq"
+                          name="Quantidade de períodos"
+                          fill={CORES[vi % CORES.length]}
+                          radius={[4, 4, 0, 0]}
+                          cursor="pointer"
+                          onClick={(_d: unknown, idx: number) =>
+                            setDrillFaixa({ serie: s.nome, faixa: h[idx]?.faixa ?? "", idx })
+                          }
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              );
+            })}
+            <p className="text-xs text-muted-foreground">
+              Clique em uma barra para ver os períodos que compõem a faixa.
+            </p>
             {histTop && histTotal > 0 && (
               <Interpretacao>
                 O resultado típico está na faixa <strong>{histTop.faixa}</strong>, presente em{" "}
@@ -598,22 +749,39 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              Crescimento período a período — {shortName(foco?.nome ?? "")}
-              <InfoTooltip text="Quanto o indicador cresceu ou caiu (%) em relação ao período anterior. Barras verdes/positivas = crescimento; barras negativas = retração. O tamanho das barras mostra o quanto a operação balança de um período para o outro." />
+              Crescimento período a período
+              <InfoTooltip text="Quanto cada variável cresceu ou caiu (%) em relação ao período anterior. Barras positivas = crescimento; negativas = retração. Clique em uma barra para abrir o detalhamento daquele período com todas as variáveis selecionadas." />
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={rets.map((v, i) => ({ periodo: periodos[i + 1] ?? String(i + 1), retorno: v }))}>
+                <BarChart data={crescData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} />
                   <XAxis dataKey="periodo" tickLine={false} axisLine={false} fontSize={12} />
                   <YAxis tickLine={false} axisLine={false} fontSize={12} tickFormatter={(v) => fmtPct(v, 0)} />
                   <Tooltip formatter={(v: number) => fmtPct(v, 2)} contentStyle={{ borderRadius: 10, border: "1px solid var(--border)" }} />
-                  <Bar dataKey="retorno" name="Variação %" radius={[4, 4, 0, 0]} fill="var(--chart-3)" />
+                  <Legend />
+                  {varsAtivas.map((s, vi) => (
+                    <Bar
+                      key={s.nome}
+                      dataKey={shortName(s.nome)}
+                      name={shortName(s.nome)}
+                      radius={[4, 4, 0, 0]}
+                      fill={CORES[vi % CORES.length]}
+                      cursor="pointer"
+                      onClick={(d: { payload?: { periodo: string; idx: number } }) =>
+                        d?.payload &&
+                        setDrillPeriodo({ periodo: d.payload.periodo, idx: d.payload.idx })
+                      }
+                    />
+                  ))}
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Clique em uma barra para abrir o detalhamento do período.
+            </p>
             {rets.length > 0 && (
               <Interpretacao>
                 Crescimento médio de <strong>{fmtPct(retMedio, 2)}</strong> por período, com{" "}
@@ -944,6 +1112,95 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!drillFaixa} onOpenChange={(o) => !o && setDrillFaixa(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Faixa {drillFaixa?.faixa} — {shortName(drillFaixa?.serie ?? "")}
+            </DialogTitle>
+            <DialogDescription>
+              Períodos em que o indicador ficou dentro desta faixa de valor.
+            </DialogDescription>
+          </DialogHeader>
+          {detalheFaixa && detalheFaixa.itens.length > 0 ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <Metric label="Períodos na faixa" value={String(detalheFaixa.itens.length)} />
+                <Metric label="Participação no recorte" value={fmtPct(detalheFaixa.participacao, 0)} />
+                <Metric label="Média da faixa" value={fmtNum(detalheFaixa.media)} />
+              </div>
+              <div className="max-h-64 overflow-y-auto rounded-md border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="p-2 text-left">Período</th>
+                      <th className="p-2 text-right">Valor</th>
+                      <th className="p-2 text-right">vs. média da faixa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalheFaixa.itens.map((o) => (
+                      <tr key={o.i} className="border-t">
+                        <td className="p-2">{o.periodo}</td>
+                        <td className="p-2 text-right tabular-nums">{fmtNum(o.valor)}</td>
+                        <td className="p-2 text-right tabular-nums">
+                          {fmtNum(o.valor - detalheFaixa.media)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhum período nesta faixa.</p>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!drillPeriodo} onOpenChange={(o) => !o && setDrillPeriodo(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalhamento de {drillPeriodo?.periodo}</DialogTitle>
+            <DialogDescription>
+              Comparação com o período anterior para todas as variáveis selecionadas.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-80 overflow-y-auto rounded-md border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="p-2 text-left">Variável</th>
+                  <th className="p-2 text-right">Anterior</th>
+                  <th className="p-2 text-right">Atual</th>
+                  <th className="p-2 text-right">Variação</th>
+                  <th className="p-2 text-right">Variação %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(detalhePeriodo ?? []).map((d) => (
+                  <tr key={d.nome} className="border-t">
+                    <td className="p-2 font-medium">{d.nome}</td>
+                    <td className="p-2 text-right tabular-nums">{fmtNum(d.anterior)}</td>
+                    <td className="p-2 text-right tabular-nums">{fmtNum(d.atual)}</td>
+                    <td className="p-2 text-right tabular-nums">{fmtNum(d.delta)}</td>
+                    <td
+                      className={cn(
+                        "p-2 text-right tabular-nums font-medium",
+                        d.pct >= 0 ? "text-primary" : "text-destructive",
+                      )}
+                    >
+                      {d.pct >= 0 ? "+" : ""}
+                      {fmtPct(d.pct, 2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
