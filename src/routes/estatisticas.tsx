@@ -276,6 +276,21 @@ function Analises({ dataset }: { dataset: import("@/lib/saga/stats").DatasetEsta
     });
   }, [drillPeriodo, varsAtivas]);
 
+  const crescData = useMemo(() => {
+    const linhas: Record<string, number | string>[] = [];
+    for (let i = 1; i < periodos.length; i++) {
+      const linha: Record<string, number | string> = { periodo: periodos[i], idx: i };
+      for (const s of varsAtivas) {
+        const ant = s.valores[i - 1];
+        const at = s.valores[i];
+        linha[shortName(s.nome)] =
+          Number.isFinite(ant) && Number.isFinite(at) && ant ? (at - ant) / Math.abs(ant) : 0;
+      }
+      linhas.push(linha);
+    }
+    return linhas;
+  }, [periodos, varsAtivas]);
+
   const chartFoco = periodos.map((p, i) => ({
     periodo: p,
     valor: foco?.valores[i] ?? null,
