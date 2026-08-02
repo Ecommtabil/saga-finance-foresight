@@ -53,7 +53,8 @@ export function AppSidebar() {
   const { modo } = useSaga();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (u: string) => pathname === u;
-  const items = ANALISE.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
+  const modelagemItems = MODELAGEM.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
+  const analiseDadosItems = ANALISE_DADOS.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
 
   return (
     <Sidebar collapsible="icon">
