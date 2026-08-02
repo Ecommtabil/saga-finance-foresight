@@ -29,7 +29,7 @@ import { useSaga } from "@/lib/saga/context";
 
 const PRINCIPAL = [
   { title: "Cadastro", url: "/empresa", icon: Building2 },
-  { title: "Início", url: "/", icon: Home },
+  { title: "Dados", url: "/", icon: Home },
   { title: "Importação", url: "/upload", icon: Upload },
   { title: "Índices Econômicos", url: "/indices", icon: Percent },
 ] as const;
