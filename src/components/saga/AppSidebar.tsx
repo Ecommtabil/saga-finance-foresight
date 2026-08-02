@@ -50,8 +50,8 @@ const MODELAGEM: MenuItem[] = [
     icon: LayoutDashboard,
     children: [
       { title: "DRE", url: "/dre", icon: FileText, apenasCompleta: false },
-      { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Waves, apenasCompleta: true },
-      { title: "Balanço Patrimonial", url: "/balanco", icon: Scale, apenasCompleta: true },
+      { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Waves, apenasCompleta: false },
+      { title: "Balanço Patrimonial", url: "/balanco", icon: Scale, apenasCompleta: false },
     ],
   },
   { title: "Indicadores", url: "/indicadores", icon: Gauge, apenasCompleta: false },
