@@ -34,7 +34,7 @@ const PRINCIPAL = [
   { title: "Índices Econômicos", url: "/indices", icon: Percent },
 ] as const;
 
-const ANALISE = [
+const MODELAGEM = [
   { title: "DRE", url: "/dre", icon: FileText, apenasCompleta: false },
   { title: "Balanço Patrimonial", url: "/balanco", icon: Scale, apenasCompleta: true },
   { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Waves, apenasCompleta: true },
@@ -42,8 +42,11 @@ const ANALISE = [
   { title: "Diagnóstico", url: "/diagnostico", icon: Stethoscope, apenasCompleta: false },
   { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: false },
   { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: false },
-  { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
   { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
+] as const;
+
+const ANALISE_DADOS = [
+  { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
 ] as const;
 
 export function AppSidebar() {
