@@ -34,7 +34,7 @@ const PRINCIPAL = [
   { title: "Índices Econômicos", url: "/indices", icon: Percent },
 ] as const;
 
-const ANALISE = [
+const MODELAGEM = [
   { title: "DRE", url: "/dre", icon: FileText, apenasCompleta: false },
   { title: "Balanço Patrimonial", url: "/balanco", icon: Scale, apenasCompleta: true },
   { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Waves, apenasCompleta: true },
@@ -42,15 +42,19 @@ const ANALISE = [
   { title: "Diagnóstico", url: "/diagnostico", icon: Stethoscope, apenasCompleta: false },
   { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: false },
   { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: false },
-  { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
   { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
+] as const;
+
+const ANALISE_DADOS = [
+  { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
 ] as const;
 
 export function AppSidebar() {
   const { modo } = useSaga();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (u: string) => pathname === u;
-  const items = ANALISE.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
+  const modelagemItems = MODELAGEM.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
+  const analiseDadosItems = ANALISE_DADOS.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
 
   return (
     <Sidebar collapsible="icon">
@@ -90,10 +94,27 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Análise</SidebarGroupLabel>
+          <SidebarGroupLabel>Modelagem Financeira</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {modelagemItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Análise de Dados</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {analiseDadosItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link to={item.url}>
