@@ -33,15 +33,15 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useSaga } from "@/lib/saga/context";
 
-const PRINCIPAL = [
+type SubItem = { title: string; url: string; icon: React.ElementType; apenasCompleta?: boolean };
+type MenuItem = SubItem & { children?: SubItem[] };
+
+const PRINCIPAL: SubItem[] = [
   { title: "Cadastro", url: "/empresa", icon: Building2 },
   { title: "Dados", url: "/", icon: Home },
   { title: "Importação", url: "/upload", icon: Upload },
   { title: "Índices Econômicos", url: "/indices", icon: Percent },
-] as const;
-
-type SubItem = { title: string; url: string; icon: React.ElementType; apenasCompleta?: boolean };
-type MenuItem = SubItem & { children?: SubItem[] };
+];
 
 const MODELAGEM: MenuItem[] = [
   {
@@ -61,9 +61,9 @@ const MODELAGEM: MenuItem[] = [
   { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
 ];
 
-const ANALISE_DADOS = [
+const ANALISE_DADOS: SubItem[] = [
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
-] as const;
+];
 
 function filterItems<T extends { apenasCompleta?: boolean }>(items: T[], modo: string | null): T[] {
   return items.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
