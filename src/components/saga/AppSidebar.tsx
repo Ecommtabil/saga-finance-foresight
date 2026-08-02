@@ -13,6 +13,8 @@ import {
   Sliders,
   GraduationCap,
   Stethoscope,
+  ChevronRight,
+  LayoutDashboard,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,37 +26,74 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useSaga } from "@/lib/saga/context";
 
-const PRINCIPAL = [
+type SubItem = { title: string; url: string; icon: React.ElementType; apenasCompleta?: boolean };
+type MenuItem = SubItem & { children?: SubItem[] };
+
+const PRINCIPAL: SubItem[] = [
   { title: "Cadastro", url: "/empresa", icon: Building2 },
   { title: "Dados", url: "/", icon: Home },
   { title: "Importação", url: "/upload", icon: Upload },
   { title: "Índices Econômicos", url: "/indices", icon: Percent },
-] as const;
+];
 
-const MODELAGEM = [
-  { title: "DRE", url: "/dre", icon: FileText, apenasCompleta: false },
-  { title: "Balanço Patrimonial", url: "/balanco", icon: Scale, apenasCompleta: true },
-  { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Waves, apenasCompleta: true },
+const MODELAGEM: MenuItem[] = [
+  {
+    title: "3 Stats",
+    url: "#",
+    icon: LayoutDashboard,
+    children: [
+      { title: "DRE", url: "/dre", icon: FileText, apenasCompleta: false },
+      { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Waves, apenasCompleta: true },
+      { title: "Balanço Patrimonial", url: "/balanco", icon: Scale, apenasCompleta: true },
+    ],
+  },
   { title: "Indicadores", url: "/indicadores", icon: Gauge, apenasCompleta: false },
   { title: "Diagnóstico", url: "/diagnostico", icon: Stethoscope, apenasCompleta: false },
   { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: false },
   { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: false },
   { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
-] as const;
+];
 
-const ANALISE_DADOS = [
+const ANALISE_DADOS: SubItem[] = [
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
-] as const;
+];
+
+function filterItems<T extends { apenasCompleta?: boolean }>(items: T[], modo: string | null): T[] {
+  return items.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
+}
+
+function MenuLink({ item, active }: { item: SubItem; active: boolean }) {
+  return (
+    <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
+      <Link to={item.url}>
+        <item.icon className="h-4 w-4" />
+        <span>{item.title}</span>
+      </Link>
+    </SidebarMenuButton>
+  );
+}
 
 export function AppSidebar() {
   const { modo } = useSaga();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (u: string) => pathname === u;
-  const modelagemItems = MODELAGEM.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
-  const analiseDadosItems = ANALISE_DADOS.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
+
+  const modelagemItems = MODELAGEM.map((item) => ({
+    ...item,
+    children: item.children ? filterItems(item.children, modo) : undefined,
+  })).filter((item) => {
+    if (item.children) return item.children.length > 0;
+    return item.apenasCompleta ? modo === "completa" : true;
+  });
+
+  const analiseDadosItems = filterItems(ANALISE_DADOS, modo);
 
   return (
     <Sidebar collapsible="icon">
@@ -82,12 +121,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {PRINCIPAL.map((item) => (
                 <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  <MenuLink item={item} active={isActive(item.url)} />
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -97,16 +131,43 @@ export function AppSidebar() {
           <SidebarGroupLabel>Modelagem Financeira</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {modelagemItems.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {modelagemItems.map((item) => {
+                if (item.children && item.children.length > 0) {
+                  const open = item.children.some((child) => isActive(child.url));
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <Collapsible defaultOpen={open}>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton>
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                            <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.children.map((child) => (
+                              <SidebarMenuSubItem key={child.url}>
+                                <SidebarMenuSubButton asChild isActive={isActive(child.url)}>
+                                  <Link to={child.url}>
+                                    <child.icon className="h-4 w-4" />
+                                    <span>{child.title}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </SidebarMenuItem>
+                  );
+                }
+                return (
+                  <SidebarMenuItem key={item.url}>
+                    <MenuLink item={item} active={isActive(item.url)} />
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -116,12 +177,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {analiseDadosItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  <MenuLink item={item} active={isActive(item.url)} />
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
