@@ -116,6 +116,79 @@ const LINHAS: LinhaDre[] = [
   { label: "= Resultado Operacional", get: (d) => d.resultadoOperacional, bold: true },
 ];
 
+type ColunaDre = { key: string; label: string; dado: DreVendasPeriodo; projetado?: boolean };
+
+function DreTabela({
+  colunas,
+  detalhe,
+}: {
+  colunas: ColunaDre[];
+  detalhe?: { conta: string; valores: Record<string, number> }[];
+}) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="min-w-56">Conta</TableHead>
+          {colunas.map((c) => (
+            <TableHead key={c.key} className="text-right">
+              {c.label}
+              {c.projetado && (
+                <TrendingUp className="ml-1 inline h-3 w-3 text-muted-foreground" />
+              )}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {LINHAS.map((l) => (
+          <Fragment key={l.label}>
+            <TableRow>
+              <TableCell
+                className={`${l.bold ? "font-semibold" : ""} ${l.indent ? "pl-6" : ""}`}
+              >
+                {l.label}
+              </TableCell>
+              {colunas.map((c) => (
+                <TableCell
+                  key={c.key}
+                  className={`text-right tabular-nums ${l.bold ? "font-semibold" : ""}`}
+                >
+                  {fmtNum(l.get(c.dado))}
+                </TableCell>
+              ))}
+            </TableRow>
+            {l.label === "(-) Despesas Fixas" &&
+              detalhe?.map((f) => (
+                <TableRow key={`fx-${f.conta}`} className="text-muted-foreground">
+                  <TableCell className="pl-10 text-xs">{f.conta}</TableCell>
+                  {colunas.map((c) => (
+                    <TableCell key={c.key} className="text-right text-xs tabular-nums">
+                      {fmtNum(-(f.valores[c.key] ?? 0))}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+          </Fragment>
+        ))}
+        <TableRow>
+          <TableCell className="text-xs text-muted-foreground">
+            % Resultado sobre Receita Líquida
+          </TableCell>
+          {colunas.map((c) => (
+            <TableCell
+              key={c.key}
+              className="text-right text-xs tabular-nums text-muted-foreground"
+            >
+              {fmtPctTable(safeDiv(c.dado.resultadoOperacional, c.dado.receitaLiquida))}
+            </TableCell>
+          ))}
+        </TableRow>
+      </TableBody>
+    </Table>
+  );
+}
+
 function DreVendasPage() {
   const { empresa } = useSaga();
   const moeda = empresa?.moeda ?? "R$";
