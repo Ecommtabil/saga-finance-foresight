@@ -681,6 +681,7 @@ function DreVendasPage() {
                       </TableHeader>
                       <TableBody>
                         {LINHAS.map((l) => (
+                          <>
                           <TableRow key={l.label}>
                             <TableCell
                               className={`${l.bold ? "font-semibold" : ""} ${l.indent ? "pl-6" : ""}`}
@@ -696,6 +697,31 @@ function DreVendasPage() {
                               </TableCell>
                             ))}
                           </TableRow>
+                          {l.label === "(-) Despesas Fixas" &&
+                            detalharFixas &&
+                            fixasPorConta.map((f) => {
+                              const parte = base.despesasFixas
+                                ? (f.total / totalFixasBase) * base.despesasFixas
+                                : 0;
+                              return (
+                                <TableRow key={`fx-${f.conta}`} className="text-muted-foreground">
+                                  <TableCell className="pl-10 text-xs">{f.conta}</TableCell>
+                                  {colunas.map((c) => (
+                                    <TableCell
+                                      key={c.periodo}
+                                      className="text-right text-xs tabular-nums"
+                                    >
+                                      {fmtNum(
+                                        -(base.despesasFixas
+                                          ? (parte / base.despesasFixas) * c.despesasFixas
+                                          : 0),
+                                      )}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              );
+                            })}
+                          </>
                         ))}
                         <TableRow>
                           <TableCell className="text-xs text-muted-foreground">
