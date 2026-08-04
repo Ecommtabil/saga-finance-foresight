@@ -93,11 +93,9 @@ function AjusteInput({
 }) {
   const [raw, setRaw] = useState(() => String(value ?? 0));
 
-  // Synchronize raw value when external value changes (e.g. reset or initial load)
-  const valueStr = String(value ?? 0);
-  if (raw !== valueStr && valueStr !== String(Number(raw) || 0)) {
-    setRaw(valueStr);
-  }
+  useMemo(() => {
+    setRaw(String(value ?? 0));
+  }, [value]);
 
   return (
     <div className="space-y-1">
