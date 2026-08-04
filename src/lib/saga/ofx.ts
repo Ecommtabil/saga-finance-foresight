@@ -167,16 +167,59 @@ export const AJUSTES_ZERO: AjustesReversos = {
  * Reverso:   LL  = FCO − Depreciação − Outros não-caixa + ΔCR + ΔEstoques − ΔFornecedores − ΔOutros passivos + Juros
  */
 export function reverterParaLucro(fco: number, a: AjustesReversos) {
-  const linhas = [
-    { label: "Caixa gerado nas operações (FCO do OFX)", valor: fco, bold: true },
-    { label: "(−) Depreciação e amortização", valor: -a.depreciacao },
-    { label: "(−) Outros itens não-caixa", valor: -a.outrosNaoCaixa },
-    { label: "(+) Variação de contas a receber", valor: a.varContasReceber },
-    { label: "(+) Variação de estoques", valor: a.varEstoques },
-    { label: "(−) Variação de fornecedores", valor: -a.varFornecedores },
-    { label: "(−) Variação de outros passivos operacionais", valor: -a.varOutrosPassivos },
-    { label: "(+) Resultado financeiro reclassificado", valor: a.jurosFinanceiros },
+  const base = [
+    {
+      label: "Caixa gerado nas operações (FCO do OFX)",
+      valor: fco,
+      bold: true,
+      explicacao: "Ponto de partida: caixa operacional apurado no extrato bancário.",
+    },
+    {
+      label: "(−) Depreciação e amortização",
+      valor: -a.depreciacao,
+      explicacao:
+        "No indireto a depreciação é somada ao lucro por não consumir caixa; no caminho inverso ela é retirada.",
+    },
+    {
+      label: "(−) Outros itens não-caixa",
+      valor: -a.outrosNaoCaixa,
+      explicacao: "Provisões, equivalência e impairment somados no indireto são revertidos aqui.",
+    },
+    {
+      label: "(+/−) Variação de contas a receber",
+      valor: a.varContasReceber,
+      explicacao:
+        "Queda do saldo de clientes gerou caixa sem gerar lucro: como a variação é negativa, ela reduz o lucro reconstruído. Aumento do saldo (variação positiva) aumenta o lucro.",
+    },
+    {
+      label: "(+/−) Variação de estoques",
+      valor: a.varEstoques,
+      explicacao:
+        "Aumento de estoques consome caixa sem afetar o lucro; no caminho inverso ele volta somando ao resultado.",
+    },
+    {
+      label: "(+/−) Variação de fornecedores",
+      valor: -a.varFornecedores,
+      explicacao:
+        "Aumento de fornecedores segurou caixa sem melhorar o lucro; por isso é subtraído no caminho inverso.",
+    },
+    {
+      label: "(+/−) Variação de outros passivos operacionais",
+      valor: -a.varOutrosPassivos,
+      explicacao:
+        "Salários e impostos a pagar seguem a mesma lógica dos fornecedores: aumento do saldo reduz o lucro reconstruído.",
+    },
+    {
+      label: "(+/−) Resultado financeiro reclassificado",
+      valor: a.jurosFinanceiros,
+      explicacao:
+        "Juros e encargos tratados como financiamento na DFC retornam ao resultado por competência.",
+    },
   ];
-  const lucroLiquido = linhas.reduce((s, l) => s + l.valor, 0);
-  return { linhas, lucroLiquido };
+  let acum = 0;
+  const linhas = base.map((l) => {
+    acum += l.valor;
+    return { ...l, acumulado: acum };
+  });
+  return { linhas, lucroLiquido: acum };
 }
