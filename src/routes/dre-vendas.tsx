@@ -32,6 +32,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip as RTooltip,
   XAxis,
