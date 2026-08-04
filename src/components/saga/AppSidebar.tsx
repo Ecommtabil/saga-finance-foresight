@@ -15,6 +15,7 @@ import {
   Stethoscope,
   ChevronRight,
   LayoutDashboard,
+  ArrowDownUp,
 } from "lucide-react";
 import {
   Sidebar,
@@ -63,6 +64,7 @@ const MODELAGEM: MenuItem[] = [
 
 const ANALISE_DADOS: SubItem[] = [
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
+  { title: "Fluxo de Caixa Reverso", url: "/fluxo-reverso", icon: ArrowDownUp, apenasCompleta: false },
 ];
 
 function filterItems<T extends { apenasCompleta?: boolean }>(items: T[], modo: string | null): T[] {
