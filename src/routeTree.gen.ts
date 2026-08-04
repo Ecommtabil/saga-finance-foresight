@@ -18,6 +18,7 @@ import { Route as FluxoReversoRouteImport } from './routes/fluxo-reverso'
 import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
 import { Route as EstatisticasRouteImport } from './routes/estatisticas'
 import { Route as EmpresaRouteImport } from './routes/empresa'
+import { Route as DreVendasRouteImport } from './routes/dre-vendas'
 import { Route as DreRouteImport } from './routes/dre'
 import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
@@ -69,6 +70,11 @@ const EmpresaRoute = EmpresaRouteImport.update({
   path: '/empresa',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DreVendasRoute = DreVendasRouteImport.update({
+  id: '/dre-vendas',
+  path: '/dre-vendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DreRoute = DreRouteImport.update({
   id: '/dre',
   path: '/dre',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/dcf-explicado': typeof DcfExplicadoRoute
   '/diagnostico': typeof DiagnosticoRoute
   '/dre': typeof DreRoute
+  '/dre-vendas': typeof DreVendasRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/dcf-explicado': typeof DcfExplicadoRoute
   '/diagnostico': typeof DiagnosticoRoute
   '/dre': typeof DreRoute
+  '/dre-vendas': typeof DreVendasRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/dcf-explicado': typeof DcfExplicadoRoute
   '/diagnostico': typeof DiagnosticoRoute
   '/dre': typeof DreRoute
+  '/dre-vendas': typeof DreVendasRoute
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/dcf-explicado'
     | '/diagnostico'
     | '/dre'
+    | '/dre-vendas'
     | '/empresa'
     | '/estatisticas'
     | '/fluxo-caixa'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/dcf-explicado'
     | '/diagnostico'
     | '/dre'
+    | '/dre-vendas'
     | '/empresa'
     | '/estatisticas'
     | '/fluxo-caixa'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/dcf-explicado'
     | '/diagnostico'
     | '/dre'
+    | '/dre-vendas'
     | '/empresa'
     | '/estatisticas'
     | '/fluxo-caixa'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   DcfExplicadoRoute: typeof DcfExplicadoRoute
   DiagnosticoRoute: typeof DiagnosticoRoute
   DreRoute: typeof DreRoute
+  DreVendasRoute: typeof DreVendasRoute
   EmpresaRoute: typeof EmpresaRoute
   EstatisticasRoute: typeof EstatisticasRoute
   FluxoCaixaRoute: typeof FluxoCaixaRoute
@@ -277,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dre-vendas': {
+      id: '/dre-vendas'
+      path: '/dre-vendas'
+      fullPath: '/dre-vendas'
+      preLoaderRoute: typeof DreVendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dre': {
       id: '/dre'
       path: '/dre'
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   DcfExplicadoRoute: DcfExplicadoRoute,
   DiagnosticoRoute: DiagnosticoRoute,
   DreRoute: DreRoute,
+  DreVendasRoute: DreVendasRoute,
   EmpresaRoute: EmpresaRoute,
   EstatisticasRoute: EstatisticasRoute,
   FluxoCaixaRoute: FluxoCaixaRoute,
@@ -334,13 +355,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

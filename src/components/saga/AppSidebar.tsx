@@ -16,6 +16,7 @@ import {
   ChevronRight,
   LayoutDashboard,
   ArrowDownUp,
+  Receipt,
 } from "lucide-react";
 import {
   Sidebar,
@@ -64,6 +65,7 @@ const MODELAGEM: MenuItem[] = [
 
 const ANALISE_DADOS: SubItem[] = [
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
+  { title: "DRE - Vendas", url: "/dre-vendas", icon: Receipt, apenasCompleta: false },
   { title: "Fluxo de Caixa Reverso", url: "/fluxo-reverso", icon: ArrowDownUp, apenasCompleta: false },
 ];
 
