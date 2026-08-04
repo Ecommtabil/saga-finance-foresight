@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Download, Upload, AlertTriangle, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/saga/PageHeader";
+import { InfoTooltip } from "@/components/saga/InfoTooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -183,6 +184,54 @@ function DreTabela({
               className="text-right text-xs tabular-nums text-muted-foreground"
             >
               {fmtPctTable(safeDiv(c.dado.resultadoOperacional, c.dado.receitaLiquida))}
+            </TableCell>
+          ))}
+        </TableRow>
+        {(
+          [
+            ["Margem Bruta %", "margemBruta", (d: DreVendasPeriodo) => safeDiv(d.lucroBruto, d.receitaLiquida)],
+            ["Margem de Contribuição %", "margemContribuicao", (d: DreVendasPeriodo) => safeDiv(d.margemContribuicao, d.receitaLiquida)],
+            ["Margem Operacional %", "margemOperacional", (d: DreVendasPeriodo) => safeDiv(d.resultadoOperacional, d.receitaLiquida)],
+            ["Margem Líquida % (s/ Receita Bruta)", "margemLiquida", (d: DreVendasPeriodo) => safeDiv(d.resultadoOperacional, d.receitaBruta)],
+          ] as [string, string, (d: DreVendasPeriodo) => number][]
+        ).map(([label, chave, get]) => (
+          <TableRow key={label} className="bg-muted/30">
+            <TableCell className="text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                {label}
+                <InfoTooltip text={GLOSSARIO_MARGENS[chave]} />
+              </span>
+            </TableCell>
+            {colunas.map((c) => (
+              <TableCell key={c.key} className="text-right text-xs tabular-nums">
+                {fmtPctTable(get(c.dado))}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+        <TableRow className="bg-muted/30">
+          <TableCell className="text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              Ponto de Equilíbrio (receita bruta)
+              <InfoTooltip text={GLOSSARIO_MARGENS.pontoEquilibrio} />
+            </span>
+          </TableCell>
+          {colunas.map((c) => (
+            <TableCell key={c.key} className="text-right text-xs tabular-nums">
+              {fmtNum(analisarMargens(c.dado).peReceitaBruta)}
+            </TableCell>
+          ))}
+        </TableRow>
+        <TableRow className="bg-muted/30">
+          <TableCell className="text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              Unidades no Ponto de Equilíbrio
+              <InfoTooltip text={GLOSSARIO_MARGENS.peUnidades} />
+            </span>
+          </TableCell>
+          {colunas.map((c) => (
+            <TableCell key={c.key} className="text-right text-xs tabular-nums">
+              {fmtNum(analisarMargens(c.dado).peUnidades)}
             </TableCell>
           ))}
         </TableRow>
