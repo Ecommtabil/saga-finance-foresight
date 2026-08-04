@@ -43,7 +43,9 @@ import {
   GRUPOS_LABEL,
   baixarModeloDespesasFixas,
   baixarModeloVendas,
-  contasDespesaFixa,
+  alocarDespesas,
+  contasDespesaFixaAlocadas,
+  modoDespesasEfetivo,
   evolucaoDimensao,
   montarBase,
   montarDre,
@@ -58,6 +60,7 @@ import {
   type GruposCrescimento,
   type LinhaDespesaFixa,
   type LinhaVenda,
+  type ModoDespesas,
 } from "@/lib/saga/dre-vendas";
 
 const DIMENSOES: { key: DimensaoProduto; label: string }[] = [
@@ -128,6 +131,7 @@ function DreVendasPage() {
   const [rotuloProj, setRotuloProj] = useState("P");
   const [crescimento, setCrescimento] = useState<GruposCrescimento>(CRESCIMENTO_PADRAO);
   const [detalharFixas, setDetalharFixas] = useState(true);
+  const [modoDespesas, setModoDespesas] = useState<ModoDespesas>("auto");
   const [dimensao, setDimensao] = useState<DimensaoProduto>("produto");
   const [foco, setFoco] = useState<string | null>(null);
 
@@ -138,9 +142,19 @@ function DreVendasPage() {
 
   const periodos = useMemo(() => periodosDisponiveis(vendas), [vendas]);
 
+  const despesasAloc = useMemo(
+    () => alocarDespesas(despesas, selecionados, modoDespesas),
+    [despesas, selecionados, modoDespesas],
+  );
+
+  const modoAplicado = useMemo(
+    () => modoDespesasEfetivo(despesas, selecionados, modoDespesas),
+    [despesas, selecionados, modoDespesas],
+  );
+
   const fixasPorConta = useMemo(
-    () => contasDespesaFixa(despesas, selecionados),
-    [despesas, selecionados],
+    () => contasDespesaFixaAlocadas(despesas, selecionados, modoDespesas),
+    [despesas, selecionados, modoDespesas],
   );
 
   const totalFixasBase = useMemo(
@@ -149,9 +163,10 @@ function DreVendasPage() {
   );
 
   const despesasForaDaBase = useMemo(() => {
-    if (!despesas.length || !selecionados.length) return [] as string[];
+    if (!despesas.length || !selecionados.length || modoAplicado !== "periodo")
+      return [] as string[];
     return periodosDespesas(despesas).filter((p) => !selecionados.includes(p));
-  }, [despesas, selecionados]);
+  }, [despesas, selecionados, modoAplicado]);
 
   const ranking = useMemo(
     () => resumoPorDimensao(vendas, selecionados, dimensao, carga),
@@ -186,8 +201,8 @@ function DreVendasPage() {
   }
 
   const historico = useMemo(
-    () => selecionados.map((p) => montarDre(p, vendas, despesas, carga)),
-    [selecionados, vendas, despesas, carga],
+    () => selecionados.map((p) => montarDre(p, vendas, despesasAloc, carga)),
+    [selecionados, vendas, despesasAloc, carga],
   );
 
   const base = useMemo(
@@ -196,13 +211,13 @@ function DreVendasPage() {
         ? montarBase(
             selecionados,
             vendas,
-            despesas,
+            despesasAloc,
             carga,
             modoBase,
             modoBase === "soma" ? "Base (soma)" : "Base (média)",
           )
         : null,
-    [selecionados, vendas, despesas, carga, modoBase],
+    [selecionados, vendas, despesasAloc, carga, modoBase],
   );
 
   const projecao = useMemo(
