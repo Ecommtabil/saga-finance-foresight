@@ -32,7 +32,7 @@ function EmpresaPage() {
   const salvar = (e: React.FormEvent) => {
     e.preventDefault();
     setEmpresa(form);
-    navigate({ to: "/upload" });
+    navigate({ to: "/" });
   };
 
   return (
