@@ -25,7 +25,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSaga } from "@/lib/saga/context";
-import { fmtMoney } from "@/lib/saga/formatters";
+import { fmtMoney, fmtNum } from "@/lib/saga/formatters";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip as RTooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   AJUSTES_ZERO,
   CATEGORIAS,
