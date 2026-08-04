@@ -14,6 +14,7 @@ import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SimuladoresRouteImport } from './routes/simuladores'
 import { Route as IndicesRouteImport } from './routes/indices'
 import { Route as IndicadoresRouteImport } from './routes/indicadores'
+import { Route as FluxoReversoRouteImport } from './routes/fluxo-reverso'
 import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
 import { Route as EstatisticasRouteImport } from './routes/estatisticas'
 import { Route as EmpresaRouteImport } from './routes/empresa'
@@ -46,6 +47,11 @@ const IndicesRoute = IndicesRouteImport.update({
 const IndicadoresRoute = IndicadoresRouteImport.update({
   id: '/indicadores',
   path: '/indicadores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FluxoReversoRoute = FluxoReversoRouteImport.update({
+  id: '/fluxo-reverso',
+  path: '/fluxo-reverso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FluxoCaixaRoute = FluxoCaixaRouteImport.update({
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
+  '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
   '/simuladores': typeof SimuladoresRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
+  '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
   '/simuladores': typeof SimuladoresRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/empresa': typeof EmpresaRoute
   '/estatisticas': typeof EstatisticasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
+  '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
   '/simuladores': typeof SimuladoresRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/empresa'
     | '/estatisticas'
     | '/fluxo-caixa'
+    | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
     | '/simuladores'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/empresa'
     | '/estatisticas'
     | '/fluxo-caixa'
+    | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
     | '/simuladores'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/empresa'
     | '/estatisticas'
     | '/fluxo-caixa'
+    | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
     | '/simuladores'
@@ -192,6 +204,7 @@ export interface RootRouteChildren {
   EmpresaRoute: typeof EmpresaRoute
   EstatisticasRoute: typeof EstatisticasRoute
   FluxoCaixaRoute: typeof FluxoCaixaRoute
+  FluxoReversoRoute: typeof FluxoReversoRoute
   IndicadoresRoute: typeof IndicadoresRoute
   IndicesRoute: typeof IndicesRoute
   SimuladoresRoute: typeof SimuladoresRoute
@@ -234,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/indicadores'
       fullPath: '/indicadores'
       preLoaderRoute: typeof IndicadoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fluxo-reverso': {
+      id: '/fluxo-reverso'
+      path: '/fluxo-reverso'
+      fullPath: '/fluxo-reverso'
+      preLoaderRoute: typeof FluxoReversoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fluxo-caixa': {
@@ -304,6 +324,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresaRoute: EmpresaRoute,
   EstatisticasRoute: EstatisticasRoute,
   FluxoCaixaRoute: FluxoCaixaRoute,
+  FluxoReversoRoute: FluxoReversoRoute,
   IndicadoresRoute: IndicadoresRoute,
   IndicesRoute: IndicesRoute,
   SimuladoresRoute: SimuladoresRoute,
@@ -313,13 +334,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
