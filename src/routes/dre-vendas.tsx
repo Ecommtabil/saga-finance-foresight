@@ -143,6 +143,11 @@ function DreVendasPage() {
     [despesas, selecionados],
   );
 
+  const totalFixasBase = useMemo(
+    () => fixasPorConta.reduce((a, f) => a + f.total, 0) || 1,
+    [fixasPorConta],
+  );
+
   const despesasForaDaBase = useMemo(() => {
     if (!despesas.length || !selecionados.length) return [] as string[];
     return periodosDespesas(despesas).filter((p) => !selecionados.includes(p));
@@ -681,8 +686,8 @@ function DreVendasPage() {
                       </TableHeader>
                       <TableBody>
                         {LINHAS.map((l) => (
-                          <>
-                          <TableRow key={l.label}>
+                          <Fragment key={l.label}>
+                          <TableRow>
                             <TableCell
                               className={`${l.bold ? "font-semibold" : ""} ${l.indent ? "pl-6" : ""}`}
                             >
@@ -721,7 +726,7 @@ function DreVendasPage() {
                                 </TableRow>
                               );
                             })}
-                          </>
+                          </Fragment>
                         ))}
                         <TableRow>
                           <TableCell className="text-xs text-muted-foreground">
