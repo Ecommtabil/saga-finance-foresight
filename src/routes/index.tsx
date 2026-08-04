@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Layers } from "lucide-react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { BookOpen, Layers, Building2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSaga } from "@/lib/saga/context";
@@ -18,18 +18,33 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const { modo, setModo } = useSaga();
+  const { modo, setModo, empresa } = useSaga();
   const navigate = useNavigate();
 
   const selecionar = (m: Modo) => {
     setModo(m);
-    navigate({ to: "/empresa" });
+    navigate({ to: "/upload" });
   };
+
+  if (!empresa?.nome) {
+    return (
+      <div className="mx-auto max-w-xl text-center">
+        <Building2 className="mx-auto h-10 w-10 text-primary" />
+        <h1 className="mt-4 text-2xl font-semibold tracking-tight">Comece pelo cadastro da empresa</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Antes de escolher o modo de análise, informe os dados de identificação da empresa.
+        </p>
+        <Button asChild className="mt-6">
+          <Link to="/empresa">Cadastrar empresa</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight">Bem-vindo ao SAGA</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{empresa.nome}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Escolha o nível de profundidade dos dados da empresa que será analisada.
         </p>
