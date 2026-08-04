@@ -299,7 +299,38 @@ function DreVendasPage() {
     [base, crescimento, carga, qtdProj, rotuloProj],
   );
 
-  const colunas: DreVendasPeriodo[] = base ? [base, ...projecao] : [];
+  const colunasBase: ColunaDre[] = base
+    ? [
+        ...historico.map((d) => ({ key: d.periodo, label: d.periodo, dado: d })),
+        { key: "__base", label: base.periodo, dado: base },
+      ]
+    : [];
+
+  const detalheBase = fixasPorConta.map((f) => ({
+    conta: f.conta,
+    valores: {
+      ...f.porPeriodo,
+      __base: modoBase === "media" && selecionados.length ? f.total / selecionados.length : f.total,
+    } as Record<string, number>,
+  }));
+
+  const colunasProj: ColunaDre[] = base
+    ? [
+        { key: "__base", label: base.periodo, dado: base },
+        ...projecao.map((d) => ({ key: d.periodo, label: d.periodo, dado: d, projetado: true })),
+      ]
+    : [];
+
+  const detalheProj = base
+    ? fixasPorConta.map((f) => {
+        const parteBase = detalheBase.find((d) => d.conta === f.conta)?.valores.__base ?? 0;
+        const peso = base.despesasFixas ? parteBase / base.despesasFixas : 0;
+        const valores: Record<string, number> = { __base: parteBase };
+        for (const d of projecao) valores[d.periodo] = d.despesasFixas * peso;
+        return { conta: f.conta, valores };
+      })
+    : [];
+
   const grafico = [...historico, ...projecao].map((d) => ({
     periodo: d.periodo,
     receita: d.receitaBruta,
