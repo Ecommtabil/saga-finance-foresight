@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { useSaga } from "@/lib/saga/context";
 import { fluxoCaixaDireto, fluxoCaixaIndireto } from "@/lib/saga/calculations";
-import { fmtNum } from "@/lib/saga/formatters";
+import { fmtMoney } from "@/lib/saga/formatters";
 
 export const Route = createFileRoute("/fluxo-caixa")({
   head: () => ({
@@ -71,7 +71,7 @@ function FluxoPage() {
             ]}
           />
           <p className="mt-3 text-xs text-muted-foreground">
-            Variação total no período: {fmtNum(dir.variacao.reduce((a, b) => a + b, 0))}
+            Variação total no período: {fmtMoney(dir.variacao.reduce((a, b) => a + b, 0), moeda)}
           </p>
         </TabsContent>
         <TabsContent value="indireto" className="mt-4">
