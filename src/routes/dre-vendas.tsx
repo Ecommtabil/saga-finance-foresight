@@ -28,6 +28,8 @@ import {
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip as RTooltip,
@@ -41,17 +43,31 @@ import {
   GRUPOS_LABEL,
   baixarModeloDespesasFixas,
   baixarModeloVendas,
+  contasDespesaFixa,
+  evolucaoDimensao,
   montarBase,
   montarDre,
   parseDespesasFixas,
   parseVendas,
+  periodosDespesas,
   periodosDisponiveis,
   projetar,
+  resumoPorDimensao,
+  type DimensaoProduto,
   type DreVendasPeriodo,
   type GruposCrescimento,
   type LinhaDespesaFixa,
   type LinhaVenda,
 } from "@/lib/saga/dre-vendas";
+
+const DIMENSOES: { key: DimensaoProduto; label: string }[] = [
+  { key: "produto", label: "Produto" },
+  { key: "sku", label: "SKU" },
+  { key: "marketplace", label: "Marketplace" },
+  { key: "estado", label: "Estado" },
+  { key: "fornecedor", label: "Fornecedor" },
+  { key: "empresa", label: "Empresa" },
+];
 
 export const Route = createFileRoute("/dre-vendas")({
   head: () => ({
@@ -111,6 +127,9 @@ function DreVendasPage() {
   const [qtdProj, setQtdProj] = useState(6);
   const [rotuloProj, setRotuloProj] = useState("P");
   const [crescimento, setCrescimento] = useState<GruposCrescimento>(CRESCIMENTO_PADRAO);
+  const [detalharFixas, setDetalharFixas] = useState(true);
+  const [dimensao, setDimensao] = useState<DimensaoProduto>("produto");
+  const [foco, setFoco] = useState<string | null>(null);
 
   const carga = useMemo(() => {
     const n = Number(cargaStr.replace(",", "."));
@@ -118,6 +137,26 @@ function DreVendasPage() {
   }, [cargaStr]);
 
   const periodos = useMemo(() => periodosDisponiveis(vendas), [vendas]);
+
+  const fixasPorConta = useMemo(
+    () => contasDespesaFixa(despesas, selecionados),
+    [despesas, selecionados],
+  );
+
+  const despesasForaDaBase = useMemo(() => {
+    if (!despesas.length || !selecionados.length) return [] as string[];
+    return periodosDespesas(despesas).filter((p) => !selecionados.includes(p));
+  }, [despesas, selecionados]);
+
+  const ranking = useMemo(
+    () => resumoPorDimensao(vendas, selecionados, dimensao, carga),
+    [vendas, selecionados, dimensao, carga],
+  );
+
+  const serieFoco = useMemo(
+    () => (foco ? evolucaoDimensao(vendas, dimensao, foco) : []),
+    [vendas, dimensao, foco],
+  );
 
   async function onVendas(file?: File | null) {
     if (!file) return;
