@@ -108,7 +108,7 @@ function ChartCard({
                 tickLine={false}
                 axisLine={false}
                 tickMargin={4}
-                tickFormatter={(v: number) => (pct ? `${v.toFixed(0)}%` : v.toFixed(1))}
+                tickFormatter={(v: number) => (pct ? fmtPctTable(v / 100, 0) : fmtNum(v, 1))}
               />
               <Tooltip
                 cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
@@ -119,7 +119,7 @@ function ChartCard({
                   boxShadow: "0 8px 24px -12px rgba(0,0,0,0.18)",
                   fontSize: 12,
                 }}
-                formatter={(v: number) => (pct ? `${v.toFixed(1)}%` : v.toFixed(2))}
+                formatter={(v: number) => (pct ? fmtPctTable(v / 100, 1) : fmtNum(v, 2))}
               />
               <Legend iconType="plainline" wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
               {series.map((s, idx) => (
