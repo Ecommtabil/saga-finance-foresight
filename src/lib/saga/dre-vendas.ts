@@ -101,7 +101,17 @@ function num(v: unknown): number {
 }
 
 function findCol(headers: string[], candidates: string[]): number {
-  return headers.findIndex((h) => candidates.some((c) => h.includes(c)));
+  // 1) match exato tem prioridade (evita "Receita por Produto" virar "Produto")
+  for (const c of candidates) {
+    const i = headers.findIndex((h) => h === c);
+    if (i >= 0) return i;
+  }
+  // 2) depois, match parcial na ordem dos candidatos
+  for (const c of candidates) {
+    const i = headers.findIndex((h) => h.includes(c));
+    if (i >= 0) return i;
+  }
+  return -1;
 }
 
 /* ---------------- Planilhas modelo ---------------- */
@@ -238,7 +248,15 @@ export async function parseVendas(file: File): Promise<LinhaVenda[]> {
   const iFreDir = findCol(headers, ["frete entrega direta"]);
   const iRecEnv = findCol(headers, ["receita por envio"]);
   const iCus = findCol(headers, ["custo", "cmv"]);
-  const iProd = findCol(headers, ["produto", "descricao do item", "item"]);
+  let iProd = findCol(headers, [
+    "produto",
+    "nome do produto",
+    "descricao do produto",
+    "descricao do item",
+    "item",
+  ]);
+  // nunca usar a coluna de receita/custo como nome do produto
+  if (iProd === iRec || iProd === iPer) iProd = -1;
   const iSku = findCol(headers, ["sku", "codigo"]);
   const iMkt = findCol(headers, ["marketplace", "canal"]);
   const iEst = findCol(headers, ["estado", "uf"]);
