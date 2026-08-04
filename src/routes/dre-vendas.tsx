@@ -490,6 +490,7 @@ function DreVendasPage() {
         <Tabs defaultValue="drebase">
           <TabsList>
             <TabsTrigger value="drebase">DRE Base</TabsTrigger>
+            <TabsTrigger value="margens">Margens & Ponto de Equilíbrio</TabsTrigger>
             <TabsTrigger value="proj">Projeções</TabsTrigger>
             <TabsTrigger value="produtos">Vendas por Produto</TabsTrigger>
             <TabsTrigger value="base">Base de Períodos</TabsTrigger>
