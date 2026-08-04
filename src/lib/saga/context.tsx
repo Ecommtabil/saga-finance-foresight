@@ -2,6 +2,15 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import type { DadosImportados, Empresa, Modo, Premissas } from "./types";
 import type { DatasetEstatistico } from "./stats";
 
+export interface ProjetoSaga {
+  versao: 1;
+  salvoEm: string;
+  modo: Modo | null;
+  empresa: Empresa | null;
+  dados: DadosImportados | null;
+  statsDataset: DatasetEstatistico | null;
+}
+
 interface SagaState {
   modo: Modo | null;
   setModo: (m: Modo) => void;
@@ -12,6 +21,8 @@ interface SagaState {
   atualizarPremissas: (p: Partial<Premissas>) => void;
   statsDataset: DatasetEstatistico | null;
   setStatsDataset: (d: DatasetEstatistico | null) => void;
+  exportarProjeto: () => ProjetoSaga;
+  carregarProjeto: (p: ProjetoSaga) => void;
   reset: () => void;
 }
 
@@ -41,9 +52,25 @@ export function SagaProvider({ children }: { children: ReactNode }) {
     setStatsDataset(null);
   };
 
+  const exportarProjeto = (): ProjetoSaga => ({
+    versao: 1,
+    salvoEm: new Date().toISOString(),
+    modo,
+    empresa,
+    dados,
+    statsDataset,
+  });
+
+  const carregarProjeto = (p: ProjetoSaga) => {
+    setModoState(p.modo ?? null);
+    setEmpresa(p.empresa ?? null);
+    setDados(p.dados ?? null);
+    setStatsDataset(p.statsDataset ?? null);
+  };
+
   return (
     <Ctx.Provider
-      value={{ modo, setModo, empresa, setEmpresa, dados, setDados, atualizarPremissas, statsDataset, setStatsDataset, reset }}
+      value={{ modo, setModo, empresa, setEmpresa, dados, setDados, atualizarPremissas, statsDataset, setStatsDataset, exportarProjeto, carregarProjeto, reset }}
     >
       {children}
     </Ctx.Provider>
