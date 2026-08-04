@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Upload, ArrowDownUp, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/saga/PageHeader";
@@ -77,6 +77,53 @@ const AJUSTES_LABELS: { key: keyof AjustesReversos; label: string; hint: string 
   { key: "varOutrosPassivos", label: "Variação de outros passivos", hint: "Salários, impostos a pagar" },
   { key: "jurosFinanceiros", label: "Resultado financeiro reclassificado", hint: "Juros tratados como financiamento" },
 ];
+
+function AjusteInput({
+  id,
+  label,
+  hint,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  hint: string;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const [raw, setRaw] = useState(() => String(value ?? 0));
+
+  useEffect(() => {
+    setRaw(String(value ?? 0));
+  }, [value]);
+
+  return (
+    <div className="space-y-1">
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        type="number"
+        inputMode="decimal"
+        value={raw}
+        onChange={(e) => {
+          const next = e.target.value;
+          setRaw(next);
+          // Allow intermediate typing states like "-" or "-1." without forcing 0
+          if (next === "-" || next === "" || next === "-0" || next.endsWith(".")) return;
+          const parsed = Number(next);
+          if (isFinite(parsed)) onChange(parsed);
+        }}
+        onBlur={() => {
+          const parsed = Number(raw);
+          const normalized = isFinite(parsed) ? parsed : 0;
+          setRaw(String(normalized));
+          onChange(normalized);
+        }}
+      />
+      <p className="text-xs text-muted-foreground">{hint}</p>
+    </div>
+  );
+}
 
 function FluxoReversoPage() {
   const { dados, empresa } = useSaga();
@@ -471,18 +518,14 @@ function FluxoReversoPage() {
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
                   {AJUSTES_LABELS.map((a) => (
-                    <div key={a.key} className="space-y-1">
-                      <Label htmlFor={a.key}>{a.label}</Label>
-                      <Input
-                        id={a.key}
-                        type="number"
-                        value={ajustes[a.key]}
-                        onChange={(e) =>
-                          setAjustes((p) => ({ ...p, [a.key]: Number(e.target.value) || 0 }))
-                        }
-                      />
-                      <p className="text-xs text-muted-foreground">{a.hint}</p>
-                    </div>
+                    <AjusteInput
+                      key={a.key}
+                      id={a.key}
+                      label={a.label}
+                      hint={a.hint}
+                      value={ajustes[a.key]}
+                      onChange={(v) => setAjustes((p) => ({ ...p, [a.key]: v }))}
+                    />
                   ))}
                   {!dados && (
                     <p className="text-xs text-muted-foreground sm:col-span-2">
