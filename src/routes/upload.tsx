@@ -9,6 +9,7 @@ import { useSaga } from "@/lib/saga/context";
 import { baixarPlanilhaModelo } from "@/lib/saga/template";
 import { lerPlanilha, PlanilhaError } from "@/lib/saga/parser";
 import { PdfPreviewDialog } from "@/components/saga/PdfPreviewDialog";
+import { PreviewImportacao } from "@/components/saga/PreviewImportacao";
 
 export const Route = createFileRoute("/upload")({
   head: () => ({
@@ -151,6 +152,9 @@ function UploadPage() {
             </dl>
             <div className="mt-6 flex flex-wrap gap-2">
               <Button asChild>
+                <Link to="/indices">Ir para Índices Econômicos</Link>
+              </Button>
+              <Button asChild variant="outline">
                 <Link to="/dre">Ver DRE</Link>
               </Button>
               <Button asChild variant="outline">
@@ -172,6 +176,7 @@ function UploadPage() {
           </CardContent>
         </Card>
       )}
+      {dados && <PreviewImportacao dados={dados} moeda={empresa?.moeda ?? "R$"} />}
       {dados && (
         <PdfPreviewDialog
           open={previewOpen}
