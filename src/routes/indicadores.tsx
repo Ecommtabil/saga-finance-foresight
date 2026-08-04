@@ -29,7 +29,7 @@ import {
   cicloCaixa,
   crescimento,
 } from "@/lib/saga/calculations";
-import { fmtPct, fmtMult } from "@/lib/saga/formatters";
+import { fmtPct, fmtMult, fmtNum, fmtPctTable } from "@/lib/saga/formatters";
 
 export const Route = createFileRoute("/indicadores")({
   head: () => ({
