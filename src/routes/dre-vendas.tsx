@@ -55,6 +55,8 @@ import {
   periodosDisponiveis,
   projetar,
   resumoPorDimensao,
+  analisarMargens,
+  GLOSSARIO_MARGENS,
   type DimensaoProduto,
   type DreVendasPeriodo,
   type GruposCrescimento,
