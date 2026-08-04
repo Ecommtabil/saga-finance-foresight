@@ -43,6 +43,9 @@ function BalancoPage() {
         <FinancialTable
           anos={dados.anos}
           moeda={moeda}
+          analises
+          baseAV={b.ativoTotal}
+          baseAVLabel="o Ativo Total"
           rows={[
             { label: "Caixa e Equivalentes", values: b.caixa, indent: true },
             { label: "Contas a Receber", values: b.contasReceber, indent: true },
@@ -58,6 +61,9 @@ function BalancoPage() {
         <FinancialTable
           anos={dados.anos}
           moeda={moeda}
+          analises
+          baseAV={b.passivoTotal}
+          baseAVLabel="o Passivo + PL Total"
           rows={[
             { label: "Fornecedores", values: b.fornecedores, indent: true },
             { label: "Empréstimos CP", values: b.emprestimosCP, indent: true },
