@@ -3,6 +3,11 @@ import * as XLSX from "xlsx";
 export interface LinhaVenda {
   periodo: string;
   empresa: string;
+  produto: string;
+  sku: string;
+  marketplace: string;
+  estado: string;
+  fornecedor: string;
   unidades: number;
   receitaBruta: number;
   devolucoes: number;
@@ -233,10 +238,17 @@ export async function parseVendas(file: File): Promise<LinhaVenda[]> {
   const iFreDir = findCol(headers, ["frete entrega direta"]);
   const iRecEnv = findCol(headers, ["receita por envio"]);
   const iCus = findCol(headers, ["custo", "cmv"]);
+  const iProd = findCol(headers, ["produto", "descricao do item", "item"]);
+  const iSku = findCol(headers, ["sku", "codigo"]);
+  const iMkt = findCol(headers, ["marketplace", "canal"]);
+  const iEst = findCol(headers, ["estado", "uf"]);
+  const iForn = findCol(headers, ["fornecedor"]);
 
   const out: LinhaVenda[] = [];
   const abs = (i: number, r: (string | number | Date | null)[]) =>
     i >= 0 ? Math.abs(num(r[i])) : 0;
+  const txt = (i: number, r: (string | number | Date | null)[], fb: string) =>
+    i >= 0 ? String(r[i] ?? "").trim() || fb : fb;
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
     if (!r || r.every((v) => v === null || v === "")) continue;
@@ -246,6 +258,11 @@ export async function parseVendas(file: File): Promise<LinhaVenda[]> {
     out.push({
       periodo: normPeriodo(r[iPer], i),
       empresa: iEmp >= 0 ? String(r[iEmp] ?? "").trim() || "—" : "—",
+      produto: txt(iProd, r, "—"),
+      sku: txt(iSku, r, "—"),
+      marketplace: txt(iMkt, r, "—"),
+      estado: txt(iEst, r, "—"),
+      fornecedor: txt(iForn, r, "—"),
       unidades: iUni >= 0 ? num(r[iUni]) : 0,
       receitaBruta: abs(iRec, r),
       devolucoes: abs(iCup, r) + abs(iCanc, r),
