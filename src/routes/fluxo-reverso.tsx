@@ -78,6 +78,55 @@ const AJUSTES_LABELS: { key: keyof AjustesReversos; label: string; hint: string 
   { key: "jurosFinanceiros", label: "Resultado financeiro reclassificado", hint: "Juros tratados como financiamento" },
 ];
 
+function AjusteInput({
+  id,
+  label,
+  hint,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  hint: string;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const [raw, setRaw] = useState(() => String(value ?? 0));
+
+  // Synchronize raw value when external value changes (e.g. reset or initial load)
+  const valueStr = String(value ?? 0);
+  if (raw !== valueStr && valueStr !== String(Number(raw) || 0)) {
+    setRaw(valueStr);
+  }
+
+  return (
+    <div className="space-y-1">
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        type="number"
+        inputMode="decimal"
+        value={raw}
+        onChange={(e) => {
+          const next = e.target.value;
+          setRaw(next);
+          // Allow intermediate typing states like "-" or "-1." without forcing 0
+          if (next === "-" || next === "" || next === "-0" || next.endsWith(".")) return;
+          const parsed = Number(next);
+          if (isFinite(parsed)) onChange(parsed);
+        }}
+        onBlur={() => {
+          const parsed = Number(raw);
+          const normalized = isFinite(parsed) ? parsed : 0;
+          setRaw(String(normalized));
+          onChange(normalized);
+        }}
+      />
+      <p className="text-xs text-muted-foreground">{hint}</p>
+    </div>
+  );
+}
+
 function FluxoReversoPage() {
   const { dados, empresa } = useSaga();
   const moeda = empresa?.moeda ?? "R$";
