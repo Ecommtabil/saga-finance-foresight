@@ -90,8 +90,8 @@ function ChartsMount({
           <YAxis tick={AXIS_STYLE} tickFormatter={(v: number) => v.toLocaleString("pt-BR")} />
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
-          <Bar dataKey="Receita" fill={C.navy} radius={[4, 4, 0, 0]} />
-          <Bar dataKey="Lucro Líquido" fill={C.periwinkle} radius={[4, 4, 0, 0]} />
+          <Bar isAnimationActive={false} dataKey="Receita" fill={C.navy} radius={[4, 4, 0, 0]} />
+          <Bar isAnimationActive={false} dataKey="Lucro Líquido" fill={C.periwinkle} radius={[4, 4, 0, 0]} />
         </BarChart>
       </div>
 
@@ -107,9 +107,9 @@ function ChartsMount({
           <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} tickMargin={4} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
           <Tooltip />
           <Legend iconType="plainline" wrapperStyle={LEGEND_STYLE} />
-          <Area type="monotone" dataKey="M. Bruta" stroke={C.navy} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-bruta)" dot={{ r: 3, fill: C.navy, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-          <Area type="monotone" dataKey="M. EBITDA" stroke={C.periwinkle} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-ebitda)" dot={{ r: 3, fill: C.periwinkle, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-          <Area type="monotone" dataKey="M. Líquida" stroke={C.coral} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-liq)" dot={{ r: 3, fill: C.coral, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area isAnimationActive={false} type="monotone" dataKey="M. Bruta" stroke={C.navy} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-bruta)" dot={{ r: 3, fill: C.navy, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area isAnimationActive={false} type="monotone" dataKey="M. EBITDA" stroke={C.periwinkle} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-ebitda)" dot={{ r: 3, fill: C.periwinkle, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area isAnimationActive={false} type="monotone" dataKey="M. Líquida" stroke={C.coral} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-m-liq)" dot={{ r: 3, fill: C.coral, strokeWidth: 0 }} activeDot={{ r: 5 }} />
         </AreaChart>
       </div>
 
@@ -125,9 +125,9 @@ function ChartsMount({
           <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} tickMargin={4} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
           <Tooltip />
           <Legend iconType="plainline" wrapperStyle={LEGEND_STYLE} />
-          <Area type="monotone" dataKey="ROE" stroke={C.navy} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roe)" dot={{ r: 3, fill: C.navy, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-          <Area type="monotone" dataKey="ROA" stroke={C.periwinkle} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roa)" dot={{ r: 3, fill: C.periwinkle, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-          <Area type="monotone" dataKey="ROIC" stroke={C.coral} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roic)" dot={{ r: 3, fill: C.coral, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area isAnimationActive={false} type="monotone" dataKey="ROE" stroke={C.navy} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roe)" dot={{ r: 3, fill: C.navy, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area isAnimationActive={false} type="monotone" dataKey="ROA" stroke={C.periwinkle} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roa)" dot={{ r: 3, fill: C.periwinkle, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area isAnimationActive={false} type="monotone" dataKey="ROIC" stroke={C.coral} strokeWidth={2.5} strokeLinecap="round" fill="url(#g-r-roic)" dot={{ r: 3, fill: C.coral, strokeWidth: 0 }} activeDot={{ r: 5 }} />
         </AreaChart>
       </div>
 
@@ -138,8 +138,8 @@ function ChartsMount({
           <YAxis tick={AXIS_STYLE} tickFormatter={(v: number) => `${v.toFixed(0)}%`} />
           <Tooltip />
           <Legend wrapperStyle={LEGEND_STYLE} />
-          <Bar dataKey="Receita" fill={C.navy} radius={[4, 4, 0, 0]} />
-          <Bar dataKey="Lucro" fill={C.periwinkle} radius={[4, 4, 0, 0]} />
+          <Bar isAnimationActive={false} dataKey="Receita" fill={C.navy} radius={[4, 4, 0, 0]} />
+          <Bar isAnimationActive={false} dataKey="Lucro" fill={C.periwinkle} radius={[4, 4, 0, 0]} />
         </BarChart>
       </div>
     </div>
