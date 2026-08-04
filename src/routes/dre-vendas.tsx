@@ -922,6 +922,20 @@ function DreVendasPage() {
             )}
           </TabsContent>
 
+          <TabsContent value="margens" className="mt-4 space-y-6">
+            {!base ? (
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Selecione ao menos um período</AlertTitle>
+                <AlertDescription>
+                  Use a aba "Base de Períodos" para escolher o intervalo que servirá de base.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <MargensPanel colunas={colunasBase} moeda={moeda} />
+            )}
+          </TabsContent>
+
           <TabsContent value="proj" className="mt-4 space-y-6">
             {!base ? (
               <Alert>
