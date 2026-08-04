@@ -552,14 +552,14 @@ function DreVendasPage() {
                       <Bar
                         dataKey="receita"
                         name="Receita Bruta"
-                        fill="hsl(var(--primary))"
+                        fill="var(--primary)"
                         radius={[0, 6, 6, 0]}
                         onClick={(d: { chave?: string }) => setFoco(d?.chave ?? null)}
                       />
                       <Bar
                         dataKey="margem"
                         name="Margem de Contribuição"
-                        fill="hsl(var(--chart-2))"
+                        fill="var(--chart-2)"
                         radius={[0, 6, 6, 0]}
                       />
                     </BarChart>
@@ -579,8 +579,8 @@ function DreVendasPage() {
                       <AreaChart data={serieFoco} margin={{ left: 8, right: 8, top: 8 }}>
                         <defs>
                           <linearGradient id="gProd" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                            <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
+                            <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid vertical={false} strokeOpacity={0.2} />
@@ -597,7 +597,7 @@ function DreVendasPage() {
                           type="monotone"
                           dataKey="receita"
                           name="Receita Bruta"
-                          stroke="hsl(var(--primary))"
+                          stroke="var(--primary)"
                           fill="url(#gProd)"
                           strokeWidth={2}
                         />
@@ -970,12 +970,12 @@ function DreVendasPage() {
                       <AreaChart data={grafico} margin={{ left: 8, right: 8, top: 8 }}>
                         <defs>
                           <linearGradient id="gRec" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                            <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
+                            <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                           </linearGradient>
                           <linearGradient id="gRes" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.35} />
-                            <stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
+                            <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.35} />
+                            <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid vertical={false} strokeOpacity={0.2} />
@@ -995,7 +995,7 @@ function DreVendasPage() {
                           type="monotone"
                           dataKey="receita"
                           name="Receita Bruta"
-                          stroke="hsl(var(--primary))"
+                          stroke="var(--primary)"
                           fill="url(#gRec)"
                           strokeWidth={2}
                         />
@@ -1003,7 +1003,7 @@ function DreVendasPage() {
                           type="monotone"
                           dataKey="resultado"
                           name="Resultado Operacional"
-                          stroke="hsl(var(--chart-2))"
+                          stroke="var(--chart-2)"
                           fill="url(#gRes)"
                           strokeWidth={2}
                         />
@@ -1186,8 +1186,8 @@ function MargensPanel({ colunas, moeda }: { colunas: ColunaDre[]; moeda: string 
                   contentStyle={{ borderRadius: 12 }}
                 />
                 <Legend />
-                <Bar dataKey="receita" name="Receita Bruta" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="pe" name="Ponto de Equilíbrio" fill="hsl(var(--chart-3))" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="receita" name="Receita Bruta" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="pe" name="Ponto de Equilíbrio" fill="var(--chart-3)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -1202,12 +1202,12 @@ function MargensPanel({ colunas, moeda }: { colunas: ColunaDre[]; moeda: string 
               <AreaChart data={dados} margin={{ left: 8, right: 8, top: 8 }}>
                 <defs>
                   <linearGradient id="gMB" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="gMO" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} strokeOpacity={0.2} />
@@ -1224,10 +1224,10 @@ function MargensPanel({ colunas, moeda }: { colunas: ColunaDre[]; moeda: string 
                   contentStyle={{ borderRadius: 12 }}
                 />
                 <Legend />
-                <Area type="monotone" dataKey="bruta" name="Bruta" stroke="hsl(var(--primary))" fill="url(#gMB)" strokeWidth={2} />
-                <Area type="monotone" dataKey="contrib" name="Contribuição" stroke="hsl(var(--chart-4))" fill="transparent" strokeWidth={2} />
-                <Area type="monotone" dataKey="operacional" name="Operacional" stroke="hsl(var(--chart-2))" fill="url(#gMO)" strokeWidth={2} />
-                <Area type="monotone" dataKey="liquida" name="Líquida" stroke="hsl(var(--chart-3))" fill="transparent" strokeWidth={2} strokeDasharray="4 3" />
+                <Area type="monotone" dataKey="bruta" name="Bruta" stroke="var(--primary)" fill="url(#gMB)" strokeWidth={2} />
+                <Area type="monotone" dataKey="contrib" name="Contribuição" stroke="var(--chart-4)" fill="transparent" strokeWidth={2} />
+                <Area type="monotone" dataKey="operacional" name="Operacional" stroke="var(--chart-2)" fill="url(#gMO)" strokeWidth={2} />
+                <Area type="monotone" dataKey="liquida" name="Líquida" stroke="var(--chart-3)" fill="transparent" strokeWidth={2} strokeDasharray="4 3" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
