@@ -72,6 +72,7 @@ import {
   type GruposCrescimento,
   type LinhaDespesaFixa,
   type LinhaVenda,
+  type ResumoProduto,
   type ModoDespesas,
 } from "@/lib/saga/dre-vendas";
 
