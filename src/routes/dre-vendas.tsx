@@ -1019,3 +1019,264 @@ function DreVendasPage() {
     </div>
   );
 }
+
+function MetricaCard({
+  titulo,
+  valor,
+  ajuda,
+  detalhe,
+}: {
+  titulo: string;
+  valor: string;
+  ajuda: string;
+  detalhe?: string;
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-1 text-sm">
+          {titulo}
+          <InfoTooltip text={ajuda} />
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-semibold tabular-nums">{valor}</div>
+        {detalhe && <p className="mt-1 text-xs text-muted-foreground">{detalhe}</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MargensPanel({ colunas, moeda }: { colunas: ColunaDre[]; moeda: string }) {
+  const ultima = colunas[colunas.length - 1];
+  const d = ultima.dado;
+  const m = analisarMargens(d);
+  const cobertura = safeDiv(d.receitaBruta, m.peReceitaBruta);
+  const faltamUnidades = m.peUnidades - d.unidades;
+
+  const dados = colunas.map((c) => {
+    const a = analisarMargens(c.dado);
+    return {
+      periodo: c.label,
+      receita: c.dado.receitaBruta,
+      pe: a.peReceitaBruta,
+      unidades: c.dado.unidades,
+      peUnidades: a.peUnidades,
+      bruta: a.margemBruta * 100,
+      contrib: a.margemContribuicao * 100,
+      operacional: a.margemOperacional * 100,
+      liquida: a.margemLiquida * 100,
+      analise: a,
+      dre: c.dado,
+      key: c.key,
+    };
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <MetricaCard
+          titulo="Margem Bruta"
+          valor={fmtPctTable(m.margemBruta)}
+          ajuda={GLOSSARIO_MARGENS.margemBruta}
+          detalhe={`Lucro Bruto ${fmtMoney(d.lucroBruto, moeda)} ÷ Receita Líquida ${fmtMoney(d.receitaLiquida, moeda)}`}
+        />
+        <MetricaCard
+          titulo="Margem de Contribuição"
+          valor={fmtPctTable(m.margemContribuicao)}
+          ajuda={GLOSSARIO_MARGENS.margemContribuicao}
+          detalhe={`${fmtMoney(m.mcUnitaria, moeda)} por unidade`}
+        />
+        <MetricaCard
+          titulo="Margem Operacional"
+          valor={fmtPctTable(m.margemOperacional)}
+          ajuda={GLOSSARIO_MARGENS.margemOperacional}
+          detalhe={`Resultado Operacional ${fmtMoney(d.resultadoOperacional, moeda)}`}
+        />
+        <MetricaCard
+          titulo="Margem Líquida"
+          valor={fmtPctTable(m.margemLiquida)}
+          ajuda={GLOSSARIO_MARGENS.margemLiquida}
+          detalhe={`Sobre a Receita Bruta ${fmtMoney(d.receitaBruta, moeda)}`}
+        />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <MetricaCard
+          titulo="Ponto de Equilíbrio"
+          valor={fmtMoney(m.peReceitaBruta, moeda)}
+          ajuda={GLOSSARIO_MARGENS.pontoEquilibrio}
+          detalhe={`Receita líquida equivalente: ${fmtMoney(m.peReceitaLiquida, moeda)}`}
+        />
+        <MetricaCard
+          titulo="Unidades no Equilíbrio"
+          valor={fmtNum(m.peUnidades)}
+          ajuda={GLOSSARIO_MARGENS.peUnidades}
+          detalhe={
+            faltamUnidades > 0
+              ? `Faltam ${fmtNum(faltamUnidades)} unidades para o equilíbrio`
+              : `Excedente de ${fmtNum(-faltamUnidades)} unidades acima do equilíbrio`
+          }
+        />
+        <MetricaCard
+          titulo="Margem de Segurança"
+          valor={fmtPctTable(m.margemSeguranca)}
+          ajuda={GLOSSARIO_MARGENS.margemSeguranca}
+          detalhe={`As vendas cobrem ${fmtNum(cobertura * 100)}% do ponto de equilíbrio`}
+        />
+        <MetricaCard
+          titulo="Alavancagem Operacional"
+          valor={m.alavancagemOperacional ? `${fmtNum(m.alavancagemOperacional, 2)}x` : "—"}
+          ajuda={GLOSSARIO_MARGENS.alavancagem}
+          detalhe={
+            m.alavancagemOperacional
+              ? `+10% de receita ≈ ${fmtNum(m.alavancagemOperacional * 10, 1)}% no resultado`
+              : "Sem resultado positivo para calcular"
+          }
+        />
+      </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Como o ponto de equilíbrio é montado</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          <p className="text-muted-foreground">
+            Período analisado: <strong>{ultima.label}</strong>
+          </p>
+          <div className="grid gap-2 md:grid-cols-2">
+            <div className="rounded-lg border p-3 text-xs leading-relaxed">
+              <p className="mb-1 font-semibold">Por faturamento</p>
+              Despesas Fixas {fmtMoney(d.despesasFixas, moeda)} ÷ Margem de Contribuição{" "}
+              {fmtPctTable(m.margemContribuicao)} ={" "}
+              <strong>{fmtMoney(m.peReceitaLiquida, moeda)}</strong> de receita líquida
+              (equivalente a {fmtMoney(m.peReceitaBruta, moeda)} de receita bruta).
+            </div>
+            <div className="rounded-lg border p-3 text-xs leading-relaxed">
+              <p className="mb-1 font-semibold">Por unidades</p>
+              Preço médio {fmtMoney(m.precoMedio, moeda)} − custo variável unitário{" "}
+              {fmtMoney(m.custoVariavelUnitario, moeda)} = MC unitária{" "}
+              {fmtMoney(m.mcUnitaria, moeda)}. Despesas Fixas ÷ MC unitária ={" "}
+              <strong>{fmtNum(m.peUnidades)} unidades</strong> (vendidas:{" "}
+              {fmtNum(d.unidades)}).
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Receita x Ponto de Equilíbrio ({moeda})</CardTitle>
+          </CardHeader>
+          <CardContent className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dados} margin={{ left: 8, right: 8, top: 8 }}>
+                <CartesianGrid vertical={false} strokeOpacity={0.2} />
+                <XAxis dataKey="periodo" tickLine={false} axisLine={false} fontSize={12} />
+                <YAxis
+                  tickFormatter={(v: number) => fmtNum(v)}
+                  tickLine={false}
+                  axisLine={false}
+                  fontSize={12}
+                  width={80}
+                />
+                <RTooltip
+                  formatter={(v: number, n: string) => [fmtMoney(v, moeda), n]}
+                  contentStyle={{ borderRadius: 12 }}
+                />
+                <Legend />
+                <Bar dataKey="receita" name="Receita Bruta" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="pe" name="Ponto de Equilíbrio" fill="hsl(var(--chart-3))" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Evolução das margens (%)</CardTitle>
+          </CardHeader>
+          <CardContent className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={dados} margin={{ left: 8, right: 8, top: 8 }}>
+                <defs>
+                  <linearGradient id="gMB" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gMO" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} strokeOpacity={0.2} />
+                <XAxis dataKey="periodo" tickLine={false} axisLine={false} fontSize={12} />
+                <YAxis
+                  tickFormatter={(v: number) => `${fmtNum(v, 1)}%`}
+                  tickLine={false}
+                  axisLine={false}
+                  fontSize={12}
+                  width={60}
+                />
+                <RTooltip
+                  formatter={(v: number, n: string) => [`${fmtNum(v, 1)}%`, n]}
+                  contentStyle={{ borderRadius: 12 }}
+                />
+                <Legend />
+                <Area type="monotone" dataKey="bruta" name="Bruta" stroke="hsl(var(--primary))" fill="url(#gMB)" strokeWidth={2} />
+                <Area type="monotone" dataKey="contrib" name="Contribuição" stroke="hsl(var(--chart-4))" fill="transparent" strokeWidth={2} />
+                <Area type="monotone" dataKey="operacional" name="Operacional" stroke="hsl(var(--chart-2))" fill="url(#gMO)" strokeWidth={2} />
+                <Area type="monotone" dataKey="liquida" name="Líquida" stroke="hsl(var(--chart-3))" fill="transparent" strokeWidth={2} strokeDasharray="4 3" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Detalhamento por período</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Período</TableHead>
+                <TableHead className="text-right">M. Bruta</TableHead>
+                <TableHead className="text-right">M. Contribuição</TableHead>
+                <TableHead className="text-right">M. Operacional</TableHead>
+                <TableHead className="text-right">M. Líquida</TableHead>
+                <TableHead className="text-right">PE Receita</TableHead>
+                <TableHead className="text-right">PE Unidades</TableHead>
+                <TableHead className="text-right">Unid. vendidas</TableHead>
+                <TableHead className="text-right">M. Segurança</TableHead>
+                <TableHead>Situação</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {dados.map((r) => (
+                <TableRow key={r.key}>
+                  <TableCell className="font-medium">{r.periodo}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtPctTable(r.analise.margemBruta)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtPctTable(r.analise.margemContribuicao)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtPctTable(r.analise.margemOperacional)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtPctTable(r.analise.margemLiquida)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(r.pe)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(r.peUnidades)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(r.unidades)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtPctTable(r.analise.margemSeguranca)}</TableCell>
+                  <TableCell>
+                    <Badge variant={r.dre.resultadoOperacional >= 0 ? "secondary" : "destructive"}>
+                      {r.dre.resultadoOperacional >= 0 ? "Acima do equilíbrio" : "Abaixo do equilíbrio"}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
