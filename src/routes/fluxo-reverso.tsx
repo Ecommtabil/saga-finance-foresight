@@ -93,7 +93,7 @@ function AjusteInput({
 }) {
   const [raw, setRaw] = useState(() => String(value ?? 0));
 
-  useMemo(() => {
+  useEffect(() => {
     setRaw(String(value ?? 0));
   }, [value]);
 
