@@ -105,6 +105,28 @@ function FluxoReversoPage() {
     () => (dfc ? reverterParaLucro(dfc.operacional, ajustes) : null),
     [dfc, ajustes],
   );
+  const cascata = useMemo(() => {
+    if (!ponte) return [];
+    const passos = ponte.linhas.map((l, i) => ({
+      nome: l.label.replace(/^\([^)]*\)\s*/, ""),
+      base: i === 0 ? 0 : l.acumulado - l.valor > l.acumulado ? l.acumulado : l.acumulado - l.valor,
+      delta: i === 0 ? l.valor : Math.abs(l.valor),
+      valor: l.valor,
+      acumulado: l.acumulado,
+      tipo: i === 0 ? "inicio" : l.valor >= 0 ? "aumenta" : "reduz",
+    }));
+    return [
+      ...passos,
+      {
+        nome: "Lucro Líquido",
+        base: 0,
+        delta: ponte.lucroLiquido,
+        valor: ponte.lucroLiquido,
+        acumulado: ponte.lucroLiquido,
+        tipo: "fim",
+      },
+    ];
+  }, [ponte]);
   const llContabil = dados ? dados.dre.lucroLiquido[dados.anos.length - 1] : null;
 
   async function onFile(file: File) {
