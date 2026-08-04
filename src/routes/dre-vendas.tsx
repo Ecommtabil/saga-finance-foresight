@@ -714,7 +714,7 @@ function DreVendasPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="dre" className="mt-4 space-y-6">
+          <TabsContent value="drebase" className="mt-4 space-y-6">
             {!base ? (
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
@@ -725,7 +725,7 @@ function DreVendasPage() {
               </Alert>
             ) : (
               <>
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-4">
                   <Card>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm">Receita Bruta (base)</CardTitle>
@@ -744,6 +744,14 @@ function DreVendasPage() {
                   </Card>
                   <Card>
                     <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Despesas Fixas</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-2xl font-semibold tabular-nums">
+                      {fmtMoney(base.despesasFixas, moeda)}
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
                       <CardTitle className="text-sm">Resultado Operacional</CardTitle>
                     </CardHeader>
                     <CardContent className="text-2xl font-semibold tabular-nums">
@@ -755,103 +763,103 @@ function DreVendasPage() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm">
-                      DRE gerencial — base e projeção ({moeda})
+                      Despesas fixas — integração ao DRE
                     </CardTitle>
                   </CardHeader>
-                  {despesas.length > 0 && (
-                    <CardContent className="flex flex-wrap items-center gap-3 pb-2 pt-0">
-                      <label className="flex items-center gap-2 text-xs">
-                        <Checkbox
-                          checked={detalharFixas}
-                          onCheckedChange={(c) => setDetalharFixas(Boolean(c))}
-                        />
-                        Detalhar contas de despesas fixas
-                      </label>
-                      <Badge variant="secondary">
-                        Despesas fixas na base: {fmtMoney(base.despesasFixas, moeda)}
-                      </Badge>
-                      {despesasForaDaBase.length > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                          {despesasForaDaBase.length} período(s) de despesas fora da base
-                          selecionada ({despesasForaDaBase.join(", ")})
-                        </span>
-                      )}
-                    </CardContent>
-                  )}
+                  <CardContent className="flex flex-wrap items-center gap-3">
+                    {despesas.length === 0 ? (
+                      <span className="text-xs text-muted-foreground">
+                        Nenhuma planilha de despesas fixas importada. O DRE está sendo montado
+                        apenas com a base de vendas.
+                      </span>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-xs">Alocação</Label>
+                          <Select
+                            value={modoDespesas}
+                            onValueChange={(v) => setModoDespesas(v as ModoDespesas)}
+                          >
+                            <SelectTrigger className="h-8 w-64">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="auto">
+                                Automático (casa competências)
+                              </SelectItem>
+                              <SelectItem value="periodo">Por competência (AAAA-MM)</SelectItem>
+                              <SelectItem value="media">Média mensal em cada período</SelectItem>
+                              <SelectItem value="total">Total rateado entre os períodos</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Badge variant="secondary">
+                          Aplicado: {modoAplicado === "periodo"
+                            ? "por competência"
+                            : modoAplicado === "media"
+                              ? "média mensal"
+                              : "total rateado"}
+                        </Badge>
+                        <Badge variant="secondary">
+                          Total na base: {fmtMoney(base.despesasFixas, moeda)}
+                        </Badge>
+                        <label className="flex items-center gap-2 text-xs">
+                          <Checkbox
+                            checked={detalharFixas}
+                            onCheckedChange={(c) => setDetalharFixas(Boolean(c))}
+                          />
+                          Detalhar contas
+                        </label>
+                        {despesasForaDaBase.length > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            {despesasForaDaBase.length} período(s) de despesas fora da base
+                            ({despesasForaDaBase.join(", ")})
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">
+                      DRE base — vendas por período + despesas fixas ({moeda})
+                    </CardTitle>
+                  </CardHeader>
                   <CardContent className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="min-w-56">Conta</TableHead>
-                          {colunas.map((c) => (
-                            <TableHead key={c.periodo} className="text-right">
-                              {c.periodo}
-                              {c.projetado && (
-                                <TrendingUp className="ml-1 inline h-3 w-3 text-muted-foreground" />
-                              )}
-                            </TableHead>
-                          ))}
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {LINHAS.map((l) => (
-                          <Fragment key={l.label}>
-                          <TableRow>
-                            <TableCell
-                              className={`${l.bold ? "font-semibold" : ""} ${l.indent ? "pl-6" : ""}`}
-                            >
-                              {l.label}
-                            </TableCell>
-                            {colunas.map((c) => (
-                              <TableCell
-                                key={c.periodo}
-                                className={`text-right tabular-nums ${l.bold ? "font-semibold" : ""}`}
-                              >
-                                {fmtNum(l.get(c))}
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                          {l.label === "(-) Despesas Fixas" &&
-                            detalharFixas &&
-                            fixasPorConta.map((f) => {
-                              const parte = base.despesasFixas
-                                ? (f.total / totalFixasBase) * base.despesasFixas
-                                : 0;
-                              return (
-                                <TableRow key={`fx-${f.conta}`} className="text-muted-foreground">
-                                  <TableCell className="pl-10 text-xs">{f.conta}</TableCell>
-                                  {colunas.map((c) => (
-                                    <TableCell
-                                      key={c.periodo}
-                                      className="text-right text-xs tabular-nums"
-                                    >
-                                      {fmtNum(
-                                        -(base.despesasFixas
-                                          ? (parte / base.despesasFixas) * c.despesasFixas
-                                          : 0),
-                                      )}
-                                    </TableCell>
-                                  ))}
-                                </TableRow>
-                              );
-                            })}
-                          </Fragment>
-                        ))}
-                        <TableRow>
-                          <TableCell className="text-xs text-muted-foreground">
-                            % Resultado sobre Receita Líquida
-                          </TableCell>
-                          {colunas.map((c) => (
-                            <TableCell
-                              key={c.periodo}
-                              className="text-right text-xs tabular-nums text-muted-foreground"
-                            >
-                              {fmtPctTable(safeDiv(c.resultadoOperacional, c.receitaLiquida))}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      </TableBody>
-                    </Table>
+                    <DreTabela
+                      colunas={colunasBase}
+                      detalhe={detalharFixas ? detalheBase : undefined}
+                    />
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="proj" className="mt-4 space-y-6">
+            {!base ? (
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Selecione ao menos um período</AlertTitle>
+                <AlertDescription>
+                  Use a aba "Base de Períodos" para escolher o intervalo que servirá de base.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">
+                      DRE projetado — base e {qtdProj} período(s) ({moeda})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    <DreTabela
+                      colunas={colunasProj}
+                      detalhe={detalharFixas && despesas.length > 0 ? detalheProj : undefined}
+                    />
                   </CardContent>
                 </Card>
 
