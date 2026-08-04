@@ -329,10 +329,10 @@ function FluxoReversoPage() {
                             key={i}
                             fill={
                               c.tipo === "inicio" || c.tipo === "fim"
-                                ? "hsl(var(--primary))"
+                                ? "var(--primary)"
                                 : c.valor >= 0
-                                  ? "hsl(var(--chart-2))"
-                                  : "hsl(var(--destructive))"
+                                  ? "var(--chart-2)"
+                                  : "var(--destructive)"
                             }
                           />
                         ))}
