@@ -95,7 +95,7 @@ function EmpresaPage() {
               </select>
             </div>
             <Button type="submit" className="w-full">
-              Salvar e ir para Importação
+              Salvar e escolher o modo de análise
             </Button>
           </form>
         </CardContent>
