@@ -405,9 +405,10 @@ function DreVendasPage() {
           </CardContent>
         </Card>
       ) : (
-        <Tabs defaultValue="dre">
+        <Tabs defaultValue="drebase">
           <TabsList>
-            <TabsTrigger value="dre">DRE e Projeção</TabsTrigger>
+            <TabsTrigger value="drebase">DRE Base</TabsTrigger>
+            <TabsTrigger value="proj">Projeções</TabsTrigger>
             <TabsTrigger value="produtos">Vendas por Produto</TabsTrigger>
             <TabsTrigger value="base">Base de Períodos</TabsTrigger>
             <TabsTrigger value="cresc">Crescimento</TabsTrigger>
