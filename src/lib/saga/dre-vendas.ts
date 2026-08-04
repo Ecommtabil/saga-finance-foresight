@@ -2,6 +2,8 @@ import * as XLSX from "xlsx";
 
 export interface LinhaVenda {
   periodo: string;
+  empresa: string;
+  unidades: number;
   receitaBruta: number;
   devolucoes: number;
   comissoes: number;
@@ -77,7 +79,12 @@ function normPeriodo(v: unknown, fallback: number): string {
     const m = String(v.getUTCMonth() + 1).padStart(2, "0");
     return `${y}-${m}`;
   }
-  return String(v).trim();
+  const s = String(v).trim();
+  const iso = s.match(/^(\d{4})-(\d{2})(?:-\d{2})?/);
+  if (iso) return `${iso[1]}-${iso[2]}`;
+  const br = s.match(/^(\d{2})[/-](\d{2})[/-](\d{4})/);
+  if (br) return `${br[3]}-${br[2]}`;
+  return s;
 }
 
 function num(v: unknown): number {
@@ -115,26 +122,46 @@ function toBlob(wb: XLSX.WorkBook): Blob {
 export function baixarModeloVendas() {
   const wb = XLSX.utils.book_new();
   const header = [
-    "Periodo",
-    "Receita Bruta",
-    "Devolucoes",
-    "Comissoes",
-    "Fretes",
-    "Custos",
-    "Outras Receitas",
+    "Empresa",
+    "Data da Venda",
+    "Marketplace",
+    "Unidades",
+    "Receita por Produto",
+    "Custo",
+    "Tarifa de venda e impostos",
+    "Receita por envio",
+    "Tarifas de Envio",
+    "Cupom",
+    "Comissão Afiliado",
+    "Frete Entrega Direta",
+    "Total",
+    "SKU",
+    "Estado",
+    "Cancelamentos e Reembolsos",
+    "Produto",
+    "Fornecedor",
+    "Frete Comprador",
+    "Frete Vendedor",
   ];
-  const rows = [
-    ["2024-01", 250000, 5000, 12500, 6000, 130000, 0],
-    ["2024-02", 268000, 4200, 13400, 6300, 139000, 0],
-    ["2024-03", 291000, 6100, 14550, 6900, 151000, 1500],
-  ];
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([header, ...rows]), "Vendas");
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet([header]),
+    "Vendas Reorganizado",
+  );
   XLSX.utils.book_append_sheet(
     wb,
     XLSX.utils.aoa_to_sheet([
-      ["Instruções"],
-      ["Informe um registro por período (mês, trimestre, ano ou qualquer rótulo)."],
-      ["Use valores positivos: o sistema aplica os sinais na montagem do DRE."],
+      ["MODELO DE PREENCHIMENTO — VENDAS (MULTI-EMPRESA)"],
+      ["Preencha uma linha por venda na aba 'Vendas Reorganizado'."],
+      ["Empresa — nome da empresa/loja à qual a venda pertence (obrigatório)."],
+      ["Data da Venda — data da venda; o sistema agrupa por mês (AAAA-MM)."],
+      ["Receita por Produto — valor bruto do produto (positivo)."],
+      ["Custo — custo do produto vendido (positivo)."],
+      ["Tarifa de venda e impostos / Comissão Afiliado — tarifas do marketplace (negativos)."],
+      ["Receita por envio — frete recebido do comprador (positivo)."],
+      ["Tarifas de Envio / Frete Entrega Direta — custo de frete (negativos)."],
+      ["Cupom e Cancelamentos e Reembolsos — descontos e estornos (negativos)."],
+      ["A coluna 'Total' é calculada e não é usada na montagem do DRE."],
       ["A carga tributária é informada em % dentro do sistema."],
     ]),
     "Instrucoes",
@@ -178,31 +205,54 @@ function sheetRows(file: ArrayBuffer, preferido: string[]) {
 }
 
 export async function parseVendas(file: File): Promise<LinhaVenda[]> {
-  const rows = sheetRows(await file.arrayBuffer(), ["vendas"]);
+  const rows = sheetRows(await file.arrayBuffer(), [
+    "vendas reorganizado",
+    "vendas",
+  ]);
   if (rows.length < 2) throw new Error("Planilha de vendas vazia.");
   const headers = rows[0].map((h) => normHeader(String(h ?? "")));
-  const iPer = findCol(headers, ["periodo", "mes", "data", "competencia"]);
-  const iRec = findCol(headers, ["receita bruta", "receita", "vendas", "faturamento"]);
+  const iPer = findCol(headers, ["data da venda", "periodo", "mes", "data", "competencia"]);
+  const iRec = findCol(headers, [
+    "receita por produto",
+    "receita bruta",
+    "receita",
+    "vendas",
+    "faturamento",
+  ]);
   if (iPer < 0 || iRec < 0)
-    throw new Error("Colunas obrigatórias não encontradas: Periodo e Receita Bruta.");
-  const iDev = findCol(headers, ["devolu", "desconto"]);
-  const iCom = findCol(headers, ["comiss"]);
-  const iFre = findCol(headers, ["frete"]);
+    throw new Error(
+      "Colunas obrigatórias não encontradas: 'Data da Venda' e 'Receita por Produto'.",
+    );
+  const iEmp = findCol(headers, ["empresa", "loja"]);
+  const iUni = findCol(headers, ["unidades", "quantidade"]);
+  const iCup = findCol(headers, ["cupom", "desconto"]);
+  const iCanc = findCol(headers, ["cancelamento", "reembolso", "devolu"]);
+  const iTar = findCol(headers, ["tarifa de venda", "comiss"]);
+  const iAfi = findCol(headers, ["comissao afiliado", "afiliado"]);
+  const iFreEnv = findCol(headers, ["tarifas de envio", "tarifa de envio"]);
+  const iFreDir = findCol(headers, ["frete entrega direta"]);
+  const iRecEnv = findCol(headers, ["receita por envio"]);
   const iCus = findCol(headers, ["custo", "cmv"]);
-  const iOut = findCol(headers, ["outras receitas", "outras"]);
 
   const out: LinhaVenda[] = [];
+  const abs = (i: number, r: (string | number | Date | null)[]) =>
+    i >= 0 ? Math.abs(num(r[i])) : 0;
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
     if (!r || r.every((v) => v === null || v === "")) continue;
+    const comissoes =
+      abs(iTar, r) + (iAfi >= 0 && iAfi !== iTar ? abs(iAfi, r) : 0);
+    const fretes = abs(iFreEnv, r) + abs(iFreDir, r);
     out.push({
       periodo: normPeriodo(r[iPer], i),
-      receitaBruta: Math.abs(num(r[iRec])),
-      devolucoes: iDev >= 0 ? Math.abs(num(r[iDev])) : 0,
-      comissoes: iCom >= 0 ? Math.abs(num(r[iCom])) : 0,
-      fretes: iFre >= 0 ? Math.abs(num(r[iFre])) : 0,
-      custos: iCus >= 0 ? Math.abs(num(r[iCus])) : 0,
-      outrasReceitas: iOut >= 0 ? Math.abs(num(r[iOut])) : 0,
+      empresa: iEmp >= 0 ? String(r[iEmp] ?? "").trim() || "—" : "—",
+      unidades: iUni >= 0 ? num(r[iUni]) : 0,
+      receitaBruta: abs(iRec, r),
+      devolucoes: abs(iCup, r) + abs(iCanc, r),
+      comissoes,
+      fretes,
+      custos: abs(iCus, r),
+      outrasReceitas: abs(iRecEnv, r),
     });
   }
   if (!out.length) throw new Error("Nenhuma linha de venda encontrada.");
