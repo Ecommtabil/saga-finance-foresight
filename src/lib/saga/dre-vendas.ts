@@ -56,6 +56,7 @@ export const GRUPOS_LABEL: { key: keyof GruposCrescimento; label: string }[] = [
 export interface DreVendasPeriodo {
   periodo: string;
   projetado: boolean;
+  unidades: number;
   receitaBruta: number;
   devolucoes: number;
   impostos: number;
