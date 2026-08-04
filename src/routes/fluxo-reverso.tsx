@@ -471,18 +471,14 @@ function FluxoReversoPage() {
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
                   {AJUSTES_LABELS.map((a) => (
-                    <div key={a.key} className="space-y-1">
-                      <Label htmlFor={a.key}>{a.label}</Label>
-                      <Input
-                        id={a.key}
-                        type="number"
-                        value={ajustes[a.key]}
-                        onChange={(e) =>
-                          setAjustes((p) => ({ ...p, [a.key]: Number(e.target.value) || 0 }))
-                        }
-                      />
-                      <p className="text-xs text-muted-foreground">{a.hint}</p>
-                    </div>
+                    <AjusteInput
+                      key={a.key}
+                      id={a.key}
+                      label={a.label}
+                      hint={a.hint}
+                      value={ajustes[a.key]}
+                      onChange={(v) => setAjustes((p) => ({ ...p, [a.key]: v }))}
+                    />
                   ))}
                   {!dados && (
                     <p className="text-xs text-muted-foreground sm:col-span-2">
