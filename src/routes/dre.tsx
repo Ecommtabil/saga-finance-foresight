@@ -28,6 +28,9 @@ function DrePage() {
       <FinancialTable
         anos={dados.anos}
         moeda={moeda}
+        analises
+        baseAV={dados.dre.receitaLiquida}
+        baseAVLabel="a Receita Líquida"
         rows={[
           { label: "Receita Bruta", values: dados.dre.receitaBruta },
           { label: "(-) Deduções", values: dados.dre.deducoes, indent: true },
