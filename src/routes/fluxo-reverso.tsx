@@ -231,10 +231,22 @@ function FluxoReversoPage() {
                 </CardHeader>
                 <CardContent>
                   <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Etapa</TableHead>
+                        <TableHead className="w-40 text-right">Efeito no lucro</TableHead>
+                        <TableHead className="w-44 text-right">Saldo acumulado</TableHead>
+                      </TableRow>
+                    </TableHeader>
                     <TableBody>
                       {ponte.linhas.map((l) => (
                         <TableRow key={l.label}>
-                          <TableCell className={l.bold ? "font-semibold" : "pl-6"}>{l.label}</TableCell>
+                          <TableCell className={l.bold ? "font-semibold" : "pl-6"}>
+                            <span className={l.bold ? "" : "font-medium"}>{l.label}</span>
+                            <p className="mt-0.5 max-w-xl text-xs font-normal text-muted-foreground">
+                              {l.explicacao}
+                            </p>
+                          </TableCell>
                           <TableCell
                             className={`text-right tabular-nums ${l.bold ? "font-semibold" : ""} ${
                               l.valor < 0 ? "text-destructive" : ""
@@ -242,10 +254,14 @@ function FluxoReversoPage() {
                           >
                             {fmtMoney(l.valor, moeda)}
                           </TableCell>
+                          <TableCell className="text-right tabular-nums text-muted-foreground">
+                            {fmtMoney(l.acumulado, moeda)}
+                          </TableCell>
                         </TableRow>
                       ))}
                       <TableRow className="border-t-2">
                         <TableCell className="font-semibold">= Lucro Líquido reconstruído</TableCell>
+                        <TableCell />
                         <TableCell className="text-right text-lg font-semibold tabular-nums">
                           {fmtMoney(ponte.lucroLiquido, moeda)}
                         </TableCell>
@@ -256,12 +272,14 @@ function FluxoReversoPage() {
                             <TableCell className="pl-6 text-muted-foreground">
                               Lucro Líquido da DRE (último ano)
                             </TableCell>
+                            <TableCell />
                             <TableCell className="text-right tabular-nums text-muted-foreground">
                               {fmtMoney(llContabil, moeda)}
                             </TableCell>
                           </TableRow>
                           <TableRow>
                             <TableCell className="pl-6 font-medium">Diferença a conciliar</TableCell>
+                            <TableCell />
                             <TableCell className="text-right font-medium tabular-nums">
                               {fmtMoney(ponte.lucroLiquido - llContabil, moeda)}
                             </TableCell>
@@ -274,6 +292,57 @@ function FluxoReversoPage() {
                     Lógica invertida do método indireto: partindo do caixa gerado nas operações,
                     removem-se os itens não-caixa e desfazem-se as variações de capital de giro
                     para reencontrar o resultado por competência.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    Cascata: como cada variação patrimonial move o resultado
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="h-[380px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={cascata} margin={{ top: 8, right: 8, bottom: 60, left: 8 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis
+                        dataKey="nome"
+                        interval={0}
+                        angle={-25}
+                        textAnchor="end"
+                        height={70}
+                        tick={{ fontSize: 11 }}
+                      />
+                      <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => fmtNum(Number(v), 0)} />
+                      <RTooltip
+                        formatter={(_v, _n, p) => [
+                          fmtMoney(p.payload.valor, moeda),
+                          p.payload.tipo === "fim" ? "Lucro líquido" : "Efeito",
+                        ]}
+                        labelFormatter={(l) => String(l)}
+                      />
+                      <Bar dataKey="base" stackId="w" fill="transparent" isAnimationActive={false} />
+                      <Bar dataKey="delta" stackId="w" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                        {cascata.map((c, i) => (
+                          <Cell
+                            key={i}
+                            fill={
+                              c.tipo === "inicio" || c.tipo === "fim"
+                                ? "hsl(var(--primary))"
+                                : c.valor >= 0
+                                  ? "hsl(var(--chart-2))"
+                                  : "hsl(var(--destructive))"
+                            }
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Barras verdes aumentam o lucro em relação ao caixa; barras vermelhas reduzem.
+                    Exemplo: uma variação negativa de clientes a receber significa que a empresa
+                    recebeu mais do que vendeu no período — o caixa entrou, mas o lucro é menor.
                   </p>
                 </CardContent>
               </Card>
