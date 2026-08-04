@@ -515,7 +515,7 @@ export function evolucaoDimensao(
 export function montarDre(
   periodo: string,
   vendas: LinhaVenda[],
-  despesas: LinhaDespesaFixa[],
+  despesasPorPeriodo: Record<string, number>,
   cargaTributaria: number,
   projetado = false,
 ): DreVendasPeriodo {
@@ -527,7 +527,7 @@ export function montarDre(
   const fretes = soma((l) => l.fretes);
   const custos = soma((l) => l.custos);
   const outrasReceitas = soma((l) => l.outrasReceitas);
-  const despesasFixas = despesaFixaDoPeriodo(despesas, periodo);
+  const despesasFixas = despesasPorPeriodo[periodo] ?? 0;
   return finalizar({
     periodo,
     projetado,
@@ -582,12 +582,14 @@ function finalizar(base: {
 export function montarBase(
   periodos: string[],
   vendas: LinhaVenda[],
-  despesas: LinhaDespesaFixa[],
+  despesasPorPeriodo: Record<string, number>,
   cargaTributaria: number,
   modo: "soma" | "media",
   rotulo = "Base",
 ): DreVendasPeriodo {
-  const itens = periodos.map((p) => montarDre(p, vendas, despesas, cargaTributaria));
+  const itens = periodos.map((p) =>
+    montarDre(p, vendas, despesasPorPeriodo, cargaTributaria),
+  );
   const div = modo === "media" && itens.length ? itens.length : 1;
   const agg = (f: (d: DreVendasPeriodo) => number) =>
     itens.reduce((a, d) => a + f(d), 0) / div;
