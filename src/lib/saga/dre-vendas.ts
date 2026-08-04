@@ -56,6 +56,7 @@ export const GRUPOS_LABEL: { key: keyof GruposCrescimento; label: string }[] = [
 export interface DreVendasPeriodo {
   periodo: string;
   projetado: boolean;
+  unidades: number;
   receitaBruta: number;
   devolucoes: number;
   impostos: number;
@@ -540,6 +541,7 @@ export function montarDre(
   const linhas = vendas.filter((v) => v.periodo === periodo);
   const soma = (f: (l: LinhaVenda) => number) => linhas.reduce((a, l) => a + f(l), 0);
   const receitaBruta = soma((l) => l.receitaBruta);
+  const unidades = soma((l) => l.unidades);
   const devolucoes = soma((l) => l.devolucoes);
   const comissoes = soma((l) => l.comissoes);
   const fretes = soma((l) => l.fretes);
@@ -549,6 +551,7 @@ export function montarDre(
   return finalizar({
     periodo,
     projetado,
+    unidades,
     receitaBruta,
     devolucoes,
     comissoes,
@@ -563,6 +566,7 @@ export function montarDre(
 function finalizar(base: {
   periodo: string;
   projetado: boolean;
+  unidades: number;
   receitaBruta: number;
   devolucoes: number;
   comissoes: number;
@@ -581,6 +585,7 @@ function finalizar(base: {
   return {
     periodo: base.periodo,
     projetado: base.projetado,
+    unidades: base.unidades,
     receitaBruta: base.receitaBruta,
     devolucoes: base.devolucoes,
     impostos,
@@ -614,6 +619,7 @@ export function montarBase(
   return finalizar({
     periodo: rotulo,
     projetado: false,
+    unidades: agg((d) => d.unidades),
     receitaBruta: agg((d) => d.receitaBruta),
     devolucoes: agg((d) => d.devolucoes),
     comissoes: agg((d) => d.comissoes),
@@ -639,6 +645,7 @@ export function projetar(
       finalizar({
         periodo: rotulo(i),
         projetado: true,
+        unidades: g(base.unidades, crescimento.receita, i),
         receitaBruta: g(base.receitaBruta, crescimento.receita, i),
         devolucoes: g(base.devolucoes, crescimento.devolucoes, i),
         comissoes: g(base.comissoes, crescimento.comissoes, i),
@@ -652,3 +659,89 @@ export function projetar(
   }
   return out;
 }
+
+/* ---------------- Margens e ponto de equilíbrio ---------------- */
+
+export interface AnaliseMargens {
+  periodo: string;
+  projetado: boolean;
+  /** Lucro Bruto / Receita Líquida */
+  margemBruta: number;
+  /** Margem de Contribuição / Receita Líquida */
+  margemContribuicao: number;
+  /** Resultado Operacional / Receita Líquida */
+  margemOperacional: number;
+  /** Resultado Operacional / Receita Bruta */
+  margemLiquida: number;
+  /** Receita líquida necessária para resultado operacional zero */
+  peReceitaLiquida: number;
+  /** Receita bruta equivalente ao ponto de equilíbrio */
+  peReceitaBruta: number;
+  /** Unidades necessárias no ponto de equilíbrio */
+  peUnidades: number;
+  /** Preço médio por unidade (receita bruta / unidades) */
+  precoMedio: number;
+  /** Margem de contribuição por unidade */
+  mcUnitaria: number;
+  /** Custo variável total por unidade */
+  custoVariavelUnitario: number;
+  /** (Receita - PE) / Receita */
+  margemSeguranca: number;
+  /** MC / Resultado Operacional */
+  alavancagemOperacional: number;
+}
+
+function div(a: number, b: number) {
+  return b === 0 || !isFinite(b) ? 0 : a / b;
+}
+
+export function analisarMargens(d: DreVendasPeriodo): AnaliseMargens {
+  const razaoMc = div(d.margemContribuicao, d.receitaLiquida);
+  const peReceitaLiquida = razaoMc > 0 ? d.despesasFixas / razaoMc : 0;
+  const fatorBruta = div(d.receitaBruta, d.receitaLiquida);
+  const peReceitaBruta = peReceitaLiquida * (fatorBruta || 1);
+  const mcUnitaria = div(d.margemContribuicao, d.unidades);
+  const peUnidades = mcUnitaria > 0 ? d.despesasFixas / mcUnitaria : 0;
+  return {
+    periodo: d.periodo,
+    projetado: d.projetado,
+    margemBruta: div(d.lucroBruto, d.receitaLiquida),
+    margemContribuicao: razaoMc,
+    margemOperacional: div(d.resultadoOperacional, d.receitaLiquida),
+    margemLiquida: div(d.resultadoOperacional, d.receitaBruta),
+    peReceitaLiquida,
+    peReceitaBruta,
+    peUnidades,
+    precoMedio: div(d.receitaBruta, d.unidades),
+    mcUnitaria,
+    custoVariavelUnitario: div(
+      d.custos + d.comissoes + d.fretes + d.devolucoes + d.impostos,
+      d.unidades,
+    ),
+    margemSeguranca:
+      peReceitaBruta > 0 ? div(d.receitaBruta - peReceitaBruta, d.receitaBruta) : 0,
+    alavancagemOperacional:
+      d.resultadoOperacional > 0 ? div(d.margemContribuicao, d.resultadoOperacional) : 0,
+  };
+}
+
+export const GLOSSARIO_MARGENS: Record<string, string> = {
+  margemBruta:
+    "Margem Bruta = Lucro Bruto ÷ Receita Líquida. Mostra quanto sobra depois do custo do produto/serviço (CMV). Responde: meu preço cobre bem o custo de aquisição?",
+  margemContribuicao:
+    "Margem de Contribuição = (Receita Líquida − custos e despesas variáveis, incluindo comissões e fretes) ÷ Receita Líquida. É o percentual de cada venda que sobra para pagar as despesas fixas e gerar lucro.",
+  margemOperacional:
+    "Margem Operacional = Resultado Operacional ÷ Receita Líquida. Já considera as despesas fixas: mede a eficiência da operação como um todo.",
+  margemLiquida:
+    "Margem Líquida (gerencial) = Resultado Operacional ÷ Receita Bruta. Mostra quanto sobra de cada real faturado, depois de impostos, devoluções, custos variáveis e despesas fixas.",
+  pontoEquilibrio:
+    "Ponto de Equilíbrio é o faturamento em que o resultado é exatamente zero: Despesas Fixas ÷ Margem de Contribuição %. Abaixo dele a operação dá prejuízo.",
+  peUnidades:
+    "Unidades no Ponto de Equilíbrio = Despesas Fixas ÷ Margem de Contribuição por unidade. É quantas unidades precisam ser vendidas no período para não ter prejuízo.",
+  margemSeguranca:
+    "Margem de Segurança = (Receita atual − Receita do ponto de equilíbrio) ÷ Receita atual. Indica o quanto as vendas podem cair antes de a empresa entrar no prejuízo.",
+  alavancagem:
+    "Grau de Alavancagem Operacional = Margem de Contribuição ÷ Resultado Operacional. Se for 3, um aumento de 10% na receita amplia o resultado em cerca de 30%.",
+  mcUnitaria:
+    "Margem de Contribuição por unidade = quanto cada unidade vendida contribui, em reais, para cobrir as despesas fixas.",
+};
