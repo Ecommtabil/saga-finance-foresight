@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Download, Upload, AlertTriangle, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/saga/PageHeader";
@@ -28,6 +28,8 @@ import {
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip as RTooltip,
@@ -41,17 +43,31 @@ import {
   GRUPOS_LABEL,
   baixarModeloDespesasFixas,
   baixarModeloVendas,
+  contasDespesaFixa,
+  evolucaoDimensao,
   montarBase,
   montarDre,
   parseDespesasFixas,
   parseVendas,
+  periodosDespesas,
   periodosDisponiveis,
   projetar,
+  resumoPorDimensao,
+  type DimensaoProduto,
   type DreVendasPeriodo,
   type GruposCrescimento,
   type LinhaDespesaFixa,
   type LinhaVenda,
 } from "@/lib/saga/dre-vendas";
+
+const DIMENSOES: { key: DimensaoProduto; label: string }[] = [
+  { key: "produto", label: "Produto" },
+  { key: "sku", label: "SKU" },
+  { key: "marketplace", label: "Marketplace" },
+  { key: "estado", label: "Estado" },
+  { key: "fornecedor", label: "Fornecedor" },
+  { key: "empresa", label: "Empresa" },
+];
 
 export const Route = createFileRoute("/dre-vendas")({
   head: () => ({
@@ -111,6 +127,9 @@ function DreVendasPage() {
   const [qtdProj, setQtdProj] = useState(6);
   const [rotuloProj, setRotuloProj] = useState("P");
   const [crescimento, setCrescimento] = useState<GruposCrescimento>(CRESCIMENTO_PADRAO);
+  const [detalharFixas, setDetalharFixas] = useState(true);
+  const [dimensao, setDimensao] = useState<DimensaoProduto>("produto");
+  const [foco, setFoco] = useState<string | null>(null);
 
   const carga = useMemo(() => {
     const n = Number(cargaStr.replace(",", "."));
@@ -118,6 +137,31 @@ function DreVendasPage() {
   }, [cargaStr]);
 
   const periodos = useMemo(() => periodosDisponiveis(vendas), [vendas]);
+
+  const fixasPorConta = useMemo(
+    () => contasDespesaFixa(despesas, selecionados),
+    [despesas, selecionados],
+  );
+
+  const totalFixasBase = useMemo(
+    () => fixasPorConta.reduce((a, f) => a + f.total, 0) || 1,
+    [fixasPorConta],
+  );
+
+  const despesasForaDaBase = useMemo(() => {
+    if (!despesas.length || !selecionados.length) return [] as string[];
+    return periodosDespesas(despesas).filter((p) => !selecionados.includes(p));
+  }, [despesas, selecionados]);
+
+  const ranking = useMemo(
+    () => resumoPorDimensao(vendas, selecionados, dimensao, carga),
+    [vendas, selecionados, dimensao, carga],
+  );
+
+  const serieFoco = useMemo(
+    () => (foco ? evolucaoDimensao(vendas, dimensao, foco) : []),
+    [vendas, dimensao, foco],
+  );
 
   async function onVendas(file?: File | null) {
     if (!file) return;
@@ -276,9 +320,171 @@ function DreVendasPage() {
         <Tabs defaultValue="dre">
           <TabsList>
             <TabsTrigger value="dre">DRE e Projeção</TabsTrigger>
+            <TabsTrigger value="produtos">Vendas por Produto</TabsTrigger>
             <TabsTrigger value="base">Base de Períodos</TabsTrigger>
             <TabsTrigger value="cresc">Crescimento</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="produtos" className="mt-4 space-y-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Dimensão de análise</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap items-center gap-3">
+                <Select
+                  value={dimensao}
+                  onValueChange={(v) => {
+                    setDimensao(v as DimensaoProduto);
+                    setFoco(null);
+                  }}
+                >
+                  <SelectTrigger className="h-9 w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DIMENSOES.map((d) => (
+                      <SelectItem key={d.key} value={d.key}>
+                        {d.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-xs text-muted-foreground">
+                  {ranking.length} itens · períodos da base selecionada
+                </span>
+              </CardContent>
+            </Card>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Top 10 por Receita Bruta</CardTitle>
+                </CardHeader>
+                <CardContent className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={ranking.slice(0, 10).map((r) => ({
+                        nome: r.chave.length > 18 ? `${r.chave.slice(0, 18)}…` : r.chave,
+                        chave: r.chave,
+                        receita: r.receitaBruta,
+                        margem: r.margemContribuicao,
+                      }))}
+                      layout="vertical"
+                      margin={{ left: 8, right: 16 }}
+                    >
+                      <CartesianGrid horizontal={false} strokeOpacity={0.2} />
+                      <XAxis type="number" tickFormatter={(v: number) => fmtNum(v)} fontSize={11} />
+                      <YAxis type="category" dataKey="nome" width={130} fontSize={11} />
+                      <RTooltip formatter={(v: number, n: string) => [fmtMoney(v, moeda), n]} />
+                      <Bar
+                        dataKey="receita"
+                        name="Receita Bruta"
+                        fill="hsl(var(--primary))"
+                        radius={[0, 6, 6, 0]}
+                        onClick={(d: { chave?: string }) => setFoco(d?.chave ?? null)}
+                      />
+                      <Bar
+                        dataKey="margem"
+                        name="Margem de Contribuição"
+                        fill="hsl(var(--chart-2))"
+                        radius={[0, 6, 6, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">
+                    {foco ? `Evolução — ${foco}` : "Clique em uma barra para ver a evolução"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="h-80">
+                  {serieFoco.length ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={serieFoco} margin={{ left: 8, right: 8, top: 8 }}>
+                        <defs>
+                          <linearGradient id="gProd" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid vertical={false} strokeOpacity={0.2} />
+                        <XAxis dataKey="periodo" tickLine={false} axisLine={false} fontSize={12} />
+                        <YAxis
+                          tickFormatter={(v: number) => fmtNum(v)}
+                          tickLine={false}
+                          axisLine={false}
+                          fontSize={12}
+                          width={80}
+                        />
+                        <RTooltip formatter={(v: number, n: string) => [fmtMoney(v, moeda), n]} />
+                        <Area
+                          type="monotone"
+                          dataKey="receita"
+                          name="Receita Bruta"
+                          stroke="hsl(var(--primary))"
+                          fill="url(#gProd)"
+                          strokeWidth={2}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                      Selecione um item no gráfico ao lado.
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Detalhamento por {DIMENSOES.find((d) => d.key === dimensao)?.label}</CardTitle>
+              </CardHeader>
+              <CardContent className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-48">Item</TableHead>
+                      <TableHead className="text-right">Unid.</TableHead>
+                      <TableHead className="text-right">Receita Bruta</TableHead>
+                      <TableHead className="text-right">Part. %</TableHead>
+                      <TableHead className="text-right">Ticket Médio</TableHead>
+                      <TableHead className="text-right">Custos</TableHead>
+                      <TableHead className="text-right">Comissões</TableHead>
+                      <TableHead className="text-right">Fretes</TableHead>
+                      <TableHead className="text-right">MC</TableHead>
+                      <TableHead className="text-right">MC %</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {ranking.map((r) => (
+                      <TableRow
+                        key={r.chave}
+                        className="cursor-pointer"
+                        onClick={() => setFoco(r.chave)}
+                      >
+                        <TableCell>{r.chave}</TableCell>
+                        <TableCell className="text-right tabular-nums">{fmtNum(r.unidades)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{fmtNum(r.receitaBruta)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{fmtPctTable(r.participacao)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{fmtNum(r.ticketMedio)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{fmtNum(-r.custos)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{fmtNum(-r.comissoes)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{fmtNum(-r.fretes)}</TableCell>
+                        <TableCell className="text-right font-medium tabular-nums">
+                          {fmtNum(r.margemContribuicao)}
+                        </TableCell>
+                        <TableCell className="text-right tabular-nums">{fmtPctTable(r.margemPct)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="base" className="mt-4 space-y-4">
             <Card>
@@ -463,6 +669,26 @@ function DreVendasPage() {
                       DRE gerencial — base e projeção ({moeda})
                     </CardTitle>
                   </CardHeader>
+                  {despesas.length > 0 && (
+                    <CardContent className="flex flex-wrap items-center gap-3 pb-2 pt-0">
+                      <label className="flex items-center gap-2 text-xs">
+                        <Checkbox
+                          checked={detalharFixas}
+                          onCheckedChange={(c) => setDetalharFixas(Boolean(c))}
+                        />
+                        Detalhar contas de despesas fixas
+                      </label>
+                      <Badge variant="secondary">
+                        Despesas fixas na base: {fmtMoney(base.despesasFixas, moeda)}
+                      </Badge>
+                      {despesasForaDaBase.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {despesasForaDaBase.length} período(s) de despesas fora da base
+                          selecionada ({despesasForaDaBase.join(", ")})
+                        </span>
+                      )}
+                    </CardContent>
+                  )}
                   <CardContent className="overflow-x-auto">
                     <Table>
                       <TableHeader>
@@ -480,7 +706,8 @@ function DreVendasPage() {
                       </TableHeader>
                       <TableBody>
                         {LINHAS.map((l) => (
-                          <TableRow key={l.label}>
+                          <Fragment key={l.label}>
+                          <TableRow>
                             <TableCell
                               className={`${l.bold ? "font-semibold" : ""} ${l.indent ? "pl-6" : ""}`}
                             >
@@ -495,6 +722,31 @@ function DreVendasPage() {
                               </TableCell>
                             ))}
                           </TableRow>
+                          {l.label === "(-) Despesas Fixas" &&
+                            detalharFixas &&
+                            fixasPorConta.map((f) => {
+                              const parte = base.despesasFixas
+                                ? (f.total / totalFixasBase) * base.despesasFixas
+                                : 0;
+                              return (
+                                <TableRow key={`fx-${f.conta}`} className="text-muted-foreground">
+                                  <TableCell className="pl-10 text-xs">{f.conta}</TableCell>
+                                  {colunas.map((c) => (
+                                    <TableCell
+                                      key={c.periodo}
+                                      className="text-right text-xs tabular-nums"
+                                    >
+                                      {fmtNum(
+                                        -(base.despesasFixas
+                                          ? (parte / base.despesasFixas) * c.despesasFixas
+                                          : 0),
+                                      )}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              );
+                            })}
+                          </Fragment>
                         ))}
                         <TableRow>
                           <TableCell className="text-xs text-muted-foreground">

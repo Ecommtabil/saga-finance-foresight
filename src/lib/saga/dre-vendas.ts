@@ -3,6 +3,11 @@ import * as XLSX from "xlsx";
 export interface LinhaVenda {
   periodo: string;
   empresa: string;
+  produto: string;
+  sku: string;
+  marketplace: string;
+  estado: string;
+  fornecedor: string;
   unidades: number;
   receitaBruta: number;
   devolucoes: number;
@@ -233,10 +238,17 @@ export async function parseVendas(file: File): Promise<LinhaVenda[]> {
   const iFreDir = findCol(headers, ["frete entrega direta"]);
   const iRecEnv = findCol(headers, ["receita por envio"]);
   const iCus = findCol(headers, ["custo", "cmv"]);
+  const iProd = findCol(headers, ["produto", "descricao do item", "item"]);
+  const iSku = findCol(headers, ["sku", "codigo"]);
+  const iMkt = findCol(headers, ["marketplace", "canal"]);
+  const iEst = findCol(headers, ["estado", "uf"]);
+  const iForn = findCol(headers, ["fornecedor"]);
 
   const out: LinhaVenda[] = [];
   const abs = (i: number, r: (string | number | Date | null)[]) =>
     i >= 0 ? Math.abs(num(r[i])) : 0;
+  const txt = (i: number, r: (string | number | Date | null)[], fb: string) =>
+    i >= 0 ? String(r[i] ?? "").trim() || fb : fb;
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
     if (!r || r.every((v) => v === null || v === "")) continue;
@@ -246,6 +258,11 @@ export async function parseVendas(file: File): Promise<LinhaVenda[]> {
     out.push({
       periodo: normPeriodo(r[iPer], i),
       empresa: iEmp >= 0 ? String(r[iEmp] ?? "").trim() || "—" : "—",
+      produto: txt(iProd, r, "—"),
+      sku: txt(iSku, r, "—"),
+      marketplace: txt(iMkt, r, "—"),
+      estado: txt(iEst, r, "—"),
+      fornecedor: txt(iForn, r, "—"),
       unidades: iUni >= 0 ? num(r[iUni]) : 0,
       receitaBruta: abs(iRec, r),
       devolucoes: abs(iCup, r) + abs(iCanc, r),
@@ -293,6 +310,122 @@ export function despesaFixaDoPeriodo(
   periodo: string,
 ): number {
   return despesas.filter((d) => d.periodo === periodo).reduce((a, d) => a + d.valor, 0);
+}
+
+/** Períodos presentes na planilha de despesas fixas. */
+export function periodosDespesas(despesas: LinhaDespesaFixa[]): string[] {
+  return Array.from(new Set(despesas.map((d) => d.periodo))).sort();
+}
+
+/** Contas de despesa fixa agregadas por período (para detalhar dentro do DRE). */
+export function contasDespesaFixa(
+  despesas: LinhaDespesaFixa[],
+  periodos: string[],
+): { conta: string; porPeriodo: Record<string, number>; total: number }[] {
+  const mapa = new Map<string, Record<string, number>>();
+  for (const d of despesas) {
+    if (!periodos.includes(d.periodo)) continue;
+    const linha = mapa.get(d.conta) ?? {};
+    linha[d.periodo] = (linha[d.periodo] ?? 0) + d.valor;
+    mapa.set(d.conta, linha);
+  }
+  return Array.from(mapa.entries())
+    .map(([conta, porPeriodo]) => ({
+      conta,
+      porPeriodo,
+      total: Object.values(porPeriodo).reduce((a, b) => a + b, 0),
+    }))
+    .sort((a, b) => b.total - a.total);
+}
+
+/* ---------------- Analise de produtos ---------------- */
+
+export type DimensaoProduto = "produto" | "sku" | "marketplace" | "estado" | "fornecedor" | "empresa";
+
+export interface ResumoProduto {
+  chave: string;
+  unidades: number;
+  receitaBruta: number;
+  devolucoes: number;
+  comissoes: number;
+  fretes: number;
+  custos: number;
+  outrasReceitas: number;
+  receitaLiquida: number;
+  margemContribuicao: number;
+  margemPct: number;
+  ticketMedio: number;
+  participacao: number;
+}
+
+export function resumoPorDimensao(
+  vendas: LinhaVenda[],
+  periodos: string[],
+  dimensao: DimensaoProduto,
+  cargaTributaria: number,
+): ResumoProduto[] {
+  const base = periodos.length
+    ? vendas.filter((v) => periodos.includes(v.periodo))
+    : vendas;
+  const mapa = new Map<string, ResumoProduto>();
+  for (const v of base) {
+    const chave = (v[dimensao] || "—") as string;
+    const r =
+      mapa.get(chave) ??
+      {
+        chave,
+        unidades: 0,
+        receitaBruta: 0,
+        devolucoes: 0,
+        comissoes: 0,
+        fretes: 0,
+        custos: 0,
+        outrasReceitas: 0,
+        receitaLiquida: 0,
+        margemContribuicao: 0,
+        margemPct: 0,
+        ticketMedio: 0,
+        participacao: 0,
+      };
+    r.unidades += v.unidades;
+    r.receitaBruta += v.receitaBruta;
+    r.devolucoes += v.devolucoes;
+    r.comissoes += v.comissoes;
+    r.fretes += v.fretes;
+    r.custos += v.custos;
+    r.outrasReceitas += v.outrasReceitas;
+    mapa.set(chave, r);
+  }
+  const itens = Array.from(mapa.values());
+  const totalReceita = itens.reduce((a, i) => a + i.receitaBruta, 0);
+  for (const i of itens) {
+    const impostos = (i.receitaBruta - i.devolucoes) * cargaTributaria;
+    i.receitaLiquida = i.receitaBruta - i.devolucoes - impostos + i.outrasReceitas;
+    i.margemContribuicao = i.receitaLiquida - i.custos - i.comissoes - i.fretes;
+    i.margemPct = i.receitaLiquida ? i.margemContribuicao / i.receitaLiquida : 0;
+    i.ticketMedio = i.unidades ? i.receitaBruta / i.unidades : 0;
+    i.participacao = totalReceita ? i.receitaBruta / totalReceita : 0;
+  }
+  return itens.sort((a, b) => b.receitaBruta - a.receitaBruta);
+}
+
+/** Evolução mensal de um item da dimensão escolhida. */
+export function evolucaoDimensao(
+  vendas: LinhaVenda[],
+  dimensao: DimensaoProduto,
+  chave: string,
+): { periodo: string; receita: number; unidades: number }[] {
+  const mapa = new Map<string, { receita: number; unidades: number }>();
+  for (const v of vendas) {
+    if (((v[dimensao] || "—") as string) !== chave) continue;
+    const cur = mapa.get(v.periodo) ?? { receita: 0, unidades: 0 };
+    cur.receita += v.receitaBruta;
+    cur.unidades += v.unidades;
+    mapa.set(v.periodo, cur);
+  }
+  return Array.from(mapa.entries())
+    .map(([periodo, d]) => ({ periodo, ...d }))
+    .sort((a, b) => a.periodo.localeCompare(b.periodo));
 }
 
 export function montarDre(
