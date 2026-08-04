@@ -101,7 +101,17 @@ function num(v: unknown): number {
 }
 
 function findCol(headers: string[], candidates: string[]): number {
-  return headers.findIndex((h) => candidates.some((c) => h.includes(c)));
+  // 1) match exato tem prioridade (evita "Receita por Produto" virar "Produto")
+  for (const c of candidates) {
+    const i = headers.findIndex((h) => h === c);
+    if (i >= 0) return i;
+  }
+  // 2) depois, match parcial na ordem dos candidatos
+  for (const c of candidates) {
+    const i = headers.findIndex((h) => h.includes(c));
+    if (i >= 0) return i;
+  }
+  return -1;
 }
 
 /* ---------------- Planilhas modelo ---------------- */
