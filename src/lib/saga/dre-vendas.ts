@@ -79,7 +79,12 @@ function normPeriodo(v: unknown, fallback: number): string {
     const m = String(v.getUTCMonth() + 1).padStart(2, "0");
     return `${y}-${m}`;
   }
-  return String(v).trim();
+  const s = String(v).trim();
+  const iso = s.match(/^(\d{4})-(\d{2})(?:-\d{2})?/);
+  if (iso) return `${iso[1]}-${iso[2]}`;
+  const br = s.match(/^(\d{2})[/-](\d{2})[/-](\d{4})/);
+  if (br) return `${br[3]}-${br[2]}`;
+  return s;
 }
 
 function num(v: unknown): number {
