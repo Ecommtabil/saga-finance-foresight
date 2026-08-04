@@ -248,7 +248,15 @@ export async function parseVendas(file: File): Promise<LinhaVenda[]> {
   const iFreDir = findCol(headers, ["frete entrega direta"]);
   const iRecEnv = findCol(headers, ["receita por envio"]);
   const iCus = findCol(headers, ["custo", "cmv"]);
-  const iProd = findCol(headers, ["produto", "descricao do item", "item"]);
+  let iProd = findCol(headers, [
+    "produto",
+    "nome do produto",
+    "descricao do produto",
+    "descricao do item",
+    "item",
+  ]);
+  // nunca usar a coluna de receita/custo como nome do produto
+  if (iProd === iRec || iProd === iPer) iProd = -1;
   const iSku = findCol(headers, ["sku", "codigo"]);
   const iMkt = findCol(headers, ["marketplace", "canal"]);
   const iEst = findCol(headers, ["estado", "uf"]);
