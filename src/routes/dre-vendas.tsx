@@ -1142,3 +1142,498 @@ function MargensPanel({ colunas, moeda }: { colunas: ColunaDre[]; moeda: string 
     </div>
   );
 }
+
+const PALETA = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
+
+function KpiCard({
+  titulo,
+  valor,
+  sub,
+  cor,
+}: {
+  titulo: string;
+  valor: string;
+  sub?: string;
+  cor: string;
+}) {
+  return (
+    <Card className="relative overflow-hidden">
+      <span
+        className="absolute inset-y-0 left-0 w-1.5"
+        style={{ background: cor }}
+        aria-hidden
+      />
+      <CardHeader className="pb-1 pl-5">
+        <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {titulo}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pl-5">
+        <div className="text-2xl font-semibold tabular-nums">{valor}</div>
+        {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ProdutosDashboard({
+  ranking,
+  dimensao,
+  onDimensao,
+  foco,
+  onFoco,
+  serie,
+  moeda,
+}: {
+  ranking: ResumoProduto[];
+  dimensao: DimensaoProduto;
+  onDimensao: (d: DimensaoProduto) => void;
+  foco: string | null;
+  onFoco: (v: string | null) => void;
+  serie: { periodo: string; receita: number; unidades: number }[];
+  moeda: string;
+}) {
+  const label = DIMENSOES.find((d) => d.key === dimensao)?.label ?? "Item";
+
+  const totalReceita = ranking.reduce((a, r) => a + r.receitaBruta, 0);
+  const totalMc = ranking.reduce((a, r) => a + r.margemContribuicao, 0);
+  const totalUnid = ranking.reduce((a, r) => a + r.unidades, 0);
+  const mcPct = safeDiv(totalMc, ranking.reduce((a, r) => a + r.receitaLiquida, 0));
+
+  // Curva ABC (Pareto)
+  let acum = 0;
+  const abc = ranking.map((r, i) => {
+    acum += r.receitaBruta;
+    const acumPct = safeDiv(acum, totalReceita);
+    const classe = acumPct <= 0.8 ? "A" : acumPct <= 0.95 ? "B" : "C";
+    return { ...r, ordem: i + 1, acumPct, classe };
+  });
+  const qtdA = abc.filter((r) => r.classe === "A").length;
+  const top = abc[0];
+
+  const top10 = abc.slice(0, 10).map((r) => ({
+    nome: r.chave.length > 20 ? `${r.chave.slice(0, 20)}…` : r.chave,
+    chave: r.chave,
+    receita: r.receitaBruta,
+    margem: r.margemContribuicao,
+    mcPct: r.margemPct,
+  }));
+
+  const pareto = abc.slice(0, 12).map((r) => ({
+    nome: r.chave.length > 12 ? `${r.chave.slice(0, 12)}…` : r.chave,
+    receita: r.receitaBruta,
+    acum: r.acumPct * 100,
+  }));
+
+  const top5 = abc.slice(0, 5).map((r, i) => ({
+    nome: r.chave,
+    valor: r.receitaBruta,
+    cor: PALETA[i % PALETA.length],
+  }));
+  const resto = totalReceita - top5.reduce((a, r) => a + r.valor, 0);
+  const donut = resto > 0 ? [...top5, { nome: "Demais itens", valor: resto, cor: "var(--muted-foreground)" }] : top5;
+
+  const dispersao = abc.map((r) => ({
+    nome: r.chave,
+    receita: r.receitaBruta,
+    mc: r.margemPct * 100,
+    unidades: Math.max(r.unidades, 1),
+    classe: r.classe,
+  }));
+
+  const corClasse = (c: string) =>
+    c === "A" ? "var(--chart-1)" : c === "B" ? "var(--chart-4)" : "var(--chart-3)";
+
+  const serieFoco = serie.map((s) => ({ ...s, ticket: safeDiv(s.receita, s.unidades) }));
+
+  if (!ranking.length) {
+    return (
+      <Alert>
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Sem itens para analisar</AlertTitle>
+        <AlertDescription>
+          Selecione períodos na aba "Base de Períodos" para popular o dashboard.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="flex flex-wrap items-center gap-3 py-4">
+          <Label className="text-xs font-semibold uppercase tracking-wide">Analisar por</Label>
+          <Select value={dimensao} onValueChange={(v) => onDimensao(v as DimensaoProduto)}>
+            <SelectTrigger className="h-9 w-48 bg-background">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DIMENSOES.map((d) => (
+                <SelectItem key={d.key} value={d.key}>
+                  {d.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Badge variant="secondary">{ranking.length} itens</Badge>
+          {foco && (
+            <Badge
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => onFoco(null)}
+            >
+              Foco: {foco} ✕
+            </Badge>
+          )}
+          <span className="ml-auto text-xs text-muted-foreground">
+            Clique em qualquer item para ver a evolução no tempo
+          </span>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <KpiCard
+          titulo="Receita Bruta"
+          valor={fmtMoney(totalReceita, moeda)}
+          sub={`${fmtNum(totalUnid)} unidades vendidas`}
+          cor="var(--chart-1)"
+        />
+        <KpiCard
+          titulo="Margem de Contribuição"
+          valor={fmtMoney(totalMc, moeda)}
+          sub={`${fmtPctTable(mcPct)} da receita líquida`}
+          cor="var(--chart-2)"
+        />
+        <KpiCard
+          titulo="Ticket Médio"
+          valor={fmtMoney(safeDiv(totalReceita, totalUnid), moeda)}
+          sub={`${label.toLowerCase()} · média ponderada`}
+          cor="var(--chart-4)"
+        />
+        <KpiCard
+          titulo={`Top ${label}`}
+          valor={fmtPctTable(top?.participacao ?? 0)}
+          sub={top?.chave}
+          cor="var(--chart-3)"
+        />
+        <KpiCard
+          titulo="Concentração ABC"
+          valor={`${qtdA} itens = 80%`}
+          sub={`${fmtPctTable(safeDiv(qtdA, ranking.length))} do portfólio gera 80% da receita`}
+          cor="var(--chart-5)"
+        />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Top 10 — Receita e Margem de Contribuição</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[420px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={top10} layout="vertical" margin={{ left: 8, right: 24 }} barGap={2}>
+                <defs>
+                  <linearGradient id="gBarRec" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.85} />
+                    <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0.95} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid horizontal={false} strokeOpacity={0.15} />
+                <XAxis type="number" tickFormatter={(v: number) => fmtNum(v)} fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis type="category" dataKey="nome" width={140} fontSize={11} tickLine={false} axisLine={false} />
+                <RTooltip
+                  cursor={{ fill: "var(--muted)", opacity: 0.4 }}
+                  contentStyle={{ borderRadius: 12 }}
+                  formatter={(v: number, n: string) => [fmtMoney(v, moeda), n]}
+                />
+                <Legend />
+                <Bar
+                  dataKey="receita"
+                  name="Receita Bruta"
+                  fill="url(#gBarRec)"
+                  radius={[0, 6, 6, 0]}
+                  onClick={(d: { chave?: string }) => onFoco(d?.chave ?? null)}
+                  cursor="pointer"
+                />
+                <Bar
+                  dataKey="margem"
+                  name="Margem de Contribuição"
+                  radius={[0, 6, 6, 0]}
+                  onClick={(d: { chave?: string }) => onFoco(d?.chave ?? null)}
+                  cursor="pointer"
+                >
+                  {top10.map((r) => (
+                    <Cell
+                      key={r.chave}
+                      fill={r.mcPct >= 0.3 ? "var(--chart-4)" : r.mcPct >= 0 ? "var(--chart-5)" : "var(--destructive)"}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Concentração da receita</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[420px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={donut}
+                  dataKey="valor"
+                  nameKey="nome"
+                  innerRadius="55%"
+                  outerRadius="80%"
+                  paddingAngle={2}
+                  onClick={(d: { nome?: string }) => onFoco(d?.nome ?? null)}
+                >
+                  {donut.map((d) => (
+                    <Cell key={d.nome} fill={d.cor} stroke="var(--background)" strokeWidth={2} />
+                  ))}
+                </Pie>
+                <RTooltip
+                  contentStyle={{ borderRadius: 12 }}
+                  formatter={(v: number, n: string) => [
+                    `${fmtMoney(v, moeda)} (${fmtPctTable(safeDiv(v, totalReceita))})`,
+                    n,
+                  ]}
+                />
+                <Legend verticalAlign="bottom" height={72} />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-1 text-sm">
+              Curva ABC (Pareto)
+              <InfoTooltip text="As barras mostram a receita de cada item e a linha o acumulado. Itens até 80% do acumulado são classe A (prioritários), até 95% classe B e o restante classe C." />
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={pareto} margin={{ left: 8, right: 8, top: 8 }}>
+                <CartesianGrid vertical={false} strokeOpacity={0.15} />
+                <XAxis dataKey="nome" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-25} textAnchor="end" height={60} />
+                <YAxis yAxisId="l" tickFormatter={(v: number) => fmtNum(v)} fontSize={11} tickLine={false} axisLine={false} width={80} />
+                <YAxis yAxisId="r" orientation="right" domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} fontSize={11} tickLine={false} axisLine={false} width={45} />
+                <RTooltip
+                  contentStyle={{ borderRadius: 12 }}
+                  formatter={(v: number, n: string) =>
+                    n === "Acumulado" ? [`${fmtNum(v, 1)}%`, n] : [fmtMoney(v, moeda), n]
+                  }
+                />
+                <Legend />
+                <Bar yAxisId="l" dataKey="receita" name="Receita" radius={[6, 6, 0, 0]}>
+                  {pareto.map((p, i) => (
+                    <Cell key={p.nome} fill={PALETA[i % PALETA.length]} fillOpacity={0.9} />
+                  ))}
+                </Bar>
+                <Line
+                  yAxisId="r"
+                  type="monotone"
+                  dataKey="acum"
+                  name="Acumulado"
+                  stroke="var(--chart-3)"
+                  strokeWidth={2.5}
+                  dot={{ r: 3 }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-1 text-sm">
+              Receita x Margem — onde está o lucro
+              <InfoTooltip text="Cada bolha é um item: eixo horizontal a receita, vertical a margem de contribuição %, e o tamanho as unidades vendidas. Bolhas no canto superior direito são as estrelas do portfólio." />
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart margin={{ left: 8, right: 16, top: 8, bottom: 8 }}>
+                <CartesianGrid strokeOpacity={0.15} />
+                <XAxis
+                  type="number"
+                  dataKey="receita"
+                  name="Receita"
+                  tickFormatter={(v: number) => fmtNum(v)}
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  width={80}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="mc"
+                  name="MC %"
+                  tickFormatter={(v: number) => `${fmtNum(v, 0)}%`}
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  width={55}
+                />
+                <ZAxis type="number" dataKey="unidades" range={[50, 500]} />
+                <RTooltip
+                  contentStyle={{ borderRadius: 12 }}
+                  cursor={{ strokeDasharray: "3 3" }}
+                  formatter={(v: number, n: string) =>
+                    n === "MC %" ? [`${fmtNum(v, 1)}%`, n] : [fmtNum(v), n]
+                  }
+                  labelFormatter={() => ""}
+                />
+                <Scatter
+                  data={dispersao}
+                  name="Itens"
+                  onClick={(d: { nome?: string }) => onFoco(d?.nome ?? null)}
+                  cursor="pointer"
+                >
+                  {dispersao.map((d) => (
+                    <Cell key={d.nome} fill={corClasse(d.classe)} fillOpacity={0.7} />
+                  ))}
+                </Scatter>
+              </ScatterChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">
+            {foco ? `Evolução — ${foco}` : "Evolução no tempo"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="h-80">
+          {serieFoco.length ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={serieFoco} margin={{ left: 8, right: 8, top: 8 }}>
+                <defs>
+                  <linearGradient id="gProd" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} strokeOpacity={0.15} />
+                <XAxis dataKey="periodo" tickLine={false} axisLine={false} fontSize={12} />
+                <YAxis yAxisId="l" tickFormatter={(v: number) => fmtNum(v)} tickLine={false} axisLine={false} fontSize={11} width={80} />
+                <YAxis yAxisId="r" orientation="right" tickFormatter={(v: number) => fmtNum(v)} tickLine={false} axisLine={false} fontSize={11} width={55} />
+                <RTooltip
+                  contentStyle={{ borderRadius: 12 }}
+                  formatter={(v: number, n: string) =>
+                    n === "Unidades" ? [fmtNum(v), n] : [fmtMoney(v, moeda), n]
+                  }
+                />
+                <Legend />
+                <Area
+                  yAxisId="l"
+                  type="monotone"
+                  dataKey="receita"
+                  name="Receita Bruta"
+                  stroke="var(--chart-1)"
+                  fill="url(#gProd)"
+                  strokeWidth={2.5}
+                />
+                <Bar yAxisId="r" dataKey="unidades" name="Unidades" fill="var(--chart-2)" radius={[6, 6, 0, 0]} barSize={18} />
+                <Line yAxisId="l" type="monotone" dataKey="ticket" name="Ticket Médio" stroke="var(--chart-3)" strokeWidth={2} dot={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              Clique em um item nos gráficos ou na tabela para ver a evolução mensal.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Detalhamento por {label}</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-10 text-center">ABC</TableHead>
+                <TableHead className="min-w-48">Item</TableHead>
+                <TableHead className="text-right">Unid.</TableHead>
+                <TableHead className="text-right">Receita Bruta</TableHead>
+                <TableHead className="min-w-32">Part. %</TableHead>
+                <TableHead className="text-right">Ticket Médio</TableHead>
+                <TableHead className="text-right">Custos</TableHead>
+                <TableHead className="text-right">Comissões</TableHead>
+                <TableHead className="text-right">Fretes</TableHead>
+                <TableHead className="text-right">MC</TableHead>
+                <TableHead className="text-right">MC %</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {abc.map((r) => (
+                <TableRow
+                  key={r.chave}
+                  className={`cursor-pointer ${foco === r.chave ? "bg-primary/5" : ""}`}
+                  onClick={() => onFoco(r.chave)}
+                >
+                  <TableCell className="text-center">
+                    <span
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold text-background"
+                      style={{ background: corClasse(r.classe) }}
+                    >
+                      {r.classe}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-medium">{r.chave}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(r.unidades)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(r.receitaBruta)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-full max-w-24 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(r.participacao * 100, 100)}%`,
+                            background: "var(--chart-1)",
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs tabular-nums text-muted-foreground">
+                        {fmtPctTable(r.participacao)}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(r.ticketMedio)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(-r.custos)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(-r.comissoes)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtNum(-r.fretes)}</TableCell>
+                  <TableCell className="text-right font-medium tabular-nums">
+                    {fmtNum(r.margemContribuicao)}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    <Badge
+                      variant={r.margemPct >= 0.3 ? "secondary" : r.margemPct >= 0 ? "outline" : "destructive"}
+                    >
+                      {fmtPctTable(r.margemPct)}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
