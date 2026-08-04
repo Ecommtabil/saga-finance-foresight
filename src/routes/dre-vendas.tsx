@@ -32,11 +32,19 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
+  ComposedChart,
+  Line,
   Legend,
+  Pie,
+  PieChart,
   ResponsiveContainer,
+  Scatter,
+  ScatterChart,
   Tooltip as RTooltip,
   XAxis,
   YAxis,
+  ZAxis,
 } from "recharts";
 import { useSaga } from "@/lib/saga/context";
 import { fmtMoney, fmtNum, fmtPctTable, safeDiv } from "@/lib/saga/formatters";
