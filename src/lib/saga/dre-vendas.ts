@@ -312,6 +312,90 @@ export function despesaFixaDoPeriodo(
   return despesas.filter((d) => d.periodo === periodo).reduce((a, d) => a + d.valor, 0);
 }
 
+/**
+ * Como as despesas fixas importadas são alocadas aos períodos de vendas.
+ * - periodo: casa período a período (exige mesma competência AAAA-MM)
+ * - media:   média mensal das despesas importadas replicada em cada período
+ * - total:   total das despesas rateado igualmente entre os períodos da base
+ * - auto:    usa "periodo" se houver competências coincidentes; senão "media"
+ */
+export type ModoDespesas = "auto" | "periodo" | "media" | "total";
+
+export function modoDespesasEfetivo(
+  despesas: LinhaDespesaFixa[],
+  periodos: string[],
+  modo: ModoDespesas,
+): Exclude<ModoDespesas, "auto"> {
+  if (modo !== "auto") return modo;
+  const casa = despesas.some((d) => periodos.includes(d.periodo));
+  return casa ? "periodo" : "media";
+}
+
+/** Valor de despesa fixa alocado a cada período de vendas. */
+export function alocarDespesas(
+  despesas: LinhaDespesaFixa[],
+  periodos: string[],
+  modo: ModoDespesas = "auto",
+): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const p of periodos) out[p] = 0;
+  if (!despesas.length || !periodos.length) return out;
+  const efetivo = modoDespesasEfetivo(despesas, periodos, modo);
+  const total = despesas.reduce((a, d) => a + d.valor, 0);
+  if (efetivo === "periodo") {
+    for (const d of despesas)
+      if (p_in(out, d.periodo)) out[d.periodo] += d.valor;
+    return out;
+  }
+  if (efetivo === "total") {
+    const parte = total / periodos.length;
+    for (const p of periodos) out[p] = parte;
+    return out;
+  }
+  const nMeses = new Set(despesas.map((d) => d.periodo)).size || 1;
+  const media = total / nMeses;
+  for (const p of periodos) out[p] = media;
+  return out;
+}
+
+const p_in = (o: Record<string, number>, k: string) =>
+  Object.prototype.hasOwnProperty.call(o, k);
+
+/** Contas de despesa fixa já alocadas aos períodos de vendas. */
+export function contasDespesaFixaAlocadas(
+  despesas: LinhaDespesaFixa[],
+  periodos: string[],
+  modo: ModoDespesas = "auto",
+): { conta: string; porPeriodo: Record<string, number>; total: number }[] {
+  if (!despesas.length || !periodos.length) return [];
+  const efetivo = modoDespesasEfetivo(despesas, periodos, modo);
+  const contas = Array.from(new Set(despesas.map((d) => d.conta)));
+  return contas
+    .map((conta) => {
+      const linhas = despesas.filter((d) => d.conta === conta);
+      const porPeriodo: Record<string, number> = {};
+      for (const p of periodos) porPeriodo[p] = 0;
+      if (efetivo === "periodo") {
+        for (const d of linhas)
+          if (p_in(porPeriodo, d.periodo)) porPeriodo[d.periodo] += d.valor;
+      } else {
+        const totalConta = linhas.reduce((a, d) => a + d.valor, 0);
+        const div =
+          efetivo === "total"
+            ? periodos.length
+            : new Set(linhas.map((d) => d.periodo)).size || 1;
+        const parte = totalConta / div;
+        for (const p of periodos) porPeriodo[p] = parte;
+      }
+      return {
+        conta,
+        porPeriodo,
+        total: Object.values(porPeriodo).reduce((a, b) => a + b, 0),
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+}
+
 /** Períodos presentes na planilha de despesas fixas. */
 export function periodosDespesas(despesas: LinhaDespesaFixa[]): string[] {
   return Array.from(new Set(despesas.map((d) => d.periodo))).sort();
@@ -431,7 +515,7 @@ export function evolucaoDimensao(
 export function montarDre(
   periodo: string,
   vendas: LinhaVenda[],
-  despesas: LinhaDespesaFixa[],
+  despesasPorPeriodo: Record<string, number>,
   cargaTributaria: number,
   projetado = false,
 ): DreVendasPeriodo {
@@ -443,7 +527,7 @@ export function montarDre(
   const fretes = soma((l) => l.fretes);
   const custos = soma((l) => l.custos);
   const outrasReceitas = soma((l) => l.outrasReceitas);
-  const despesasFixas = despesaFixaDoPeriodo(despesas, periodo);
+  const despesasFixas = despesasPorPeriodo[periodo] ?? 0;
   return finalizar({
     periodo,
     projetado,
@@ -498,12 +582,14 @@ function finalizar(base: {
 export function montarBase(
   periodos: string[],
   vendas: LinhaVenda[],
-  despesas: LinhaDespesaFixa[],
+  despesasPorPeriodo: Record<string, number>,
   cargaTributaria: number,
   modo: "soma" | "media",
   rotulo = "Base",
 ): DreVendasPeriodo {
-  const itens = periodos.map((p) => montarDre(p, vendas, despesas, cargaTributaria));
+  const itens = periodos.map((p) =>
+    montarDre(p, vendas, despesasPorPeriodo, cargaTributaria),
+  );
   const div = modo === "media" && itens.length ? itens.length : 1;
   const agg = (f: (d: DreVendasPeriodo) => number) =>
     itens.reduce((a, d) => a + f(d), 0) / div;
