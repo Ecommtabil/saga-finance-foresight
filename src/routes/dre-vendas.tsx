@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Download, Upload, AlertTriangle, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/saga/PageHeader";
@@ -669,6 +669,26 @@ function DreVendasPage() {
                       DRE gerencial — base e projeção ({moeda})
                     </CardTitle>
                   </CardHeader>
+                  {despesas.length > 0 && (
+                    <CardContent className="flex flex-wrap items-center gap-3 pb-2 pt-0">
+                      <label className="flex items-center gap-2 text-xs">
+                        <Checkbox
+                          checked={detalharFixas}
+                          onCheckedChange={(c) => setDetalharFixas(Boolean(c))}
+                        />
+                        Detalhar contas de despesas fixas
+                      </label>
+                      <Badge variant="secondary">
+                        Despesas fixas na base: {fmtMoney(base.despesasFixas, moeda)}
+                      </Badge>
+                      {despesasForaDaBase.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {despesasForaDaBase.length} período(s) de despesas fora da base
+                          selecionada ({despesasForaDaBase.join(", ")})
+                        </span>
+                      )}
+                    </CardContent>
+                  )}
                   <CardContent className="overflow-x-auto">
                     <Table>
                       <TableHeader>
