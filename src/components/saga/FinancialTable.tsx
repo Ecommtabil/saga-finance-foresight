@@ -1,4 +1,4 @@
-import { fmtNum } from "@/lib/saga/formatters";
+import { fmtNum, fmtPctTable } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
 
 export interface FinRow {
@@ -52,9 +52,7 @@ export function FinancialTable({
                     v < 0 && "text-destructive",
                   )}
                 >
-                  {r.isPct
-                    ? `${(v * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`
-                    : fmtNum(v, 0)}
+                  {r.isPct ? fmtPctTable(v) : fmtNum(v, 0)}
                 </td>
               ))}
             </tr>
