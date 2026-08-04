@@ -60,6 +60,9 @@ function FluxoPage() {
           <FinancialTable
             anos={dados.anos}
             moeda={moeda}
+            analises
+            baseAV={dados.dre.receitaLiquida}
+            baseAVLabel="a Receita Líquida"
             rows={[
               { label: "Recebimentos de Clientes", values: dir.recebimentos, indent: true },
               { label: "Pagamentos a Fornecedores/Despesas", values: dir.pagamentos, indent: true },
@@ -78,6 +81,9 @@ function FluxoPage() {
           <FinancialTable
             anos={dados.anos}
             moeda={moeda}
+            analises
+            baseAV={dados.dre.receitaLiquida}
+            baseAVLabel="a Receita Líquida"
             rows={[
               { label: "Lucro Líquido", values: ind.lucroLiquido, indent: true },
               { label: "(+) Depreciação", values: ind.depreciacao, indent: true },
