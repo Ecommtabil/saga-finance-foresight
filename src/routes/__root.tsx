@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SagaProvider } from "../lib/saga/context";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/saga/AppSidebar";
+import { ProjectActions } from "../components/saga/ProjectActions";
 
 function NotFoundComponent() {
   return (
@@ -133,6 +134,9 @@ function RootComponent() {
                 <span className="text-sm font-medium text-muted-foreground">
                   SAGA · Análise e Avaliação de Empresas
                 </span>
+                <div className="ml-auto">
+                  <ProjectActions />
+                </div>
               </header>
               <main className="flex-1 overflow-auto p-6">
                 <Outlet />
