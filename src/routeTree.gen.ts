@@ -32,6 +32,7 @@ import { Route as ModelagemSimplificadaOpexRouteImport } from './routes/modelage
 import { Route as ModelagemSimplificadaInvestimentosRouteImport } from './routes/modelagem-simplificada.investimentos'
 import { Route as ModelagemSimplificadaFundingRouteImport } from './routes/modelagem-simplificada.funding'
 import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
+import { Route as ModelagemSimplificadaCapitalGiroRouteImport } from './routes/modelagem-simplificada.capital-giro'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -155,6 +156,12 @@ const ModelagemSimplificadaEmpresasRoute =
     path: '/empresas',
     getParentRoute: () => ModelagemSimplificadaRoute,
   } as any)
+const ModelagemSimplificadaCapitalGiroRoute =
+  ModelagemSimplificadaCapitalGiroRouteImport.update({
+    id: '/capital-giro',
+    path: '/capital-giro',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
   '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
   '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
@@ -198,6 +206,7 @@ export interface FileRoutesByTo {
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
   '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
   '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
@@ -224,6 +233,7 @@ export interface FileRoutesById {
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
   '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
   '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/empresas'
     | '/modelagem-simplificada/funding'
     | '/modelagem-simplificada/investimentos'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/empresas'
     | '/modelagem-simplificada/funding'
     | '/modelagem-simplificada/investimentos'
@@ -301,6 +313,7 @@ export interface FileRouteTypes {
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/empresas'
     | '/modelagem-simplificada/funding'
     | '/modelagem-simplificada/investimentos'
@@ -492,10 +505,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemSimplificadaEmpresasRouteImport
       parentRoute: typeof ModelagemSimplificadaRoute
     }
+    '/modelagem-simplificada/capital-giro': {
+      id: '/modelagem-simplificada/capital-giro'
+      path: '/capital-giro'
+      fullPath: '/modelagem-simplificada/capital-giro'
+      preLoaderRoute: typeof ModelagemSimplificadaCapitalGiroRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
   }
 }
 
 interface ModelagemSimplificadaRouteChildren {
+  ModelagemSimplificadaCapitalGiroRoute: typeof ModelagemSimplificadaCapitalGiroRoute
   ModelagemSimplificadaEmpresasRoute: typeof ModelagemSimplificadaEmpresasRoute
   ModelagemSimplificadaFundingRoute: typeof ModelagemSimplificadaFundingRoute
   ModelagemSimplificadaInvestimentosRoute: typeof ModelagemSimplificadaInvestimentosRoute
@@ -506,6 +527,7 @@ interface ModelagemSimplificadaRouteChildren {
 }
 
 const ModelagemSimplificadaRouteChildren: ModelagemSimplificadaRouteChildren = {
+  ModelagemSimplificadaCapitalGiroRoute: ModelagemSimplificadaCapitalGiroRoute,
   ModelagemSimplificadaEmpresasRoute: ModelagemSimplificadaEmpresasRoute,
   ModelagemSimplificadaFundingRoute: ModelagemSimplificadaFundingRoute,
   ModelagemSimplificadaInvestimentosRoute:
