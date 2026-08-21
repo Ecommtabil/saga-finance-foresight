@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SimuladoresRouteImport } from './routes/simuladores'
+import { Route as ModelagemSimplificadaRouteImport } from './routes/modelagem-simplificada'
 import { Route as IndicesRouteImport } from './routes/indices'
 import { Route as IndicadoresRouteImport } from './routes/indicadores'
 import { Route as FluxoReversoRouteImport } from './routes/fluxo-reverso'
@@ -38,6 +39,11 @@ const UploadRoute = UploadRouteImport.update({
 const SimuladoresRoute = SimuladoresRouteImport.update({
   id: '/simuladores',
   path: '/simuladores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelagemSimplificadaRoute = ModelagemSimplificadaRouteImport.update({
+  id: '/modelagem-simplificada',
+  path: '/modelagem-simplificada',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndicesRoute = IndicesRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/modelagem-simplificada': typeof ModelagemSimplificadaRoute
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/modelagem-simplificada': typeof ModelagemSimplificadaRoute
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/modelagem-simplificada': typeof ModelagemSimplificadaRoute
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
+    | '/modelagem-simplificada'
     | '/simuladores'
     | '/upload'
     | '/valuation'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
+    | '/modelagem-simplificada'
     | '/simuladores'
     | '/upload'
     | '/valuation'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
+    | '/modelagem-simplificada'
     | '/simuladores'
     | '/upload'
     | '/valuation'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   FluxoReversoRoute: typeof FluxoReversoRoute
   IndicadoresRoute: typeof IndicadoresRoute
   IndicesRoute: typeof IndicesRoute
+  ModelagemSimplificadaRoute: typeof ModelagemSimplificadaRoute
   SimuladoresRoute: typeof SimuladoresRoute
   UploadRoute: typeof UploadRoute
   ValuationRoute: typeof ValuationRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/simuladores'
       fullPath: '/simuladores'
       preLoaderRoute: typeof SimuladoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modelagem-simplificada': {
+      id: '/modelagem-simplificada'
+      path: '/modelagem-simplificada'
+      fullPath: '/modelagem-simplificada'
+      preLoaderRoute: typeof ModelagemSimplificadaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/indices': {
@@ -348,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   FluxoReversoRoute: FluxoReversoRoute,
   IndicadoresRoute: IndicadoresRoute,
   IndicesRoute: IndicesRoute,
+  ModelagemSimplificadaRoute: ModelagemSimplificadaRoute,
   SimuladoresRoute: SimuladoresRoute,
   UploadRoute: UploadRoute,
   ValuationRoute: ValuationRoute,

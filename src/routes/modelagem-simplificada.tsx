@@ -28,7 +28,7 @@ function ModelagemSimplificadaPage() {
     <>
       <PageHeader
         titulo="Modelagem Simplificada"
-        descricao="Módulo em construção: modelagem rápida com poucos dados de entrada."
+        subtitulo="Módulo em construção: modelagem rápida com poucos dados de entrada."
       />
       <Card>
         <CardHeader>
