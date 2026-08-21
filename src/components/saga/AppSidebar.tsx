@@ -63,6 +63,10 @@ const MODELAGEM: MenuItem[] = [
   { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
 ];
 
+const MODELAGEM_SIMPLIFICADA: SubItem[] = [
+  { title: "Visão Geral", url: "/modelagem-simplificada", icon: Zap, apenasCompleta: false },
+];
+
 const ANALISE_DADOS: SubItem[] = [
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
   { title: "DRE - Vendas", url: "/dre-vendas", icon: Receipt, apenasCompleta: false },
