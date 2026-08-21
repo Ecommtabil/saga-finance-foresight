@@ -25,6 +25,7 @@ import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ModelagemSimplificadaValuationRouteImport } from './routes/modelagem-simplificada.valuation'
 import { Route as ModelagemSimplificadaReceitasRouteImport } from './routes/modelagem-simplificada.receitas'
 import { Route as ModelagemSimplificadaPremissasRouteImport } from './routes/modelagem-simplificada.premissas'
 import { Route as ModelagemSimplificadaPessoalRouteImport } from './routes/modelagem-simplificada.pessoal'
@@ -115,6 +116,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ModelagemSimplificadaValuationRoute =
+  ModelagemSimplificadaValuationRouteImport.update({
+    id: '/valuation',
+    path: '/valuation',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
 const ModelagemSimplificadaReceitasRoute =
   ModelagemSimplificadaReceitasRouteImport.update({
     id: '/receitas',
@@ -196,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
+  '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -223,6 +231,7 @@ export interface FileRoutesByTo {
   '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
+  '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -251,6 +260,7 @@ export interface FileRoutesById {
   '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
+  '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
+    | '/modelagem-simplificada/valuation'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
+    | '/modelagem-simplificada/valuation'
   id:
     | '__root__'
     | '/'
@@ -334,6 +346,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
+    | '/modelagem-simplificada/valuation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -469,6 +482,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/modelagem-simplificada/valuation': {
+      id: '/modelagem-simplificada/valuation'
+      path: '/valuation'
+      fullPath: '/modelagem-simplificada/valuation'
+      preLoaderRoute: typeof ModelagemSimplificadaValuationRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
     '/modelagem-simplificada/receitas': {
       id: '/modelagem-simplificada/receitas'
       path: '/receitas'
@@ -545,6 +565,7 @@ interface ModelagemSimplificadaRouteChildren {
   ModelagemSimplificadaPessoalRoute: typeof ModelagemSimplificadaPessoalRoute
   ModelagemSimplificadaPremissasRoute: typeof ModelagemSimplificadaPremissasRoute
   ModelagemSimplificadaReceitasRoute: typeof ModelagemSimplificadaReceitasRoute
+  ModelagemSimplificadaValuationRoute: typeof ModelagemSimplificadaValuationRoute
 }
 
 const ModelagemSimplificadaRouteChildren: ModelagemSimplificadaRouteChildren = {
@@ -559,6 +580,7 @@ const ModelagemSimplificadaRouteChildren: ModelagemSimplificadaRouteChildren = {
   ModelagemSimplificadaPessoalRoute: ModelagemSimplificadaPessoalRoute,
   ModelagemSimplificadaPremissasRoute: ModelagemSimplificadaPremissasRoute,
   ModelagemSimplificadaReceitasRoute: ModelagemSimplificadaReceitasRoute,
+  ModelagemSimplificadaValuationRoute: ModelagemSimplificadaValuationRoute,
 }
 
 const ModelagemSimplificadaRouteWithChildren =
