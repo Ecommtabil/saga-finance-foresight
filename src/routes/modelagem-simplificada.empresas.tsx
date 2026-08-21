@@ -49,6 +49,7 @@ function EmpresasPage() {
     renomearCenario,
     removerCenario,
     selecionarCenario,
+    atualizarCenario,
     importarEstado,
     exportarEstado,
   } = useSimpl();
@@ -313,13 +314,13 @@ function EmpresasPage() {
             <Campo label="Caixa inicial">
               <NumInput
                 value={cenario?.caixaInicial ?? 0}
-                onChange={(v) => useSimplUpdate({ caixaInicial: v })}
+                onChange={(v) => atualizarCenario({ caixaInicial: v })}
               />
             </Campo>
             <Campo label="Capital social inicial">
               <NumInput
                 value={cenario?.capitalInicial ?? 0}
-                onChange={(v) => useSimplUpdate({ capitalInicial: v })}
+                onChange={(v) => atualizarCenario({ capitalInicial: v })}
               />
             </Campo>
           </CardContent>
@@ -328,17 +329,4 @@ function EmpresasPage() {
     </>
   );
 
-  function useSimplUpdate(patch: Record<string, number>) {
-    atualizarCenarioLocal(patch);
-  }
-
-  function atualizarCenarioLocal(patch: Record<string, number>) {
-    // delega para o store
-    (window as unknown as { __noop?: unknown }).__noop;
-    atualizarCenarioRef.current?.(patch);
-  }
 }
-
-const atualizarCenarioRef: { current: ((p: Record<string, number>) => void) | null } = {
-  current: null,
-};

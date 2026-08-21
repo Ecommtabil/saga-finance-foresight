@@ -25,6 +25,7 @@ import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -106,6 +107,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ModelagemSimplificadaEmpresasRoute =
+  ModelagemSimplificadaEmpresasRouteImport.update({
+    id: '/empresas',
+    path: '/empresas',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -120,10 +127,11 @@ export interface FileRoutesByFullPath {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
-  '/modelagem-simplificada': typeof ModelagemSimplificadaRoute
+  '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -138,10 +146,11 @@ export interface FileRoutesByTo {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
-  '/modelagem-simplificada': typeof ModelagemSimplificadaRoute
+  '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -157,10 +166,11 @@ export interface FileRoutesById {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
-  '/modelagem-simplificada': typeof ModelagemSimplificadaRoute
+  '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-simplificada/empresas'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-simplificada/empresas'
   id:
     | '__root__'
     | '/'
@@ -217,6 +229,7 @@ export interface FileRouteTypes {
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-simplificada/empresas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -232,7 +245,7 @@ export interface RootRouteChildren {
   FluxoReversoRoute: typeof FluxoReversoRoute
   IndicadoresRoute: typeof IndicadoresRoute
   IndicesRoute: typeof IndicesRoute
-  ModelagemSimplificadaRoute: typeof ModelagemSimplificadaRoute
+  ModelagemSimplificadaRoute: typeof ModelagemSimplificadaRouteWithChildren
   SimuladoresRoute: typeof SimuladoresRoute
   UploadRoute: typeof UploadRoute
   ValuationRoute: typeof ValuationRoute
@@ -352,8 +365,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/modelagem-simplificada/empresas': {
+      id: '/modelagem-simplificada/empresas'
+      path: '/empresas'
+      fullPath: '/modelagem-simplificada/empresas'
+      preLoaderRoute: typeof ModelagemSimplificadaEmpresasRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
   }
 }
+
+interface ModelagemSimplificadaRouteChildren {
+  ModelagemSimplificadaEmpresasRoute: typeof ModelagemSimplificadaEmpresasRoute
+}
+
+const ModelagemSimplificadaRouteChildren: ModelagemSimplificadaRouteChildren = {
+  ModelagemSimplificadaEmpresasRoute: ModelagemSimplificadaEmpresasRoute,
+}
+
+const ModelagemSimplificadaRouteWithChildren =
+  ModelagemSimplificadaRoute._addFileChildren(
+    ModelagemSimplificadaRouteChildren,
+  )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -368,7 +401,7 @@ const rootRouteChildren: RootRouteChildren = {
   FluxoReversoRoute: FluxoReversoRoute,
   IndicadoresRoute: IndicadoresRoute,
   IndicesRoute: IndicesRoute,
-  ModelagemSimplificadaRoute: ModelagemSimplificadaRoute,
+  ModelagemSimplificadaRoute: ModelagemSimplificadaRouteWithChildren,
   SimuladoresRoute: SimuladoresRoute,
   UploadRoute: UploadRoute,
   ValuationRoute: ValuationRoute,
