@@ -27,6 +27,8 @@ import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ModelagemSimplificadaReceitasRouteImport } from './routes/modelagem-simplificada.receitas'
 import { Route as ModelagemSimplificadaPremissasRouteImport } from './routes/modelagem-simplificada.premissas'
+import { Route as ModelagemSimplificadaPessoalRouteImport } from './routes/modelagem-simplificada.pessoal'
+import { Route as ModelagemSimplificadaOpexRouteImport } from './routes/modelagem-simplificada.opex'
 import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
 
 const ValuationRoute = ValuationRouteImport.update({
@@ -121,6 +123,18 @@ const ModelagemSimplificadaPremissasRoute =
     path: '/premissas',
     getParentRoute: () => ModelagemSimplificadaRoute,
   } as any)
+const ModelagemSimplificadaPessoalRoute =
+  ModelagemSimplificadaPessoalRouteImport.update({
+    id: '/pessoal',
+    path: '/pessoal',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaOpexRoute =
+  ModelagemSimplificadaOpexRouteImport.update({
+    id: '/opex',
+    path: '/opex',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
 const ModelagemSimplificadaEmpresasRoute =
   ModelagemSimplificadaEmpresasRouteImport.update({
     id: '/empresas',
@@ -146,6 +160,8 @@ export interface FileRoutesByFullPath {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/opex': typeof ModelagemSimplificadaOpexRoute
+  '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
 }
@@ -167,6 +183,8 @@ export interface FileRoutesByTo {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/opex': typeof ModelagemSimplificadaOpexRoute
+  '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
 }
@@ -189,6 +207,8 @@ export interface FileRoutesById {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/opex': typeof ModelagemSimplificadaOpexRoute
+  '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
 }
@@ -212,6 +232,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/opex'
+    | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
   fileRoutesByTo: FileRoutesByTo
@@ -233,6 +255,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/opex'
+    | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
   id:
@@ -254,6 +278,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/opex'
+    | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
   fileRoutesById: FileRoutesById
@@ -405,6 +431,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemSimplificadaPremissasRouteImport
       parentRoute: typeof ModelagemSimplificadaRoute
     }
+    '/modelagem-simplificada/pessoal': {
+      id: '/modelagem-simplificada/pessoal'
+      path: '/pessoal'
+      fullPath: '/modelagem-simplificada/pessoal'
+      preLoaderRoute: typeof ModelagemSimplificadaPessoalRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/opex': {
+      id: '/modelagem-simplificada/opex'
+      path: '/opex'
+      fullPath: '/modelagem-simplificada/opex'
+      preLoaderRoute: typeof ModelagemSimplificadaOpexRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
     '/modelagem-simplificada/empresas': {
       id: '/modelagem-simplificada/empresas'
       path: '/empresas'
@@ -417,12 +457,16 @@ declare module '@tanstack/react-router' {
 
 interface ModelagemSimplificadaRouteChildren {
   ModelagemSimplificadaEmpresasRoute: typeof ModelagemSimplificadaEmpresasRoute
+  ModelagemSimplificadaOpexRoute: typeof ModelagemSimplificadaOpexRoute
+  ModelagemSimplificadaPessoalRoute: typeof ModelagemSimplificadaPessoalRoute
   ModelagemSimplificadaPremissasRoute: typeof ModelagemSimplificadaPremissasRoute
   ModelagemSimplificadaReceitasRoute: typeof ModelagemSimplificadaReceitasRoute
 }
 
 const ModelagemSimplificadaRouteChildren: ModelagemSimplificadaRouteChildren = {
   ModelagemSimplificadaEmpresasRoute: ModelagemSimplificadaEmpresasRoute,
+  ModelagemSimplificadaOpexRoute: ModelagemSimplificadaOpexRoute,
+  ModelagemSimplificadaPessoalRoute: ModelagemSimplificadaPessoalRoute,
   ModelagemSimplificadaPremissasRoute: ModelagemSimplificadaPremissasRoute,
   ModelagemSimplificadaReceitasRoute: ModelagemSimplificadaReceitasRoute,
 }
