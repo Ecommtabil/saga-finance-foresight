@@ -83,15 +83,9 @@ export function calcularDcf(
     enterpriseValue,
     dividaLiquida,
     equityValue: enterpriseValue - dividaLiquida,
+    ebitdaUltimo,
     evEbitda: ebitdaUltimo ? enterpriseValue / ebitdaUltimo : 0,
   };
-}
-
-/** Grade de sensibilidade EV: WACC (±2pp) × g na perpetuidade (±1pp). */
-export function sensibilidade(base: DcfResultado) {
-  const waccs = [-0.02, -0.01, 0, 0.01, 0.02].map((d) => base.wacc + d);
-  const gs = [-0.01, -0.005, 0, 0.005, 0.01].map((d) => base.gPerpBase + d);
-  return { waccs, gs };
 }
 
 export function gradeSensibilidade(

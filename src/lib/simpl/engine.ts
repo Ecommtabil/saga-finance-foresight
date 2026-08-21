@@ -62,12 +62,12 @@ export interface ResultadoMes {
   unidades: number;
   aliquotaSimples: number;
   rbt12: number;
+  mes: number;
+  ano: number;
+  rotulo: string;
 }
 
-export interface ProjecaoAnual extends ResultadoMes {
-  rotulo: string;
-  ano: number;
-}
+export type ProjecaoAnual = ResultadoMes;
 
 export interface Projecao {
   meses: LinhaMensal[];
