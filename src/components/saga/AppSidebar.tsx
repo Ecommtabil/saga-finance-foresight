@@ -17,6 +17,7 @@ import {
   LayoutDashboard,
   ArrowDownUp,
   Receipt,
+  Zap,
 } from "lucide-react";
 import {
   Sidebar,
@@ -176,6 +177,18 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 );
               })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Modelagem Simplificada</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {MODELAGEM_SIMPLIFICADA.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <MenuLink item={item} active={isActive(item.url)} />
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
