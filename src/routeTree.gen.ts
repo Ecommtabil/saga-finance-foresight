@@ -32,6 +32,7 @@ import { Route as ModelagemSimplificadaOpexRouteImport } from './routes/modelage
 import { Route as ModelagemSimplificadaInvestimentosRouteImport } from './routes/modelagem-simplificada.investimentos'
 import { Route as ModelagemSimplificadaFundingRouteImport } from './routes/modelagem-simplificada.funding'
 import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
+import { Route as ModelagemSimplificadaDemonstrativosRouteImport } from './routes/modelagem-simplificada.demonstrativos'
 import { Route as ModelagemSimplificadaCapitalGiroRouteImport } from './routes/modelagem-simplificada.capital-giro'
 
 const ValuationRoute = ValuationRouteImport.update({
@@ -156,6 +157,12 @@ const ModelagemSimplificadaEmpresasRoute =
     path: '/empresas',
     getParentRoute: () => ModelagemSimplificadaRoute,
   } as any)
+const ModelagemSimplificadaDemonstrativosRoute =
+  ModelagemSimplificadaDemonstrativosRouteImport.update({
+    id: '/demonstrativos',
+    path: '/demonstrativos',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
 const ModelagemSimplificadaCapitalGiroRoute =
   ModelagemSimplificadaCapitalGiroRouteImport.update({
     id: '/capital-giro',
@@ -181,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
+  '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
   '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
   '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
@@ -207,6 +215,7 @@ export interface FileRoutesByTo {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
+  '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
   '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
   '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
@@ -234,6 +243,7 @@ export interface FileRoutesById {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
+  '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
   '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
   '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/capital-giro'
+    | '/modelagem-simplificada/demonstrativos'
     | '/modelagem-simplificada/empresas'
     | '/modelagem-simplificada/funding'
     | '/modelagem-simplificada/investimentos'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/capital-giro'
+    | '/modelagem-simplificada/demonstrativos'
     | '/modelagem-simplificada/empresas'
     | '/modelagem-simplificada/funding'
     | '/modelagem-simplificada/investimentos'
@@ -314,6 +326,7 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/capital-giro'
+    | '/modelagem-simplificada/demonstrativos'
     | '/modelagem-simplificada/empresas'
     | '/modelagem-simplificada/funding'
     | '/modelagem-simplificada/investimentos'
@@ -505,6 +518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemSimplificadaEmpresasRouteImport
       parentRoute: typeof ModelagemSimplificadaRoute
     }
+    '/modelagem-simplificada/demonstrativos': {
+      id: '/modelagem-simplificada/demonstrativos'
+      path: '/demonstrativos'
+      fullPath: '/modelagem-simplificada/demonstrativos'
+      preLoaderRoute: typeof ModelagemSimplificadaDemonstrativosRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
     '/modelagem-simplificada/capital-giro': {
       id: '/modelagem-simplificada/capital-giro'
       path: '/capital-giro'
@@ -517,6 +537,7 @@ declare module '@tanstack/react-router' {
 
 interface ModelagemSimplificadaRouteChildren {
   ModelagemSimplificadaCapitalGiroRoute: typeof ModelagemSimplificadaCapitalGiroRoute
+  ModelagemSimplificadaDemonstrativosRoute: typeof ModelagemSimplificadaDemonstrativosRoute
   ModelagemSimplificadaEmpresasRoute: typeof ModelagemSimplificadaEmpresasRoute
   ModelagemSimplificadaFundingRoute: typeof ModelagemSimplificadaFundingRoute
   ModelagemSimplificadaInvestimentosRoute: typeof ModelagemSimplificadaInvestimentosRoute
@@ -528,6 +549,8 @@ interface ModelagemSimplificadaRouteChildren {
 
 const ModelagemSimplificadaRouteChildren: ModelagemSimplificadaRouteChildren = {
   ModelagemSimplificadaCapitalGiroRoute: ModelagemSimplificadaCapitalGiroRoute,
+  ModelagemSimplificadaDemonstrativosRoute:
+    ModelagemSimplificadaDemonstrativosRoute,
   ModelagemSimplificadaEmpresasRoute: ModelagemSimplificadaEmpresasRoute,
   ModelagemSimplificadaFundingRoute: ModelagemSimplificadaFundingRoute,
   ModelagemSimplificadaInvestimentosRoute:
