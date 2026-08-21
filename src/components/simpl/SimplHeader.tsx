@@ -11,7 +11,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 
-const ABAS = [
+const ABAS: { to: string; label: string; exact?: boolean }[] = [
   { to: "/modelagem-simplificada", label: "Dashboard", exact: true },
   { to: "/modelagem-simplificada/empresas", label: "Empresas & Cenários" },
   { to: "/modelagem-simplificada/premissas", label: "Premissas" },
@@ -23,7 +23,7 @@ const ABAS = [
   { to: "/modelagem-simplificada/capital-giro", label: "Capital de Giro" },
   { to: "/modelagem-simplificada/demonstrativos", label: "Demonstrativos" },
   { to: "/modelagem-simplificada/valuation", label: "Valuation" },
-] as const;
+];
 
 export function SimplHeader() {
   const { empresas, empresa, cenario, selecionarEmpresa, selecionarCenario, avisos } = useSimpl();
@@ -88,7 +88,7 @@ export function SimplHeader() {
           return (
             <Link
               key={a.to}
-              to={a.to}
+              to={a.to as never}
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm transition-colors",
                 active
