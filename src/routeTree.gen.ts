@@ -29,6 +29,8 @@ import { Route as ModelagemSimplificadaReceitasRouteImport } from './routes/mode
 import { Route as ModelagemSimplificadaPremissasRouteImport } from './routes/modelagem-simplificada.premissas'
 import { Route as ModelagemSimplificadaPessoalRouteImport } from './routes/modelagem-simplificada.pessoal'
 import { Route as ModelagemSimplificadaOpexRouteImport } from './routes/modelagem-simplificada.opex'
+import { Route as ModelagemSimplificadaInvestimentosRouteImport } from './routes/modelagem-simplificada.investimentos'
+import { Route as ModelagemSimplificadaFundingRouteImport } from './routes/modelagem-simplificada.funding'
 import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
 
 const ValuationRoute = ValuationRouteImport.update({
@@ -135,6 +137,18 @@ const ModelagemSimplificadaOpexRoute =
     path: '/opex',
     getParentRoute: () => ModelagemSimplificadaRoute,
   } as any)
+const ModelagemSimplificadaInvestimentosRoute =
+  ModelagemSimplificadaInvestimentosRouteImport.update({
+    id: '/investimentos',
+    path: '/investimentos',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaFundingRoute =
+  ModelagemSimplificadaFundingRouteImport.update({
+    id: '/funding',
+    path: '/funding',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
 const ModelagemSimplificadaEmpresasRoute =
   ModelagemSimplificadaEmpresasRouteImport.update({
     id: '/empresas',
@@ -160,6 +174,8 @@ export interface FileRoutesByFullPath {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
+  '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
   '/modelagem-simplificada/opex': typeof ModelagemSimplificadaOpexRoute
   '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
@@ -183,6 +199,8 @@ export interface FileRoutesByTo {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
+  '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
   '/modelagem-simplificada/opex': typeof ModelagemSimplificadaOpexRoute
   '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
@@ -207,6 +225,8 @@ export interface FileRoutesById {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/funding': typeof ModelagemSimplificadaFundingRoute
+  '/modelagem-simplificada/investimentos': typeof ModelagemSimplificadaInvestimentosRoute
   '/modelagem-simplificada/opex': typeof ModelagemSimplificadaOpexRoute
   '/modelagem-simplificada/pessoal': typeof ModelagemSimplificadaPessoalRoute
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
@@ -232,6 +252,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/funding'
+    | '/modelagem-simplificada/investimentos'
     | '/modelagem-simplificada/opex'
     | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
@@ -255,6 +277,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/funding'
+    | '/modelagem-simplificada/investimentos'
     | '/modelagem-simplificada/opex'
     | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
@@ -278,6 +302,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/funding'
+    | '/modelagem-simplificada/investimentos'
     | '/modelagem-simplificada/opex'
     | '/modelagem-simplificada/pessoal'
     | '/modelagem-simplificada/premissas'
@@ -445,6 +471,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemSimplificadaOpexRouteImport
       parentRoute: typeof ModelagemSimplificadaRoute
     }
+    '/modelagem-simplificada/investimentos': {
+      id: '/modelagem-simplificada/investimentos'
+      path: '/investimentos'
+      fullPath: '/modelagem-simplificada/investimentos'
+      preLoaderRoute: typeof ModelagemSimplificadaInvestimentosRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/funding': {
+      id: '/modelagem-simplificada/funding'
+      path: '/funding'
+      fullPath: '/modelagem-simplificada/funding'
+      preLoaderRoute: typeof ModelagemSimplificadaFundingRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
     '/modelagem-simplificada/empresas': {
       id: '/modelagem-simplificada/empresas'
       path: '/empresas'
@@ -457,6 +497,8 @@ declare module '@tanstack/react-router' {
 
 interface ModelagemSimplificadaRouteChildren {
   ModelagemSimplificadaEmpresasRoute: typeof ModelagemSimplificadaEmpresasRoute
+  ModelagemSimplificadaFundingRoute: typeof ModelagemSimplificadaFundingRoute
+  ModelagemSimplificadaInvestimentosRoute: typeof ModelagemSimplificadaInvestimentosRoute
   ModelagemSimplificadaOpexRoute: typeof ModelagemSimplificadaOpexRoute
   ModelagemSimplificadaPessoalRoute: typeof ModelagemSimplificadaPessoalRoute
   ModelagemSimplificadaPremissasRoute: typeof ModelagemSimplificadaPremissasRoute
@@ -465,6 +507,9 @@ interface ModelagemSimplificadaRouteChildren {
 
 const ModelagemSimplificadaRouteChildren: ModelagemSimplificadaRouteChildren = {
   ModelagemSimplificadaEmpresasRoute: ModelagemSimplificadaEmpresasRoute,
+  ModelagemSimplificadaFundingRoute: ModelagemSimplificadaFundingRoute,
+  ModelagemSimplificadaInvestimentosRoute:
+    ModelagemSimplificadaInvestimentosRoute,
   ModelagemSimplificadaOpexRoute: ModelagemSimplificadaOpexRoute,
   ModelagemSimplificadaPessoalRoute: ModelagemSimplificadaPessoalRoute,
   ModelagemSimplificadaPremissasRoute: ModelagemSimplificadaPremissasRoute,
