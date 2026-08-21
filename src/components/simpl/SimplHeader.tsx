@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 const ABAS: { to: string; label: string; exact?: boolean }[] = [
   { to: "/modelagem-simplificada", label: "Dashboard", exact: true },
   { to: "/modelagem-simplificada/empresas", label: "Empresas & Cenários" },
+  { to: "/modelagem-simplificada/importar", label: "Importar Planilha" },
   { to: "/modelagem-simplificada/premissas", label: "Premissas" },
   { to: "/modelagem-simplificada/receitas", label: "Receitas" },
   { to: "/modelagem-simplificada/pessoal", label: "Pessoal" },
