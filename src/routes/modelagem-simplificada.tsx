@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHeader } from "@/components/saga/PageHeader";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { SimplProvider } from "@/lib/simpl/store";
+import { SimplHeader } from "@/components/simpl/SimplHeader";
 
 export const Route = createFileRoute("/modelagem-simplificada")({
   head: () => ({
@@ -9,37 +9,25 @@ export const Route = createFileRoute("/modelagem-simplificada")({
       {
         name: "description",
         content:
-          "Modelagem financeira simplificada para empresas com dados básicos, sem contabilidade completa.",
+          "Modelagem financeira integrada (DRE, Balanço, Fluxo de Caixa e DCF) multiempresa para PMEs.",
       },
       { property: "og:title", content: "Modelagem Simplificada — SAGA" },
       {
         property: "og:description",
-        content: "Projeções rápidas a partir de poucos dados essenciais.",
+        content: "Projeções integradas e valuation por cliente, com cenários comparáveis.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ModelagemSimplificadaPage,
+  component: ModelagemSimplificadaLayout,
 });
 
-function ModelagemSimplificadaPage() {
+function ModelagemSimplificadaLayout() {
   return (
-    <>
-      <PageHeader
-        titulo="Modelagem Simplificada"
-        subtitulo="Módulo em construção: modelagem rápida com poucos dados de entrada."
-      />
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Em breve</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Este espaço vai reunir as análises simplificadas (projeções rápidas a partir
-          de receita, margens e capital de giro). Me diga quais telas você quer aqui e
-          eu monto cada uma.
-        </CardContent>
-      </Card>
-    </>
+    <SimplProvider>
+      <SimplHeader />
+      <Outlet />
+    </SimplProvider>
   );
 }
