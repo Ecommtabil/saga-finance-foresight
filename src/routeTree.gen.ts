@@ -25,6 +25,8 @@ import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ModelagemSimplificadaReceitasRouteImport } from './routes/modelagem-simplificada.receitas'
+import { Route as ModelagemSimplificadaPremissasRouteImport } from './routes/modelagem-simplificada.premissas'
 import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
 
 const ValuationRoute = ValuationRouteImport.update({
@@ -107,6 +109,18 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ModelagemSimplificadaReceitasRoute =
+  ModelagemSimplificadaReceitasRouteImport.update({
+    id: '/receitas',
+    path: '/receitas',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaPremissasRoute =
+  ModelagemSimplificadaPremissasRouteImport.update({
+    id: '/premissas',
+    path: '/premissas',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
 const ModelagemSimplificadaEmpresasRoute =
   ModelagemSimplificadaEmpresasRouteImport.update({
     id: '/empresas',
@@ -132,6 +146,8 @@ export interface FileRoutesByFullPath {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
+  '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -151,6 +167,8 @@ export interface FileRoutesByTo {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
+  '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -171,6 +189,8 @@ export interface FileRoutesById {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
+  '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
+  '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -192,6 +212,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/premissas'
+    | '/modelagem-simplificada/receitas'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -211,6 +233,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/premissas'
+    | '/modelagem-simplificada/receitas'
   id:
     | '__root__'
     | '/'
@@ -230,6 +254,8 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-simplificada/empresas'
+    | '/modelagem-simplificada/premissas'
+    | '/modelagem-simplificada/receitas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -365,6 +391,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/modelagem-simplificada/receitas': {
+      id: '/modelagem-simplificada/receitas'
+      path: '/receitas'
+      fullPath: '/modelagem-simplificada/receitas'
+      preLoaderRoute: typeof ModelagemSimplificadaReceitasRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/premissas': {
+      id: '/modelagem-simplificada/premissas'
+      path: '/premissas'
+      fullPath: '/modelagem-simplificada/premissas'
+      preLoaderRoute: typeof ModelagemSimplificadaPremissasRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
     '/modelagem-simplificada/empresas': {
       id: '/modelagem-simplificada/empresas'
       path: '/empresas'
@@ -377,10 +417,14 @@ declare module '@tanstack/react-router' {
 
 interface ModelagemSimplificadaRouteChildren {
   ModelagemSimplificadaEmpresasRoute: typeof ModelagemSimplificadaEmpresasRoute
+  ModelagemSimplificadaPremissasRoute: typeof ModelagemSimplificadaPremissasRoute
+  ModelagemSimplificadaReceitasRoute: typeof ModelagemSimplificadaReceitasRoute
 }
 
 const ModelagemSimplificadaRouteChildren: ModelagemSimplificadaRouteChildren = {
   ModelagemSimplificadaEmpresasRoute: ModelagemSimplificadaEmpresasRoute,
+  ModelagemSimplificadaPremissasRoute: ModelagemSimplificadaPremissasRoute,
+  ModelagemSimplificadaReceitasRoute: ModelagemSimplificadaReceitasRoute,
 }
 
 const ModelagemSimplificadaRouteWithChildren =
