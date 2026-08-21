@@ -17,6 +17,7 @@ import {
   LayoutDashboard,
   ArrowDownUp,
   Receipt,
+  Zap,
 } from "lucide-react";
 import {
   Sidebar,
@@ -61,6 +62,10 @@ const MODELAGEM: MenuItem[] = [
   { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: false },
   { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: false },
   { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
+];
+
+const MODELAGEM_SIMPLIFICADA: SubItem[] = [
+  { title: "Visão Geral", url: "/modelagem-simplificada", icon: Zap, apenasCompleta: false },
 ];
 
 const ANALISE_DADOS: SubItem[] = [
@@ -172,6 +177,18 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 );
               })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Modelagem Simplificada</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {MODELAGEM_SIMPLIFICADA.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <MenuLink item={item} active={isActive(item.url)} />
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
