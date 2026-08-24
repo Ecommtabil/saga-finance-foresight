@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -121,6 +122,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const isSimpl = pathname.startsWith("/modelagem-simplificada");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -132,11 +135,15 @@ function RootComponent() {
               <header className="flex h-12 items-center gap-2 border-b bg-card px-3">
                 <SidebarTrigger />
                 <span className="text-sm font-medium text-muted-foreground">
-                  SAGA · Análise e Avaliação de Empresas
+                  {isSimpl
+                    ? "SAGA · Modelagem Simplificada (dados isolados)"
+                    : "SAGA · Análise e Avaliação de Empresas"}
                 </span>
-                <div className="ml-auto">
-                  <ProjectActions />
-                </div>
+                {!isSimpl && (
+                  <div className="ml-auto">
+                    <ProjectActions />
+                  </div>
+                )}
               </header>
               <main className="flex-1 overflow-auto p-6">
                 <Outlet />
