@@ -1,5 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { AlertTriangle, Building2, Layers } from "lucide-react";
+import { AlertTriangle, Building2, FileText, Layers } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { exportarPdf } from "@/lib/simpl/export";
 import { useSimpl } from "@/lib/simpl/store";
 import {
   Select,
@@ -28,7 +31,8 @@ const ABAS: { to: string; label: string; exact?: boolean }[] = [
 ];
 
 export function SimplHeader() {
-  const { empresas, empresa, cenario, selecionarEmpresa, selecionarCenario, avisos } = useSimpl();
+  const { empresas, empresa, cenario, selecionarEmpresa, selecionarCenario, avisos, projecao, dcf } =
+    useSimpl();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
   return (
@@ -83,11 +87,26 @@ export function SimplHeader() {
           </span>
         </div>
         <div className="ml-auto flex flex-col items-end gap-1">
-          <SimplProjectActions />
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              disabled={!empresa || !cenario || !projecao || !dcf}
+              onClick={() => {
+                if (empresa && cenario && projecao && dcf) {
+                  exportarPdf(empresa, cenario, projecao, dcf);
+                  toast.success("Relatório PDF gerado");
+                }
+              }}
+            >
+              <FileText className="mr-1.5 h-4 w-4" /> Gerar relatório
+            </Button>
+            <SimplProjectActions />
+          </div>
           <span className="text-[10px] text-muted-foreground">
             Dados independentes das importações dos demais módulos
           </span>
         </div>
+
       </div>
 
 
