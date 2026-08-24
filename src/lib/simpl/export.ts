@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
+import jsPDF, { GState } from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { EmpresaSimpl, Cenario } from "./types";
 import type { Projecao, ResultadoMes } from "./engine";
@@ -255,14 +255,14 @@ function graficoArea(
     y: p.y + ((max - v) / span) * p.h,
   }));
   doc.setFillColor(cor[0], cor[1], cor[2]);
-  doc.setGState(new (doc as never as { GState: new (o: object) => object }).GState({ opacity: 0.18 }));
+  doc.setGState(new GState({ opacity: 0.18 }));
   pts.forEach((pt, i) => {
     if (i === 0) return;
     const a = pts[i - 1];
     doc.triangle(a.x, a.y, pt.x, pt.y, a.x, zeroY, "F");
     doc.triangle(pt.x, pt.y, pt.x, zeroY, a.x, zeroY, "F");
   });
-  doc.setGState(new (doc as never as { GState: new (o: object) => object }).GState({ opacity: 1 }));
+  doc.setGState(new GState({ opacity: 1 }));
   doc.setDrawColor(...cor);
   doc.setLineWidth(1.6);
   pts.forEach((pt, i) => i > 0 && doc.line(pts[i - 1].x, pts[i - 1].y, pt.x, pt.y));
