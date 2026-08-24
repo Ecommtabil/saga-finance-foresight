@@ -83,11 +83,26 @@ export function SimplHeader() {
           </span>
         </div>
         <div className="ml-auto flex flex-col items-end gap-1">
-          <SimplProjectActions />
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              disabled={!empresa || !cenario || !projecao || !dcf}
+              onClick={() => {
+                if (empresa && cenario && projecao && dcf) {
+                  exportarPdf(empresa, cenario, projecao, dcf);
+                  toast.success("Relatório PDF gerado");
+                }
+              }}
+            >
+              <FileText className="mr-1.5 h-4 w-4" /> Gerar relatório
+            </Button>
+            <SimplProjectActions />
+          </div>
           <span className="text-[10px] text-muted-foreground">
             Dados independentes das importações dos demais módulos
           </span>
         </div>
+
       </div>
 
 
