@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SimplProjectActions } from "@/components/simpl/SimplProjectActions";
 import { cn } from "@/lib/utils";
 
 const ABAS: { to: string; label: string; exact?: boolean }[] = [
@@ -81,7 +82,14 @@ export function SimplHeader() {
             {cenario?.premissas.horizonteAnos ?? 0} anos
           </span>
         </div>
+        <div className="ml-auto flex flex-col items-end gap-1">
+          <SimplProjectActions />
+          <span className="text-[10px] text-muted-foreground">
+            Dados independentes das importações dos demais módulos
+          </span>
+        </div>
       </div>
+
 
       <nav className="flex flex-wrap gap-1 border-b pb-2">
         {ABAS.map((a) => {
