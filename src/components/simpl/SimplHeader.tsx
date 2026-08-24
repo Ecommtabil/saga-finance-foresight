@@ -1,5 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { AlertTriangle, Building2, Layers } from "lucide-react";
+import { AlertTriangle, Building2, FileText, Layers } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { exportarPdf } from "@/lib/simpl/export";
 import { useSimpl } from "@/lib/simpl/store";
 import {
   Select,
@@ -28,7 +31,8 @@ const ABAS: { to: string; label: string; exact?: boolean }[] = [
 ];
 
 export function SimplHeader() {
-  const { empresas, empresa, cenario, selecionarEmpresa, selecionarCenario, avisos } = useSimpl();
+  const { empresas, empresa, cenario, selecionarEmpresa, selecionarCenario, avisos, projecao, dcf } =
+    useSimpl();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
   return (
