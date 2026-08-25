@@ -18,6 +18,7 @@ import {
   ArrowDownUp,
   Receipt,
   Zap,
+  Wallet,
 } from "lucide-react";
 import {
   Sidebar,
@@ -68,11 +69,16 @@ const MODELAGEM_SIMPLIFICADA: SubItem[] = [
   { title: "Modelagem Simplificada 1", url: "/modelagem-simplificada", icon: Zap, apenasCompleta: false },
 ];
 
+const ORCAMENTO: SubItem[] = [
+  { title: "Orçamento", url: "/orcamento", icon: Wallet, apenasCompleta: false },
+];
+
 const ANALISE_DADOS: SubItem[] = [
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
   { title: "DRE - Vendas", url: "/dre-vendas", icon: Receipt, apenasCompleta: false },
   { title: "Fluxo de Caixa Reverso", url: "/fluxo-reverso", icon: ArrowDownUp, apenasCompleta: false },
 ];
+
 
 function filterItems<T extends { apenasCompleta?: boolean }>(items: T[], modo: string | null): T[] {
   return items.filter((i) => (i.apenasCompleta ? modo === "completa" : true));
@@ -187,6 +193,18 @@ export function AppSidebar() {
               {MODELAGEM_SIMPLIFICADA.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <MenuLink item={item} active={isActive(item.url)} />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Orçamento</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {ORCAMENTO.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <MenuLink item={item} active={pathname.startsWith(item.url)} />
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
