@@ -199,6 +199,18 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
+          <SidebarGroupLabel>Orçamento</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {ORCAMENTO.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <MenuLink item={item} active={pathname.startsWith(item.url)} />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
           <SidebarGroupLabel>Análise de Dados</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
