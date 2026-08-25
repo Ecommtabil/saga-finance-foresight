@@ -33,7 +33,9 @@ function DadosPage() {
       const r = await lerModeloOrcamento(file);
       substituirLinhas(r.linhas);
       setAvisos(r.avisos);
-      toast.success(`${r.linhas.length} contas importadas.`);
+      const real = r.resumo.find((x) => x.aba === "Realizado")?.itens ?? 0;
+      toast.success(`${r.linhas.length} contas importadas · ${real} com realizado.`);
+
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha ao ler a planilha.");
     }
