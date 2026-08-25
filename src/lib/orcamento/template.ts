@@ -197,3 +197,129 @@ export function baixarBlob(blob: Blob, nome: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+/* ---------- Importação separada: Orçado e Realizado ---------- */
+
+/** Modelo com uma única aba (Orcado ou Realizado). */
+export function gerarModeloParcial(campo: "orcado" | "realizado", orc?: Orcamento): Blob {
+  const cabecalho = ["Grupo", "Conta", "Tipo", ...MESES];
+  const linhas: LinhaOrcamento[] = orc?.linhas.length
+    ? orc.linhas
+    : EXEMPLO.map((e) => ({
+        id: uid(),
+        grupo: e.grupo,
+        conta: e.conta,
+        tipo: e.tipo,
+        orcado: Array.from({ length: 12 }, () => e.orc),
+        realizado: nulls12(),
+      }));
+  const nome = campo === "orcado" ? "Orcado" : "Realizado";
+  const aoa = [
+    cabecalho,
+    ...linhas.map((l) => [
+      l.grupo,
+      l.conta,
+      l.tipo,
+      ...(campo === "orcado" ? l.orcado : l.realizado.map((r) => (r == null ? "" : r))),
+    ]),
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), nome);
+  const out = XLSX.write(wb, { bookType: "xlsx", type: "array" }) as ArrayBuffer;
+  return new Blob([out], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+}
+
+function abaOuPrimeira(wb: XLSX.WorkBook, nomes: string[]): unknown[][] {
+  return (
+    lerAba(wb, nomes) ??
+    (XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {
+      header: 1,
+      defval: "",
+    }) as unknown[][])
+  );
+}
+
+/** Importa apenas o ORÇADO. Mantém o realizado das contas já existentes. */
+export async function lerPlanilhaOrcado(
+  file: File,
+  atuais: LinhaOrcamento[] = [],
+): Promise<ResultadoImportOrcamento> {
+  const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+  const dados = abaOuPrimeira(wb, ["orcado", "orcamento", "previsto"]);
+  const off = offsetMeses(dados[0]);
+  const avisos: string[] = [];
+  const antigas = new Map(atuais.map((l) => [norm(`${l.grupo}|${l.conta}`), l]));
+  const antigasConta = new Map(atuais.map((l) => [norm(l.conta), l]));
+  const linhas: LinhaOrcamento[] = [];
+
+  for (const row of dados.slice(1)) {
+    const conta = String(row[1] ?? "").trim();
+    if (!conta) continue;
+    const grupo = String(row[0] ?? "").trim() || "Geral";
+    const anterior = antigas.get(norm(`${grupo}|${conta}`)) ?? antigasConta.get(norm(conta));
+    linhas.push({
+      id: anterior?.id ?? uid(),
+      grupo,
+      conta,
+      tipo: tipoDe(row[2]),
+      orcado: Array.from({ length: 12 }, (_, i) => num(row[off + i]) ?? 0),
+      realizado: anterior ? [...anterior.realizado] : nulls12(),
+    });
+  }
+  if (linhas.length === 0)
+    throw new ImportOrcamentoError("Nenhuma conta encontrada na planilha de Orçado.");
+  const mantidas = linhas.filter((l) => l.realizado.some((v) => v != null)).length;
+  if (mantidas) avisos.push(`${mantidas} conta(s) mantiveram o realizado já existente.`);
+  return { linhas, avisos, resumo: [{ aba: "Orcado", itens: linhas.length }] };
+}
+
+/** Importa apenas o REALIZADO, aplicando sobre as contas já cadastradas. */
+export async function lerPlanilhaRealizado(
+  file: File,
+  atuais: LinhaOrcamento[],
+): Promise<ResultadoImportOrcamento> {
+  const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+  const dados = abaOuPrimeira(wb, ["realizado", "real"]);
+  const off = offsetMeses(dados[0]);
+  const avisos: string[] = [];
+  const linhas = atuais.map((l) => ({ ...l, orcado: [...l.orcado], realizado: [...l.realizado] }));
+  const porChave = new Map(linhas.map((l) => [norm(`${l.grupo}|${l.conta}`), l]));
+  const porConta = new Map<string, LinhaOrcamento>();
+  for (const l of linhas) if (!porConta.has(norm(l.conta))) porConta.set(norm(l.conta), l);
+
+  let aplicadas = 0;
+  for (const row of dados.slice(1)) {
+    const conta = String(row[1] ?? "").trim();
+    if (!conta) continue;
+    const grupo = String(row[0] ?? "").trim() || "Geral";
+    const chave = norm(`${grupo}|${conta}`);
+    let linha = porChave.get(chave) ?? porConta.get(norm(conta));
+    const vals = Array.from({ length: 12 }, (_, i) => num(row[off + i]));
+    if (!linha) {
+      linha = {
+        id: uid(),
+        grupo,
+        conta,
+        tipo: tipoDe(row[2]),
+        orcado: zeros12(),
+        realizado: nulls12(),
+      };
+      linhas.push(linha);
+      porChave.set(chave, linha);
+      porConta.set(norm(conta), linha);
+      avisos.push(`Conta "${conta}" não existe no orçado — criada com orçado = 0.`);
+    } else if (!porChave.has(chave)) {
+      avisos.push(`Grupo divergente para "${conta}" — associada ao grupo "${linha.grupo}".`);
+    }
+    if (vals.every((v) => v == null)) continue;
+    linha.realizado = vals;
+    aplicadas++;
+  }
+  if (aplicadas === 0)
+    throw new ImportOrcamentoError(
+      "Nenhum valor realizado encontrado. Verifique se os meses estão preenchidos.",
+    );
+  return { linhas, avisos, resumo: [{ aba: "Realizado", itens: aplicadas }] };
+}
