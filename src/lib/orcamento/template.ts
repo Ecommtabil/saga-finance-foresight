@@ -12,13 +12,16 @@ const norm = (s: unknown) =>
 function num(v: unknown): number | null {
   if (v == null || v === "") return null;
   if (typeof v === "number") return isFinite(v) ? v : null;
-  const s = String(v)
-    .replace(/[R$\s.]/g, "")
-    .replace(",", ".")
-    .replace(/[()]/g, (m) => (m === "(" ? "-" : ""));
+  let s = String(v).trim();
+  if (!s) return null;
+  const neg = /^\(.*\)$/.test(s) || s.startsWith("-");
+  s = s.replace(/[R$\s()%-]/g, "");
+  if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
   const n = Number(s);
-  return isFinite(n) ? n : null;
+  if (!isFinite(n)) return null;
+  return neg ? -n : n;
 }
+
 
 function tipoDe(v: unknown): TipoConta {
   const t = norm(v);
