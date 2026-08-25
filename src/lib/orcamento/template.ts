@@ -12,13 +12,16 @@ const norm = (s: unknown) =>
 function num(v: unknown): number | null {
   if (v == null || v === "") return null;
   if (typeof v === "number") return isFinite(v) ? v : null;
-  const s = String(v)
-    .replace(/[R$\s.]/g, "")
-    .replace(",", ".")
-    .replace(/[()]/g, (m) => (m === "(" ? "-" : ""));
+  let s = String(v).trim();
+  if (!s) return null;
+  const neg = /^\(.*\)$/.test(s) || s.startsWith("-");
+  s = s.replace(/[R$\s()%-]/g, "");
+  if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
   const n = Number(s);
-  return isFinite(n) ? n : null;
+  if (!isFinite(n)) return null;
+  return neg ? -n : n;
 }
+
 
 function tipoDe(v: unknown): TipoConta {
   const t = norm(v);
@@ -100,6 +103,13 @@ function lerAba(wb: XLSX.WorkBook, nomes: string[]): unknown[][] | null {
   return XLSX.utils.sheet_to_json(wb.Sheets[alvo], { header: 1, defval: "" }) as unknown[][];
 }
 
+/** Descobre em qual coluna começam os 12 meses (default 3). */
+function offsetMeses(header: unknown[] | undefined): number {
+  if (!header) return 3;
+  const idx = header.findIndex((h) => norm(h).startsWith(norm(MESES[0])));
+  return idx >= 0 ? idx : 3;
+}
+
 export async function lerModeloOrcamento(file: File): Promise<ResultadoImportOrcamento> {
   const buf = await file.arrayBuffer();
   const wb = XLSX.read(buf, { type: "array" });
@@ -109,12 +119,14 @@ export async function lerModeloOrcamento(file: File): Promise<ResultadoImportOrc
 
   const avisos: string[] = [];
   const mapa = new Map<string, LinhaOrcamento>();
+  const porConta = new Map<string, LinhaOrcamento>();
 
+  const offOrc = offsetMeses(orcado[0]);
   for (const row of orcado.slice(1)) {
     const grupo = String(row[0] ?? "").trim();
     const conta = String(row[1] ?? "").trim();
     if (!conta) continue;
-    const valores = Array.from({ length: 12 }, (_, i) => num(row[3 + i]) ?? 0);
+    const valores = Array.from({ length: 12 }, (_, i) => num(row[offOrc + i]) ?? 0);
     const linha: LinhaOrcamento = {
       id: uid(),
       grupo: grupo || "Geral",
@@ -124,18 +136,20 @@ export async function lerModeloOrcamento(file: File): Promise<ResultadoImportOrc
       realizado: nulls12(),
     };
     mapa.set(norm(`${linha.grupo}|${conta}`), linha);
+    if (!porConta.has(norm(conta))) porConta.set(norm(conta), linha);
   }
 
   if (mapa.size === 0) throw new ImportOrcamentoError("Nenhuma conta encontrada na aba 'Orcado'.");
 
   let linhasReal = 0;
   if (realizado) {
+    const offReal = offsetMeses(realizado[0]);
     for (const row of realizado.slice(1)) {
       const grupo = String(row[0] ?? "").trim() || "Geral";
       const conta = String(row[1] ?? "").trim();
       if (!conta) continue;
       const chave = norm(`${grupo}|${conta}`);
-      let linha = mapa.get(chave);
+      let linha = mapa.get(chave) ?? porConta.get(norm(conta));
       if (!linha) {
         linha = {
           id: uid(),
@@ -146,11 +160,20 @@ export async function lerModeloOrcamento(file: File): Promise<ResultadoImportOrc
           realizado: nulls12(),
         };
         mapa.set(chave, linha);
+        porConta.set(norm(conta), linha);
         avisos.push(`Conta "${conta}" existe apenas no Realizado (orçado = 0).`);
+      } else if (!mapa.has(chave)) {
+        avisos.push(
+          `Grupo divergente para "${conta}" (Realizado: "${grupo}") — associada ao grupo "${linha.grupo}".`,
+        );
       }
-      linha.realizado = Array.from({ length: 12 }, (_, i) => num(row[3 + i]));
+      const vals = Array.from({ length: 12 }, (_, i) => num(row[offReal + i]));
+      if (vals.every((v) => v == null)) continue;
+      linha.realizado = vals;
       linhasReal++;
     }
+    if (linhasReal === 0)
+      avisos.push("Nenhum valor realizado preenchido na aba 'Realizado' (todos os meses vazios).");
   } else {
     avisos.push("Aba 'Realizado' não encontrada — importado somente o orçado.");
   }
@@ -164,6 +187,7 @@ export async function lerModeloOrcamento(file: File): Promise<ResultadoImportOrc
     ],
   };
 }
+
 
 export function baixarBlob(blob: Blob, nome: string) {
   const url = URL.createObjectURL(blob);
