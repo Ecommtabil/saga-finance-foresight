@@ -124,6 +124,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const isSimpl = pathname.startsWith("/modelagem-simplificada");
+  const isOrcamento = pathname.startsWith("/orcamento");
+  const isolado = isSimpl || isOrcamento;
 
   return (
     <QueryClientProvider client={queryClient}>

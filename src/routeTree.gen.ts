@@ -26,7 +26,11 @@ import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrcamentoIndexRouteImport } from './routes/orcamento.index'
 import { Route as ModelagemSimplificadaIndexRouteImport } from './routes/modelagem-simplificada.index'
+import { Route as OrcamentoRollingRouteImport } from './routes/orcamento.rolling'
+import { Route as OrcamentoPrevistoRealizadoRouteImport } from './routes/orcamento.previsto-realizado'
+import { Route as OrcamentoForecastRouteImport } from './routes/orcamento.forecast'
 import { Route as OrcamentoDadosRouteImport } from './routes/orcamento.dados'
 import { Route as ModelagemSimplificadaValuationRouteImport } from './routes/modelagem-simplificada.valuation'
 import { Route as ModelagemSimplificadaReceitasRouteImport } from './routes/modelagem-simplificada.receitas'
@@ -125,12 +129,33 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrcamentoIndexRoute = OrcamentoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
 const ModelagemSimplificadaIndexRoute =
   ModelagemSimplificadaIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => ModelagemSimplificadaRoute,
   } as any)
+const OrcamentoRollingRoute = OrcamentoRollingRouteImport.update({
+  id: '/rolling',
+  path: '/rolling',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
+const OrcamentoPrevistoRealizadoRoute =
+  OrcamentoPrevistoRealizadoRouteImport.update({
+    id: '/previsto-realizado',
+    path: '/previsto-realizado',
+    getParentRoute: () => OrcamentoRoute,
+  } as any)
+const OrcamentoForecastRoute = OrcamentoForecastRouteImport.update({
+  id: '/forecast',
+  path: '/forecast',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
 const OrcamentoDadosRoute = OrcamentoDadosRouteImport.update({
   id: '/dados',
   path: '/dados',
@@ -233,7 +258,11 @@ export interface FileRoutesByFullPath {
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/orcamento/forecast': typeof OrcamentoForecastRoute
+  '/orcamento/previsto-realizado': typeof OrcamentoPrevistoRealizadoRoute
+  '/orcamento/rolling': typeof OrcamentoRollingRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
+  '/orcamento/': typeof OrcamentoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -248,7 +277,6 @@ export interface FileRoutesByTo {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
-  '/orcamento': typeof OrcamentoRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
@@ -264,7 +292,11 @@ export interface FileRoutesByTo {
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/orcamento/forecast': typeof OrcamentoForecastRoute
+  '/orcamento/previsto-realizado': typeof OrcamentoPrevistoRealizadoRoute
+  '/orcamento/rolling': typeof OrcamentoRollingRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
+  '/orcamento': typeof OrcamentoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -297,7 +329,11 @@ export interface FileRoutesById {
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/orcamento/forecast': typeof OrcamentoForecastRoute
+  '/orcamento/previsto-realizado': typeof OrcamentoPrevistoRealizadoRoute
+  '/orcamento/rolling': typeof OrcamentoRollingRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
+  '/orcamento/': typeof OrcamentoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -331,7 +367,11 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/receitas'
     | '/modelagem-simplificada/valuation'
     | '/orcamento/dados'
+    | '/orcamento/forecast'
+    | '/orcamento/previsto-realizado'
+    | '/orcamento/rolling'
     | '/modelagem-simplificada/'
+    | '/orcamento/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -346,7 +386,6 @@ export interface FileRouteTypes {
     | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
-    | '/orcamento'
     | '/simuladores'
     | '/upload'
     | '/valuation'
@@ -362,7 +401,11 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/receitas'
     | '/modelagem-simplificada/valuation'
     | '/orcamento/dados'
+    | '/orcamento/forecast'
+    | '/orcamento/previsto-realizado'
+    | '/orcamento/rolling'
     | '/modelagem-simplificada'
+    | '/orcamento'
   id:
     | '__root__'
     | '/'
@@ -394,7 +437,11 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/receitas'
     | '/modelagem-simplificada/valuation'
     | '/orcamento/dados'
+    | '/orcamento/forecast'
+    | '/orcamento/previsto-realizado'
+    | '/orcamento/rolling'
     | '/modelagem-simplificada/'
+    | '/orcamento/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -538,12 +585,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orcamento/': {
+      id: '/orcamento/'
+      path: '/'
+      fullPath: '/orcamento/'
+      preLoaderRoute: typeof OrcamentoIndexRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
     '/modelagem-simplificada/': {
       id: '/modelagem-simplificada/'
       path: '/'
       fullPath: '/modelagem-simplificada/'
       preLoaderRoute: typeof ModelagemSimplificadaIndexRouteImport
       parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/orcamento/rolling': {
+      id: '/orcamento/rolling'
+      path: '/rolling'
+      fullPath: '/orcamento/rolling'
+      preLoaderRoute: typeof OrcamentoRollingRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
+    '/orcamento/previsto-realizado': {
+      id: '/orcamento/previsto-realizado'
+      path: '/previsto-realizado'
+      fullPath: '/orcamento/previsto-realizado'
+      preLoaderRoute: typeof OrcamentoPrevistoRealizadoRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
+    '/orcamento/forecast': {
+      id: '/orcamento/forecast'
+      path: '/forecast'
+      fullPath: '/orcamento/forecast'
+      preLoaderRoute: typeof OrcamentoForecastRouteImport
+      parentRoute: typeof OrcamentoRoute
     }
     '/orcamento/dados': {
       id: '/orcamento/dados'
@@ -671,10 +746,18 @@ const ModelagemSimplificadaRouteWithChildren =
 
 interface OrcamentoRouteChildren {
   OrcamentoDadosRoute: typeof OrcamentoDadosRoute
+  OrcamentoForecastRoute: typeof OrcamentoForecastRoute
+  OrcamentoPrevistoRealizadoRoute: typeof OrcamentoPrevistoRealizadoRoute
+  OrcamentoRollingRoute: typeof OrcamentoRollingRoute
+  OrcamentoIndexRoute: typeof OrcamentoIndexRoute
 }
 
 const OrcamentoRouteChildren: OrcamentoRouteChildren = {
   OrcamentoDadosRoute: OrcamentoDadosRoute,
+  OrcamentoForecastRoute: OrcamentoForecastRoute,
+  OrcamentoPrevistoRealizadoRoute: OrcamentoPrevistoRealizadoRoute,
+  OrcamentoRollingRoute: OrcamentoRollingRoute,
+  OrcamentoIndexRoute: OrcamentoIndexRoute,
 }
 
 const OrcamentoRouteWithChildren = OrcamentoRoute._addFileChildren(
