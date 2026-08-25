@@ -139,9 +139,11 @@ function RootComponent() {
                 <span className="text-sm font-medium text-muted-foreground">
                   {isSimpl
                     ? "SAGA · Modelagem Simplificada (dados isolados)"
-                    : "SAGA · Análise e Avaliação de Empresas"}
+                    : isOrcamento
+                      ? "SAGA · Orçamento (dados isolados)"
+                      : "SAGA · Análise e Avaliação de Empresas"}
                 </span>
-                {!isSimpl && (
+                {!isolado && (
                   <div className="ml-auto">
                     <ProjectActions />
                   </div>
