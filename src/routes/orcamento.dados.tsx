@@ -15,7 +15,12 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOrcamento } from "@/lib/orcamento/store";
-import { baixarBlob, gerarModeloOrcamento, lerModeloOrcamento } from "@/lib/orcamento/template";
+import {
+  baixarBlob,
+  gerarModeloParcial,
+  lerPlanilhaOrcado,
+  lerPlanilhaRealizado,
+} from "@/lib/orcamento/template";
 import { MESES, TIPO_LABEL, type TipoConta } from "@/lib/orcamento/types";
 import { fmtNum } from "@/lib/saga/formatters";
 
@@ -23,19 +28,26 @@ export const Route = createFileRoute("/orcamento/dados")({ component: DadosPage 
 
 function DadosPage() {
   const { orcamento, substituirLinhas, adicionarLinha, atualizarLinha, removerLinha } = useOrcamento();
-  const fileRef = useRef<HTMLInputElement>(null);
+  const orcRef = useRef<HTMLInputElement>(null);
+  const realRef = useRef<HTMLInputElement>(null);
   const [avisos, setAvisos] = useState<string[]>([]);
 
   if (!orcamento) return null;
 
-  const importar = async (file: File) => {
+  const importar = async (file: File, campo: "orcado" | "realizado") => {
     try {
-      const r = await lerModeloOrcamento(file);
+      const r =
+        campo === "orcado"
+          ? await lerPlanilhaOrcado(file, orcamento.linhas)
+          : await lerPlanilhaRealizado(file, orcamento.linhas);
       substituirLinhas(r.linhas);
       setAvisos(r.avisos);
-      const real = r.resumo.find((x) => x.aba === "Realizado")?.itens ?? 0;
-      toast.success(`${r.linhas.length} contas importadas · ${real} com realizado.`);
-
+      const itens = r.resumo[0]?.itens ?? 0;
+      toast.success(
+        campo === "orcado"
+          ? `${itens} contas importadas no Orçado.`
+          : `Realizado aplicado em ${itens} conta(s).`,
+      );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha ao ler a planilha.");
     }
@@ -64,34 +76,65 @@ function DadosPage() {
     <div className="space-y-6">
       <PageHeader
         titulo="Dados do orçamento"
-        subtitulo="Importe a planilha modelo ou edite as contas diretamente na grade."
-        action={
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() =>
-                baixarBlob(gerarModeloOrcamento(orcamento), `SAGA_Orcamento_${orcamento.ano}.xlsx`)
-              }
-            >
-              <Download className="mr-2 h-4 w-4" /> Baixar planilha modelo
-            </Button>
-            <Button onClick={() => fileRef.current?.click()}>
-              <Upload className="mr-2 h-4 w-4" /> Importar planilha
-            </Button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".xlsx,.xls"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) void importar(f);
-                e.target.value = "";
-              }}
-            />
-          </div>
-        }
+        subtitulo="Importe o Orçado e o Realizado separadamente, ou edite as contas na grade."
       />
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {(
+          [
+            {
+              campo: "orcado" as const,
+              titulo: "Orçado",
+              desc: "Planilha com o orçamento aprovado (12 meses). Substitui as contas e preserva o realizado já lançado.",
+              ref: orcRef,
+            },
+            {
+              campo: "realizado" as const,
+              titulo: "Realizado",
+              desc: "Planilha com os meses fechados. Aplica apenas o realizado sobre as contas existentes (Grupo + Conta).",
+              ref: realRef,
+            },
+          ]
+        ).map((c) => (
+          <Card key={c.campo}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">{c.titulo}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">{c.desc}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    baixarBlob(
+                      gerarModeloParcial(c.campo, orcamento),
+                      `SAGA_${c.titulo}_${orcamento.ano}.xlsx`,
+                    )
+                  }
+                >
+                  <Download className="mr-2 h-4 w-4" /> Baixar modelo
+                </Button>
+                <Button size="sm" onClick={() => c.ref.current?.click()}>
+                  <Upload className="mr-2 h-4 w-4" /> Importar {c.titulo.toLowerCase()}
+                </Button>
+                <input
+                  ref={c.ref}
+                  type="file"
+                  accept=".xlsx,.xls"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void importar(f, c.campo);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
 
       {avisos.length > 0 && (
         <Card className="border-amber-300">
