@@ -46,6 +46,9 @@ import { Route as ModelagemSimplificadaCapitalGiroRouteImport } from './routes/m
 import { Route as ModelagemFinanceira2NovoRouteImport } from './routes/modelagem-financeira-2.novo'
 import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
 import { Route as ModelagemFinanceira2ProjecaoModeloIdRouteImport } from './routes/modelagem-financeira-2.projecao.$modeloId'
+import { Route as ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.fluxo.$modeloId'
+import { Route as ModelagemFinanceira2RelatoriosDreModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.dre.$modeloId'
+import { Route as ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.balanco.$modeloId'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -248,6 +251,24 @@ const ModelagemFinanceira2ProjecaoModeloIdRoute =
     path: '/projecao/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
+const ModelagemFinanceira2RelatoriosFluxoModeloIdRoute =
+  ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport.update({
+    id: '/relatorios/fluxo/$modeloId',
+    path: '/relatorios/fluxo/$modeloId',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
+const ModelagemFinanceira2RelatoriosDreModeloIdRoute =
+  ModelagemFinanceira2RelatoriosDreModeloIdRouteImport.update({
+    id: '/relatorios/dre/$modeloId',
+    path: '/relatorios/dre/$modeloId',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
+const ModelagemFinanceira2RelatoriosBalancoModeloIdRoute =
+  ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport.update({
+    id: '/relatorios/balanco/$modeloId',
+    path: '/relatorios/balanco/$modeloId',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -287,6 +308,9 @@ export interface FileRoutesByFullPath {
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
+  '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
+  '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
+  '/modelagem-financeira-2/relatorios/fluxo/$modeloId': typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -323,6 +347,9 @@ export interface FileRoutesByTo {
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
+  '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
+  '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
+  '/modelagem-financeira-2/relatorios/fluxo/$modeloId': typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -363,6 +390,9 @@ export interface FileRoutesById {
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
+  '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
+  '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
+  '/modelagem-financeira-2/relatorios/fluxo/$modeloId': typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -404,6 +434,9 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/'
     | '/orcamento/'
     | '/modelagem-financeira-2/projecao/$modeloId'
+    | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
+    | '/modelagem-financeira-2/relatorios/dre/$modeloId'
+    | '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -440,6 +473,9 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada'
     | '/orcamento'
     | '/modelagem-financeira-2/projecao/$modeloId'
+    | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
+    | '/modelagem-financeira-2/relatorios/dre/$modeloId'
+    | '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
   id:
     | '__root__'
     | '/'
@@ -479,6 +515,9 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/'
     | '/orcamento/'
     | '/modelagem-financeira-2/projecao/$modeloId'
+    | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
+    | '/modelagem-financeira-2/relatorios/dre/$modeloId'
+    | '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -763,6 +802,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
+    '/modelagem-financeira-2/relatorios/fluxo/$modeloId': {
+      id: '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
+      path: '/relatorios/fluxo/$modeloId'
+      fullPath: '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
+    '/modelagem-financeira-2/relatorios/dre/$modeloId': {
+      id: '/modelagem-financeira-2/relatorios/dre/$modeloId'
+      path: '/relatorios/dre/$modeloId'
+      fullPath: '/modelagem-financeira-2/relatorios/dre/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2RelatoriosDreModeloIdRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
+    '/modelagem-financeira-2/relatorios/balanco/$modeloId': {
+      id: '/modelagem-financeira-2/relatorios/balanco/$modeloId'
+      path: '/relatorios/balanco/$modeloId'
+      fullPath: '/modelagem-financeira-2/relatorios/balanco/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
   }
 }
 
@@ -771,6 +831,9 @@ interface ModelagemFinanceira2RouteChildren {
   ModelagemFinanceira2NovoRoute: typeof ModelagemFinanceira2NovoRoute
   ModelagemFinanceira2IndexRoute: typeof ModelagemFinanceira2IndexRoute
   ModelagemFinanceira2ProjecaoModeloIdRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRoute
+  ModelagemFinanceira2RelatoriosBalancoModeloIdRoute: typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
+  ModelagemFinanceira2RelatoriosDreModeloIdRoute: typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
+  ModelagemFinanceira2RelatoriosFluxoModeloIdRoute: typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRoute
 }
 
 const ModelagemFinanceira2RouteChildren: ModelagemFinanceira2RouteChildren = {
@@ -779,6 +842,12 @@ const ModelagemFinanceira2RouteChildren: ModelagemFinanceira2RouteChildren = {
   ModelagemFinanceira2IndexRoute: ModelagemFinanceira2IndexRoute,
   ModelagemFinanceira2ProjecaoModeloIdRoute:
     ModelagemFinanceira2ProjecaoModeloIdRoute,
+  ModelagemFinanceira2RelatoriosBalancoModeloIdRoute:
+    ModelagemFinanceira2RelatoriosBalancoModeloIdRoute,
+  ModelagemFinanceira2RelatoriosDreModeloIdRoute:
+    ModelagemFinanceira2RelatoriosDreModeloIdRoute,
+  ModelagemFinanceira2RelatoriosFluxoModeloIdRoute:
+    ModelagemFinanceira2RelatoriosFluxoModeloIdRoute,
 }
 
 const ModelagemFinanceira2RouteWithChildren =

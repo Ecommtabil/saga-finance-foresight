@@ -270,6 +270,14 @@ function PremissasModelo() {
                 <ArrowLeft className="mr-1.5 h-4 w-4" /> Modelos
               </Link>
             </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link
+                to="/modelagem-financeira-2/relatorios/dre/$modeloId"
+                params={{ modeloId: modelo.id }}
+              >
+                Relatórios (DRE, BP, FC)
+              </Link>
+            </Button>
             <Button asChild size="sm">
               <Link
                 to="/modelagem-financeira-2/projecao/$modeloId"
@@ -278,6 +286,7 @@ function PremissasModelo() {
                 Ver projeção (60 meses)
               </Link>
             </Button>
+
           </div>
         }
       />
