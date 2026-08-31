@@ -63,6 +63,13 @@ const MODELAGEM: MenuItem[] = [
   { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: false },
   { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: false },
   { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
+  {
+    title: "Modelagem Financeira 2",
+    url: "/modelagem-financeira-2",
+    icon: LayoutDashboard,
+    apenasCompleta: false,
+  },
+
 ];
 
 const MODELAGEM_SIMPLIFICADA: SubItem[] = [
