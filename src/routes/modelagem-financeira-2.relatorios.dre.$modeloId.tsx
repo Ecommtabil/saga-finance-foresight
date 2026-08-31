@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/saga/PageHeader";
 import { useMF2 } from "@/lib/mf2/store";
-import { projetarModelo } from "@/lib/mf2/engine";
+import { projetarModelo, type LinhaMes } from "@/lib/mf2/engine";
 import { safeDiv } from "@/lib/saga/formatters";
 import {
   NavRelatorios,
@@ -55,9 +55,8 @@ function DrePage() {
   const t = modelo.tributacao;
   const regime = modelo.regimeTributario;
   const simples = regime === "Simples Nacional";
-  const soma = (p: typeof projecao.meses, f: (m: (typeof projecao.meses)[0]) => number) =>
-    p.reduce((a, m) => a + f(m), 0);
-  const margem = (f: (m: (typeof projecao.meses)[0]) => number) => (p: typeof projecao.meses) =>
+  const soma = (p: LinhaMes[], f: (m: LinhaMes) => number) => p.reduce((a, m) => a + f(m), 0);
+  const margem = (f: (m: LinhaMes) => number) => (p: LinhaMes[]) =>
     safeDiv(soma(p, f), soma(p, (m) => m.receitaLiquida));
 
   const linhas: LinhaRel[] = [
@@ -69,7 +68,7 @@ function DrePage() {
           {
             rotulo: "DAS (Simples Nacional)",
             tipo: "soma" as const,
-            valor: (l: (typeof projecao.meses)[0]) => -l.receitaBruta * (t.aliquotaDas || 0),
+            valor: (l: LinhaMes) => -l.receitaBruta * (t.aliquotaDas || 0),
             indent: 1,
           },
         ]
@@ -77,25 +76,25 @@ function DrePage() {
           {
             rotulo: "ICMS",
             tipo: "soma" as const,
-            valor: (l: (typeof projecao.meses)[0]) => -l.receitaBruta * (t.aliquotaIcms || 0),
+            valor: (l: LinhaMes) => -l.receitaBruta * (t.aliquotaIcms || 0),
             indent: 1,
           },
           {
             rotulo: "ISS",
             tipo: "soma" as const,
-            valor: (l: (typeof projecao.meses)[0]) => -l.receitaBruta * (t.aliquotaIss || 0),
+            valor: (l: LinhaMes) => -l.receitaBruta * (t.aliquotaIss || 0),
             indent: 1,
           },
           {
             rotulo: "IPI",
             tipo: "soma" as const,
-            valor: (l: (typeof projecao.meses)[0]) => -l.receitaBruta * (t.aliquotaIpi || 0),
+            valor: (l: LinhaMes) => -l.receitaBruta * (t.aliquotaIpi || 0),
             indent: 1,
           },
           {
             rotulo: "PIS/COFINS",
             tipo: "soma" as const,
-            valor: (l: (typeof projecao.meses)[0]) => -l.receitaBruta * (t.aliquotaPisCofins || 0),
+            valor: (l: LinhaMes) => -l.receitaBruta * (t.aliquotaPisCofins || 0),
             indent: 1,
           },
         ]),
@@ -104,7 +103,7 @@ function DrePage() {
           {
             rotulo: "(+) Créditos tributários",
             tipo: "soma" as const,
-            valor: (l: (typeof projecao.meses)[0]) =>
+            valor: (l: LinhaMes) =>
               l.receitaBruta * (t.percentualCreditosTributarios || 0),
             indent: 1,
           },
