@@ -199,7 +199,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Budget</SidebarGroupLabel>
+          <SidebarGroupLabel>Orçamento</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {ORCAMENTO.map((item) => (
