@@ -116,6 +116,10 @@ export interface ModeloMF2 {
   caixaCapital: CaixaCapital;
   ativos: Ativo[];
   dividas: Divida[]; // máx. 5
+  /** Percentuais opcionais sugeridos conforme o tipo de negócio. */
+  adiantamentoClientes?: number;
+  adiantamentoFornecedores?: number;
+  tributosRecuperaveis?: number;
 }
 
 
@@ -152,3 +156,14 @@ export function totalMensalCargo(c: Cargo): number {
 export function somaSazonalidade(s: Sazonalidade[]): number {
   return s.reduce((a, b) => a + b.percentual, 0);
 }
+
+/** Sugestões automáticas por tipo de negócio (não obrigatórias). */
+export interface SugestoesNegocio {
+  adiantamentoClientes: number;
+  adiantamentoFornecedores: number;
+  tributosRecuperaveis: number;
+}
+
+export const MAX_PRODUTOS_SUGERIDO = 5;
+export const MAX_LINHAS = 5;
+export const MAX_SGA = 11;
