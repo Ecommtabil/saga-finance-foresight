@@ -70,7 +70,7 @@ const MODELAGEM_SIMPLIFICADA: SubItem[] = [
 ];
 
 const ORCAMENTO: SubItem[] = [
-  { title: "Orçamento", url: "/orcamento", icon: Wallet, apenasCompleta: false },
+  { title: "Budget", url: "/orcamento", icon: Wallet, apenasCompleta: false },
 ];
 
 const ANALISE_DADOS: SubItem[] = [
@@ -199,7 +199,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Orçamento</SidebarGroupLabel>
+          <SidebarGroupLabel>Budget</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {ORCAMENTO.map((item) => (
