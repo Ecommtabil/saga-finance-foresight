@@ -192,17 +192,29 @@ function DashboardOrcamento() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm">
-            Rolling forecast — próximos {rolling.pontos.length} meses
+            Controle orçamentário — resumo
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-4">
-          <Kpi titulo="Receita projetada" valor={fmtMoney(rolling.totais.receita)} bom={null} />
-          <Kpi titulo="Custos" valor={fmtMoney(rolling.totais.custo)} bom={null} />
-          <Kpi titulo="Despesas" valor={fmtMoney(rolling.totais.despesa)} bom={null} />
           <Kpi
-            titulo="Resultado"
-            valor={fmtMoney(rolling.totais.resultado)}
-            bom={rolling.totais.resultado >= 0}
+            titulo="Execução de gastos"
+            valor={budget.execucaoGastos == null ? "—" : fmtPctTable(budget.execucaoGastos)}
+            bom={budget.execucaoGastos != null && budget.execucaoGastos <= 1}
+          />
+          <Kpi
+            titulo="Contas no alvo (±5%)"
+            valor={`${budget.contasNoAlvo}/${budget.contasTotal}`}
+            bom={budget.contasTotal ? budget.contasNoAlvo / budget.contasTotal >= 0.7 : null}
+          />
+          <Kpi
+            titulo="Contas desfavoráveis"
+            valor={String(budget.contasDesfavoraveis)}
+            bom={budget.contasDesfavoraveis === 0}
+          />
+          <Kpi
+            titulo="Impacto no resultado"
+            valor={fmtMoney(budget.impactoResultado)}
+            bom={budget.impactoResultado >= 0}
           />
         </CardContent>
       </Card>
