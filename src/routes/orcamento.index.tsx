@@ -96,7 +96,7 @@ function DashboardOrcamento() {
     <div className="space-y-6">
       <PageHeader
         titulo={`Orçamento ${orcamento.ano} — visão geral`}
-        subtitulo={`Acumulado até ${MESES[variancia.ateMes]} · método de forecast: ${orcamento.config.metodo}`}
+        subtitulo={`Acumulado até ${MESES[variancia.ateMes]} · ${budget.contasTotal} contas monitoradas`}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -122,11 +122,11 @@ function DashboardOrcamento() {
           ajuda="Receitas menos custos e despesas realizados no acumulado do ano."
         />
         <Kpi
-          titulo="Forecast de resultado (ano)"
-          valor={fmtMoney(forecast.totais.resultado)}
-          sub={`Orçado: ${fmtMoney(forecast.totais.resultadoOrc)}`}
-          bom={forecast.totais.resultado >= forecast.totais.resultadoOrc}
-          ajuda="Projeção de fechamento do ano: realizado até aqui + previsão para os meses restantes."
+          titulo="Acurácia orçamentária"
+          valor={budget.acuracia == null ? "—" : fmtPctTable(budget.acuracia)}
+          sub={`Desvio absoluto: ${fmtMoney(budget.desvioAbsoluto)}`}
+          bom={budget.acuracia != null && budget.acuracia >= 0.9}
+          ajuda="Mede o quanto o orçamento acertou, somando os desvios em módulo de todas as contas."
         />
       </div>
 
@@ -171,7 +171,7 @@ function DashboardOrcamento() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Resultado mensal: orçado × forecast</CardTitle>
+            <CardTitle className="text-sm">Resultado mensal: orçado × realizado</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -182,7 +182,7 @@ function DashboardOrcamento() {
                 <Tooltip formatter={(v: number) => fmtMoney(v)} />
                 <Legend />
                 <Bar dataKey="Orçado" fill="hsl(var(--muted-foreground))" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Forecast" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Realizado" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
