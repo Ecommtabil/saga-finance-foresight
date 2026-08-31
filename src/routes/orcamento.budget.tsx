@@ -345,11 +345,6 @@ function BudgetPage() {
               </tr>
             </thead>
             <tbody>
-              {grupos.map((g) => (
-                <tr key={`g-${g}`} className="contents">
-                  <td className="hidden" />
-                </tr>
-              ))}
               {grupos.flatMap((g) => [
                 <tr key={`h-${g}`} className="border-t bg-muted/30">
                   <td colSpan={8} className="p-2 font-semibold">
