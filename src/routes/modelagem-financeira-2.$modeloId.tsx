@@ -264,11 +264,21 @@ function PremissasModelo() {
         titulo={`Premissas — ${modelo.nomeEmpresa}`}
         subtitulo={`${modelo.regimeTributario} · ${modelo.tipoNegocio} · ${moeda}`}
         action={
-          <Button asChild size="sm" variant="outline">
-            <Link to="/modelagem-financeira-2">
-              <ArrowLeft className="mr-1.5 h-4 w-4" /> Modelos
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild size="sm" variant="outline">
+              <Link to="/modelagem-financeira-2">
+                <ArrowLeft className="mr-1.5 h-4 w-4" /> Modelos
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link
+                to="/modelagem-financeira-2/projecao/$modeloId"
+                params={{ modeloId: modelo.id }}
+              >
+                Ver projeção (60 meses)
+              </Link>
+            </Button>
+          </div>
         }
       />
 
