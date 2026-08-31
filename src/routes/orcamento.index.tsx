@@ -62,9 +62,9 @@ function Kpi({
 
 function DashboardOrcamento() {
   const { orcamento } = useOrcamento();
-  const { variancia, forecast, rolling } = useAnalises();
+  const { variancia, budget } = useAnalises();
 
-  if (!orcamento || !variancia || !forecast || !rolling) {
+  if (!orcamento || !variancia || !budget) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
@@ -86,10 +86,10 @@ function DashboardOrcamento() {
     "Receita orçada": p.receitaOrc,
     "Receita realizada": p.receitaReal,
   }));
-  const resultado = forecast.porMes.map((p) => ({
+  const resultado = budget.porMes.map((p) => ({
     mes: p.mes,
     Orçado: p.orcado,
-    Forecast: p.forecast,
+    Realizado: p.realizado,
   }));
 
   return (
