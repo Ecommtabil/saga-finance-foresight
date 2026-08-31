@@ -120,6 +120,8 @@ export interface ModeloMF2 {
   adiantamentoClientes?: number;
   adiantamentoFornecedores?: number;
   tributosRecuperaveis?: number;
+  /** % do lucro trimestral distribuída como dividendos (decimal, default 0). */
+  percentualDividendos?: number;
 }
 
 
