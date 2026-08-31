@@ -14,6 +14,7 @@ import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SimuladoresRouteImport } from './routes/simuladores'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as ModelagemSimplificadaRouteImport } from './routes/modelagem-simplificada'
+import { Route as ModelagemFinanceira2RouteImport } from './routes/modelagem-financeira-2'
 import { Route as IndicesRouteImport } from './routes/indices'
 import { Route as IndicadoresRouteImport } from './routes/indicadores'
 import { Route as FluxoReversoRouteImport } from './routes/fluxo-reverso'
@@ -28,6 +29,7 @@ import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrcamentoIndexRouteImport } from './routes/orcamento.index'
 import { Route as ModelagemSimplificadaIndexRouteImport } from './routes/modelagem-simplificada.index'
+import { Route as ModelagemFinanceira2IndexRouteImport } from './routes/modelagem-financeira-2.index'
 import { Route as OrcamentoDadosRouteImport } from './routes/orcamento.dados'
 import { Route as OrcamentoBudgetRouteImport } from './routes/orcamento.budget'
 import { Route as ModelagemSimplificadaValuationRouteImport } from './routes/modelagem-simplificada.valuation'
@@ -41,6 +43,8 @@ import { Route as ModelagemSimplificadaFundingRouteImport } from './routes/model
 import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
 import { Route as ModelagemSimplificadaDemonstrativosRouteImport } from './routes/modelagem-simplificada.demonstrativos'
 import { Route as ModelagemSimplificadaCapitalGiroRouteImport } from './routes/modelagem-simplificada.capital-giro'
+import { Route as ModelagemFinanceira2NovoRouteImport } from './routes/modelagem-financeira-2.novo'
+import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -65,6 +69,11 @@ const OrcamentoRoute = OrcamentoRouteImport.update({
 const ModelagemSimplificadaRoute = ModelagemSimplificadaRouteImport.update({
   id: '/modelagem-simplificada',
   path: '/modelagem-simplificada',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelagemFinanceira2Route = ModelagemFinanceira2RouteImport.update({
+  id: '/modelagem-financeira-2',
+  path: '/modelagem-financeira-2',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndicesRoute = IndicesRouteImport.update({
@@ -137,6 +146,12 @@ const ModelagemSimplificadaIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemFinanceira2IndexRoute =
+  ModelagemFinanceira2IndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
 const OrcamentoDadosRoute = OrcamentoDadosRouteImport.update({
   id: '/dados',
@@ -214,6 +229,18 @@ const ModelagemSimplificadaCapitalGiroRoute =
     path: '/capital-giro',
     getParentRoute: () => ModelagemSimplificadaRoute,
   } as any)
+const ModelagemFinanceira2NovoRoute =
+  ModelagemFinanceira2NovoRouteImport.update({
+    id: '/novo',
+    path: '/novo',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
+const ModelagemFinanceira2ModeloIdRoute =
+  ModelagemFinanceira2ModeloIdRouteImport.update({
+    id: '/$modeloId',
+    path: '/$modeloId',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -228,11 +255,14 @@ export interface FileRoutesByFullPath {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/orcamento': typeof OrcamentoRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
+  '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
@@ -246,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
 }
@@ -265,6 +296,8 @@ export interface FileRoutesByTo {
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
+  '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
@@ -278,6 +311,7 @@ export interface FileRoutesByTo {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/modelagem-financeira-2': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
 }
@@ -295,11 +329,14 @@ export interface FileRoutesById {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/orcamento': typeof OrcamentoRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
+  '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
   '/modelagem-simplificada/empresas': typeof ModelagemSimplificadaEmpresasRoute
@@ -313,6 +350,7 @@ export interface FileRoutesById {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
 }
@@ -331,11 +369,14 @@ export interface FileRouteTypes {
     | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
+    | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-financeira-2/$modeloId'
+    | '/modelagem-financeira-2/novo'
     | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/demonstrativos'
     | '/modelagem-simplificada/empresas'
@@ -349,6 +390,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
   fileRoutesByTo: FileRoutesByTo
@@ -368,6 +410,8 @@ export interface FileRouteTypes {
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-financeira-2/$modeloId'
+    | '/modelagem-financeira-2/novo'
     | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/demonstrativos'
     | '/modelagem-simplificada/empresas'
@@ -381,6 +425,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
   id:
@@ -397,11 +442,14 @@ export interface FileRouteTypes {
     | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
+    | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
     | '/simuladores'
     | '/upload'
     | '/valuation'
+    | '/modelagem-financeira-2/$modeloId'
+    | '/modelagem-financeira-2/novo'
     | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/demonstrativos'
     | '/modelagem-simplificada/empresas'
@@ -415,6 +463,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
   fileRoutesById: FileRoutesById
@@ -432,6 +481,7 @@ export interface RootRouteChildren {
   FluxoReversoRoute: typeof FluxoReversoRoute
   IndicadoresRoute: typeof IndicadoresRoute
   IndicesRoute: typeof IndicesRoute
+  ModelagemFinanceira2Route: typeof ModelagemFinanceira2RouteWithChildren
   ModelagemSimplificadaRoute: typeof ModelagemSimplificadaRouteWithChildren
   OrcamentoRoute: typeof OrcamentoRouteWithChildren
   SimuladoresRoute: typeof SimuladoresRoute
@@ -474,6 +524,13 @@ declare module '@tanstack/react-router' {
       path: '/modelagem-simplificada'
       fullPath: '/modelagem-simplificada'
       preLoaderRoute: typeof ModelagemSimplificadaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modelagem-financeira-2': {
+      id: '/modelagem-financeira-2'
+      path: '/modelagem-financeira-2'
+      fullPath: '/modelagem-financeira-2'
+      preLoaderRoute: typeof ModelagemFinanceira2RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/indices': {
@@ -574,6 +631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemSimplificadaIndexRouteImport
       parentRoute: typeof ModelagemSimplificadaRoute
     }
+    '/modelagem-financeira-2/': {
+      id: '/modelagem-financeira-2/'
+      path: '/'
+      fullPath: '/modelagem-financeira-2/'
+      preLoaderRoute: typeof ModelagemFinanceira2IndexRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
     '/orcamento/dados': {
       id: '/orcamento/dados'
       path: '/dados'
@@ -665,8 +729,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemSimplificadaCapitalGiroRouteImport
       parentRoute: typeof ModelagemSimplificadaRoute
     }
+    '/modelagem-financeira-2/novo': {
+      id: '/modelagem-financeira-2/novo'
+      path: '/novo'
+      fullPath: '/modelagem-financeira-2/novo'
+      preLoaderRoute: typeof ModelagemFinanceira2NovoRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
+    '/modelagem-financeira-2/$modeloId': {
+      id: '/modelagem-financeira-2/$modeloId'
+      path: '/$modeloId'
+      fullPath: '/modelagem-financeira-2/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2ModeloIdRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
   }
 }
+
+interface ModelagemFinanceira2RouteChildren {
+  ModelagemFinanceira2ModeloIdRoute: typeof ModelagemFinanceira2ModeloIdRoute
+  ModelagemFinanceira2NovoRoute: typeof ModelagemFinanceira2NovoRoute
+  ModelagemFinanceira2IndexRoute: typeof ModelagemFinanceira2IndexRoute
+}
+
+const ModelagemFinanceira2RouteChildren: ModelagemFinanceira2RouteChildren = {
+  ModelagemFinanceira2ModeloIdRoute: ModelagemFinanceira2ModeloIdRoute,
+  ModelagemFinanceira2NovoRoute: ModelagemFinanceira2NovoRoute,
+  ModelagemFinanceira2IndexRoute: ModelagemFinanceira2IndexRoute,
+}
+
+const ModelagemFinanceira2RouteWithChildren =
+  ModelagemFinanceira2Route._addFileChildren(ModelagemFinanceira2RouteChildren)
 
 interface ModelagemSimplificadaRouteChildren {
   ModelagemSimplificadaCapitalGiroRoute: typeof ModelagemSimplificadaCapitalGiroRoute
@@ -734,6 +827,7 @@ const rootRouteChildren: RootRouteChildren = {
   FluxoReversoRoute: FluxoReversoRoute,
   IndicadoresRoute: IndicadoresRoute,
   IndicesRoute: IndicesRoute,
+  ModelagemFinanceira2Route: ModelagemFinanceira2RouteWithChildren,
   ModelagemSimplificadaRoute: ModelagemSimplificadaRouteWithChildren,
   OrcamentoRoute: OrcamentoRouteWithChildren,
   SimuladoresRoute: SimuladoresRoute,
