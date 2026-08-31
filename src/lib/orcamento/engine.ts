@@ -347,3 +347,156 @@ export function gerarRolling(orc: Orcamento, config?: Partial<ConfigForecast>): 
         : `${MESES[(inicio - 1) % 12]}/${orc.ano} (último realizado)`,
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Budget — KPIs de discrepância entre orçado e realizado              */
+/* ------------------------------------------------------------------ */
+
+export interface BudgetKpis {
+  ateMes: number;
+  mesesFechados: number;
+  variancia: AnaliseVariancia;
+  /** Atingimento da receita: realizado ÷ orçado (YTD). */
+  atingimentoReceita: number | null;
+  /** Execução de custos + despesas: realizado ÷ orçado (YTD). */
+  execucaoGastos: number | null;
+  /** Consumo do orçamento anual de gastos já realizado. */
+  consumoOrcamentoAno: number | null;
+  /** Acurácia = 1 − MAPE ponderado das contas (0 a 1, maior é melhor). */
+  acuracia: number | null;
+  /** Soma dos desvios em módulo (tamanho total da discrepância). */
+  desvioAbsoluto: number;
+  /** Desvio líquido no resultado (impacto final em R$). */
+  impactoResultado: number;
+  /** Ponte de variações do resultado. */
+  ponte: { receita: number; custo: number; despesa: number; outros: number };
+  /** Contas dentro da tolerância de ±5%. */
+  contasNoAlvo: number;
+  contasTotal: number;
+  contasFavoraveis: number;
+  contasDesfavoraveis: number;
+  margemOrcada: number | null;
+  margemRealizada: number | null;
+  /** Volatilidade média mensal do desvio percentual do resultado. */
+  volatilidadeMensal: number | null;
+  /** Ranking por impacto no resultado (negativo = destrói resultado). */
+  ranking: {
+    conta: string;
+    grupo: string;
+    tipo: TipoConta;
+    orcado: number;
+    realizado: number;
+    variacao: number;
+    variacaoPct: number | null;
+    impacto: number;
+    favoravel: boolean;
+  }[];
+  /** Série mensal de desvios do resultado. */
+  porMes: {
+    mes: string;
+    orcado: number;
+    realizado: number | null;
+    desvio: number | null;
+    desvioAcum: number | null;
+    atingimento: number | null;
+  }[];
+}
+
+export function calcularBudget(orc: Orcamento, ateMes?: number): BudgetKpis {
+  const limite = ateMes ?? Math.max(ultimoMesRealizado(orc.linhas), 0);
+  const an = analisarVariancia(orc, limite);
+  const t = an.totais;
+
+  const gastosOrc = t.custoOrc + t.despesaOrc;
+  const gastosReal = t.custoReal + t.despesaReal;
+  const gastosAno = soma(
+    orc.linhas
+      .filter((l) => l.tipo === "custo" || l.tipo === "despesa")
+      .map((l) => soma(l.orcado)),
+  );
+
+  const comOrcado = an.linhas.filter((l) => l.orcadoYtd !== 0);
+  const pesoTotal = soma(comOrcado.map((l) => Math.abs(l.orcadoYtd)));
+  const acuracia = pesoTotal
+    ? Math.max(
+        0,
+        1 -
+          soma(comOrcado.map((l) => Math.abs(l.varYtd))) / pesoTotal,
+      )
+    : null;
+
+  const sinal = (tipo: TipoConta) => (tipo === "receita" || tipo === "outros" ? 1 : -1);
+
+  const ranking = an.linhas
+    .map((l) => ({
+      conta: l.linha.conta,
+      grupo: l.linha.grupo,
+      tipo: l.linha.tipo,
+      orcado: l.orcadoYtd,
+      realizado: l.realizadoYtd,
+      variacao: l.varYtd,
+      variacaoPct: l.varYtdPct,
+      impacto: sinal(l.linha.tipo) * l.varYtd,
+      favoravel: l.favoravelYtd,
+    }))
+    .sort((a, b) => Math.abs(b.impacto) - Math.abs(a.impacto));
+
+  const dentro = an.linhas.filter(
+    (l) => l.varYtdPct != null && Math.abs(l.varYtdPct) <= 0.05,
+  ).length;
+
+  const porMes = an.porMes.map((p, i) => ({
+    mes: p.mes,
+    orcado: p.resultadoOrc,
+    realizado: p.resultadoReal,
+    desvio: p.resultadoReal == null ? null : p.resultadoReal - p.resultadoOrc,
+    desvioAcum: null as number | null,
+    atingimento:
+      p.receitaReal == null || !p.receitaOrc ? null : p.receitaReal / p.receitaOrc,
+  }));
+  let acum = 0;
+  for (const p of porMes) {
+    if (p.desvio == null) continue;
+    acum += p.desvio;
+    p.desvioAcum = acum;
+  }
+
+  const desviosPct = porMes
+    .filter((p) => p.realizado != null && p.orcado !== 0)
+    .map((p) => (p.realizado! - p.orcado) / Math.abs(p.orcado));
+  const mediaDesv = desviosPct.length ? soma(desviosPct) / desviosPct.length : null;
+  const volatilidade =
+    mediaDesv != null && desviosPct.length > 1
+      ? Math.sqrt(soma(desviosPct.map((d) => (d - mediaDesv) ** 2)) / (desviosPct.length - 1))
+      : null;
+
+  const porTipoVar = (tipo: TipoConta) =>
+    soma(an.linhas.filter((l) => l.linha.tipo === tipo).map((l) => l.varYtd));
+
+  return {
+    ateMes: limite,
+    mesesFechados: limite + 1,
+    variancia: an,
+    atingimentoReceita: t.receitaOrc ? t.receitaReal / t.receitaOrc : null,
+    execucaoGastos: gastosOrc ? gastosReal / gastosOrc : null,
+    consumoOrcamentoAno: gastosAno ? gastosReal / gastosAno : null,
+    acuracia,
+    desvioAbsoluto: soma(an.linhas.map((l) => Math.abs(l.varYtd))),
+    impactoResultado: t.resultadoReal - t.resultadoOrc,
+    ponte: {
+      receita: porTipoVar("receita"),
+      custo: -porTipoVar("custo"),
+      despesa: -porTipoVar("despesa"),
+      outros: porTipoVar("outros"),
+    },
+    contasNoAlvo: dentro,
+    contasTotal: an.linhas.length,
+    contasFavoraveis: an.linhas.filter((l) => l.favoravelYtd && l.varYtd !== 0).length,
+    contasDesfavoraveis: an.linhas.filter((l) => !l.favoravelYtd).length,
+    margemOrcada: t.receitaOrc ? t.resultadoOrc / t.receitaOrc : null,
+    margemRealizada: t.receitaReal ? t.resultadoReal / t.receitaReal : null,
+    volatilidadeMensal: volatilidade,
+    ranking,
+    porMes,
+  };
+}
