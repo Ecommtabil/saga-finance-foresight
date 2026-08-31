@@ -62,9 +62,9 @@ function Kpi({
 
 function DashboardOrcamento() {
   const { orcamento } = useOrcamento();
-  const { variancia, forecast, rolling } = useAnalises();
+  const { variancia, budget } = useAnalises();
 
-  if (!orcamento || !variancia || !forecast || !rolling) {
+  if (!orcamento || !variancia || !budget) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
@@ -86,17 +86,17 @@ function DashboardOrcamento() {
     "Receita orçada": p.receitaOrc,
     "Receita realizada": p.receitaReal,
   }));
-  const resultado = forecast.porMes.map((p) => ({
+  const resultado = budget.porMes.map((p) => ({
     mes: p.mes,
     Orçado: p.orcado,
-    Forecast: p.forecast,
+    Realizado: p.realizado,
   }));
 
   return (
     <div className="space-y-6">
       <PageHeader
         titulo={`Orçamento ${orcamento.ano} — visão geral`}
-        subtitulo={`Acumulado até ${MESES[variancia.ateMes]} · método de forecast: ${orcamento.config.metodo}`}
+        subtitulo={`Acumulado até ${MESES[variancia.ateMes]} · ${budget.contasTotal} contas monitoradas`}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -122,11 +122,11 @@ function DashboardOrcamento() {
           ajuda="Receitas menos custos e despesas realizados no acumulado do ano."
         />
         <Kpi
-          titulo="Forecast de resultado (ano)"
-          valor={fmtMoney(forecast.totais.resultado)}
-          sub={`Orçado: ${fmtMoney(forecast.totais.resultadoOrc)}`}
-          bom={forecast.totais.resultado >= forecast.totais.resultadoOrc}
-          ajuda="Projeção de fechamento do ano: realizado até aqui + previsão para os meses restantes."
+          titulo="Acurácia orçamentária"
+          valor={budget.acuracia == null ? "—" : fmtPctTable(budget.acuracia)}
+          sub={`Desvio absoluto: ${fmtMoney(budget.desvioAbsoluto)}`}
+          bom={budget.acuracia != null && budget.acuracia >= 0.9}
+          ajuda="Mede o quanto o orçamento acertou, somando os desvios em módulo de todas as contas."
         />
       </div>
 
@@ -171,7 +171,7 @@ function DashboardOrcamento() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Resultado mensal: orçado × forecast</CardTitle>
+            <CardTitle className="text-sm">Resultado mensal: orçado × realizado</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -182,7 +182,7 @@ function DashboardOrcamento() {
                 <Tooltip formatter={(v: number) => fmtMoney(v)} />
                 <Legend />
                 <Bar dataKey="Orçado" fill="hsl(var(--muted-foreground))" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Forecast" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Realizado" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -192,17 +192,29 @@ function DashboardOrcamento() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm">
-            Rolling forecast — próximos {rolling.pontos.length} meses
+            Controle orçamentário — resumo
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-4">
-          <Kpi titulo="Receita projetada" valor={fmtMoney(rolling.totais.receita)} bom={null} />
-          <Kpi titulo="Custos" valor={fmtMoney(rolling.totais.custo)} bom={null} />
-          <Kpi titulo="Despesas" valor={fmtMoney(rolling.totais.despesa)} bom={null} />
           <Kpi
-            titulo="Resultado"
-            valor={fmtMoney(rolling.totais.resultado)}
-            bom={rolling.totais.resultado >= 0}
+            titulo="Execução de gastos"
+            valor={budget.execucaoGastos == null ? "—" : fmtPctTable(budget.execucaoGastos)}
+            bom={budget.execucaoGastos != null && budget.execucaoGastos <= 1}
+          />
+          <Kpi
+            titulo="Contas no alvo (±5%)"
+            valor={`${budget.contasNoAlvo}/${budget.contasTotal}`}
+            bom={budget.contasTotal ? budget.contasNoAlvo / budget.contasTotal >= 0.7 : null}
+          />
+          <Kpi
+            titulo="Contas desfavoráveis"
+            valor={String(budget.contasDesfavoraveis)}
+            bom={budget.contasDesfavoraveis === 0}
+          />
+          <Kpi
+            titulo="Impacto no resultado"
+            valor={fmtMoney(budget.impactoResultado)}
+            bom={budget.impactoResultado >= 0}
           />
         </CardContent>
       </Card>

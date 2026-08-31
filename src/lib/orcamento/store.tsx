@@ -9,7 +9,7 @@ import {
 } from "react";
 import type { ConfigForecast, LinhaOrcamento, Orcamento } from "./types";
 import { CONFIG_PADRAO, nulls12, uid, zeros12 } from "./types";
-import { analisarVariancia, gerarForecast, gerarRolling } from "./engine";
+import { analisarVariancia, calcularBudget } from "./engine";
 
 const STORAGE_KEY = "saga.orcamento.v1";
 
@@ -173,11 +173,10 @@ export function useAnalises() {
   const { orcamento } = useOrcamento();
   return useMemo(() => {
     if (!orcamento || orcamento.linhas.length === 0)
-      return { variancia: null, forecast: null, rolling: null };
+      return { variancia: null, budget: null };
     return {
       variancia: analisarVariancia(orcamento),
-      forecast: gerarForecast(orcamento),
-      rolling: gerarRolling(orcamento),
+      budget: calcularBudget(orcamento),
     };
   }, [orcamento]);
 }
