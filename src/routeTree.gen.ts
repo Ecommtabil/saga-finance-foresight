@@ -45,6 +45,7 @@ import { Route as ModelagemSimplificadaDemonstrativosRouteImport } from './route
 import { Route as ModelagemSimplificadaCapitalGiroRouteImport } from './routes/modelagem-simplificada.capital-giro'
 import { Route as ModelagemFinanceira2NovoRouteImport } from './routes/modelagem-financeira-2.novo'
 import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
+import { Route as ModelagemFinanceira2ProjecaoModeloIdRouteImport } from './routes/modelagem-financeira-2.projecao.$modeloId'
 
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
@@ -241,6 +242,12 @@ const ModelagemFinanceira2ModeloIdRoute =
     path: '/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
+const ModelagemFinanceira2ProjecaoModeloIdRoute =
+  ModelagemFinanceira2ProjecaoModeloIdRouteImport.update({
+    id: '/projecao/$modeloId',
+    path: '/projecao/$modeloId',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
+  '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -314,6 +322,7 @@ export interface FileRoutesByTo {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
+  '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -353,6 +362,7 @@ export interface FileRoutesById {
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
+  '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -393,6 +403,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
+    | '/modelagem-financeira-2/projecao/$modeloId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -428,6 +439,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
+    | '/modelagem-financeira-2/projecao/$modeloId'
   id:
     | '__root__'
     | '/'
@@ -466,6 +478,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
+    | '/modelagem-financeira-2/projecao/$modeloId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -743,6 +756,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemFinanceira2ModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
+    '/modelagem-financeira-2/projecao/$modeloId': {
+      id: '/modelagem-financeira-2/projecao/$modeloId'
+      path: '/projecao/$modeloId'
+      fullPath: '/modelagem-financeira-2/projecao/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
   }
 }
 
@@ -750,12 +770,15 @@ interface ModelagemFinanceira2RouteChildren {
   ModelagemFinanceira2ModeloIdRoute: typeof ModelagemFinanceira2ModeloIdRoute
   ModelagemFinanceira2NovoRoute: typeof ModelagemFinanceira2NovoRoute
   ModelagemFinanceira2IndexRoute: typeof ModelagemFinanceira2IndexRoute
+  ModelagemFinanceira2ProjecaoModeloIdRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRoute
 }
 
 const ModelagemFinanceira2RouteChildren: ModelagemFinanceira2RouteChildren = {
   ModelagemFinanceira2ModeloIdRoute: ModelagemFinanceira2ModeloIdRoute,
   ModelagemFinanceira2NovoRoute: ModelagemFinanceira2NovoRoute,
   ModelagemFinanceira2IndexRoute: ModelagemFinanceira2IndexRoute,
+  ModelagemFinanceira2ProjecaoModeloIdRoute:
+    ModelagemFinanceira2ProjecaoModeloIdRoute,
 }
 
 const ModelagemFinanceira2RouteWithChildren =
