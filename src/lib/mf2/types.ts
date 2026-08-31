@@ -103,7 +103,7 @@ export interface ModeloMF2 {
   dataInicioModelo: string; // ISO date
   createdAt: string;
   premissasMacro: PremissaMacro[]; // 5 anos
-  produtos: Produto[]; // máx. 5
+  produtos: Produto[]; // quantidade dinâmica
   sazonalidade: Sazonalidade[]; // 12 meses
   cargos: Cargo[]; // máx. 15
   custosVariaveisPercentual: LinhaAnual[];
@@ -118,7 +118,7 @@ export interface ModeloMF2 {
   dividas: Divida[]; // máx. 5
 }
 
-export const MAX_PRODUTOS = 5;
+
 export const MAX_CARGOS = 15;
 export const MAX_DIVIDAS = 5;
 

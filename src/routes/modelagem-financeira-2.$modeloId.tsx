@@ -26,7 +26,7 @@ export const Route = createFileRoute("/modelagem-financeira-2/$modeloId")({
 });
 
 const BLOCOS: { titulo: string; descricao: string; chave: string }[] = [
-  { titulo: "Produtos", descricao: "Até 5 produtos com volume, preço e crescimento anual", chave: "produtos" },
+  { titulo: "Produtos", descricao: "Produtos dinâmicos com volume, preço e crescimento anual", chave: "produtos" },
   { titulo: "Cargos", descricao: "Até 15 cargos, custo ou despesa, com encargos e benefícios", chave: "cargos" },
   { titulo: "Custos variáveis (%)", descricao: "Percentual da receita por ano", chave: "custosVariaveisPercentual" },
   { titulo: "Custos variáveis (unitários)", descricao: "Valor por unidade por ano", chave: "custosVariaveisUnitarios" },
