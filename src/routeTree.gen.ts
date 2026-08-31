@@ -29,6 +29,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrcamentoIndexRouteImport } from './routes/orcamento.index'
 import { Route as ModelagemSimplificadaIndexRouteImport } from './routes/modelagem-simplificada.index'
 import { Route as OrcamentoDadosRouteImport } from './routes/orcamento.dados'
+import { Route as OrcamentoBudgetRouteImport } from './routes/orcamento.budget'
 import { Route as ModelagemSimplificadaValuationRouteImport } from './routes/modelagem-simplificada.valuation'
 import { Route as ModelagemSimplificadaReceitasRouteImport } from './routes/modelagem-simplificada.receitas'
 import { Route as ModelagemSimplificadaPremissasRouteImport } from './routes/modelagem-simplificada.premissas'
@@ -142,6 +143,11 @@ const OrcamentoDadosRoute = OrcamentoDadosRouteImport.update({
   path: '/dados',
   getParentRoute: () => OrcamentoRoute,
 } as any)
+const OrcamentoBudgetRoute = OrcamentoBudgetRouteImport.update({
+  id: '/budget',
+  path: '/budget',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
 const ModelagemSimplificadaValuationRoute =
   ModelagemSimplificadaValuationRouteImport.update({
     id: '/valuation',
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
+  '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
+  '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
@@ -303,6 +311,7 @@ export interface FileRoutesById {
   '/modelagem-simplificada/premissas': typeof ModelagemSimplificadaPremissasRoute
   '/modelagem-simplificada/receitas': typeof ModelagemSimplificadaReceitasRoute
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
+  '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
@@ -338,6 +347,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
     | '/modelagem-simplificada/valuation'
+    | '/orcamento/budget'
     | '/orcamento/dados'
     | '/modelagem-simplificada/'
     | '/orcamento/'
@@ -369,6 +379,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
     | '/modelagem-simplificada/valuation'
+    | '/orcamento/budget'
     | '/orcamento/dados'
     | '/modelagem-simplificada'
     | '/orcamento'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/premissas'
     | '/modelagem-simplificada/receitas'
     | '/modelagem-simplificada/valuation'
+    | '/orcamento/budget'
     | '/orcamento/dados'
     | '/modelagem-simplificada/'
     | '/orcamento/'
@@ -569,6 +581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrcamentoDadosRouteImport
       parentRoute: typeof OrcamentoRoute
     }
+    '/orcamento/budget': {
+      id: '/orcamento/budget'
+      path: '/budget'
+      fullPath: '/orcamento/budget'
+      preLoaderRoute: typeof OrcamentoBudgetRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
     '/modelagem-simplificada/valuation': {
       id: '/modelagem-simplificada/valuation'
       path: '/valuation'
@@ -687,11 +706,13 @@ const ModelagemSimplificadaRouteWithChildren =
   )
 
 interface OrcamentoRouteChildren {
+  OrcamentoBudgetRoute: typeof OrcamentoBudgetRoute
   OrcamentoDadosRoute: typeof OrcamentoDadosRoute
   OrcamentoIndexRoute: typeof OrcamentoIndexRoute
 }
 
 const OrcamentoRouteChildren: OrcamentoRouteChildren = {
+  OrcamentoBudgetRoute: OrcamentoBudgetRoute,
   OrcamentoDadosRoute: OrcamentoDadosRoute,
   OrcamentoIndexRoute: OrcamentoIndexRoute,
 }
