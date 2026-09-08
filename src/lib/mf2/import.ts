@@ -317,7 +317,7 @@ export async function lerPlanilhaModeloMF2(file: File): Promise<ResultadoImporta
   const avisos: string[] = [];
 
   /* Geral */
-  const geral = sheet(wb, "Geral", true);
+  const geral = sheetMatriz(wb, "Geral");
   if (!geral) throw new ImportMF2Error("Geral", "Aba obrigatória não encontrada na planilha.");
   const { m } = mapaChaveValor(geral);
   const get = (k: string) => m.get(norm(k));
@@ -353,7 +353,7 @@ export async function lerPlanilhaModeloMF2(file: File): Promise<ResultadoImporta
   resumo.push({ aba: "Geral", itens: m.size });
 
   /* Macro */
-  const macro = sheet(wb, "Macro", true);
+  const macro = sheetMatriz(wb, "Macro");
   if (macro) {
     const { linhas } = mapaChaveValor(macro);
     const ipca = (linhas.get(norm("IPCA")) ?? []).map((v) => pct(v, 0.045));
@@ -395,7 +395,7 @@ export async function lerPlanilhaModeloMF2(file: File): Promise<ResultadoImporta
   }
 
   /* Sazonalidade */
-  const rSaz = sheet(wb, "Sazonalidade", true);
+  const rSaz = sheetMatriz(wb, "Sazonalidade");
   if (rSaz) {
     const valores: number[] = [];
     for (const r of rSaz) {
@@ -463,7 +463,7 @@ export async function lerPlanilhaModeloMF2(file: File): Promise<ResultadoImporta
   }
 
   /* Tributação */
-  const rTrib = sheet(wb, "Tributacao", true);
+  const rTrib = sheetMatriz(wb, "Tributacao");
   if (rTrib) {
     const { m: t } = mapaChaveValor(rTrib);
     const p = (k: string) => pct(t.get(norm(k)));
@@ -481,7 +481,7 @@ export async function lerPlanilhaModeloMF2(file: File): Promise<ResultadoImporta
   }
 
   /* Capital de giro e caixa */
-  const rCap = sheet(wb, "CapitalGiro", true);
+  const rCap = sheetMatriz(wb, "CapitalGiro");
   if (rCap) {
     const { m: c } = mapaChaveValor(rCap);
     const g = (k: string, def = 0) => (c.has(norm(k)) ? num(c.get(norm(k)), def) : def);
