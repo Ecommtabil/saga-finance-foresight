@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Area,
   AreaChart,
+  ComposedChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -311,7 +312,7 @@ function IndicadoresMF2() {
             </CardHeader>
             <CardContent>
               <Grafico>
-                <AreaChart data={dadosPe} margin={{ left: 8, right: 8 }}>
+                <ComposedChart data={dadosPe} margin={{ left: 8, right: 8 }}>
                   <defs>
                     <linearGradient id="gradRec" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.35} />
@@ -338,7 +339,7 @@ function IndicadoresMF2() {
                     dot={false}
                     strokeWidth={2}
                   />
-                </AreaChart>
+                </ComposedChart>
               </Grafico>
             </CardContent>
           </Card>
