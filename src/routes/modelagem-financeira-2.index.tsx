@@ -30,12 +30,20 @@ function DashboardMF2() {
         titulo="Modelagem Financeira 2"
         subtitulo="Seus modelos de projeção de 5 anos. Cada modelo guarda premissas, produtos, custos, tributação e funding."
         action={
-          <Button asChild size="sm">
-            <Link to="/modelagem-financeira-2/novo">
-              <Plus className="mr-1.5 h-4 w-4" /> Novo Modelo
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild size="sm" variant="outline">
+              <Link to="/modelagem-financeira-2/importar">
+                <Upload className="mr-1.5 h-4 w-4" /> Importar planilha
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/modelagem-financeira-2/novo">
+                <Plus className="mr-1.5 h-4 w-4" /> Novo Modelo
+              </Link>
+            </Button>
+          </div>
         }
+
       />
 
       {!pronto ? null : modelos.length === 0 ? (

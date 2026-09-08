@@ -44,6 +44,7 @@ import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/mode
 import { Route as ModelagemSimplificadaDemonstrativosRouteImport } from './routes/modelagem-simplificada.demonstrativos'
 import { Route as ModelagemSimplificadaCapitalGiroRouteImport } from './routes/modelagem-simplificada.capital-giro'
 import { Route as ModelagemFinanceira2NovoRouteImport } from './routes/modelagem-financeira-2.novo'
+import { Route as ModelagemFinanceira2ImportarRouteImport } from './routes/modelagem-financeira-2.importar'
 import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
 import { Route as ModelagemFinanceira2ProjecaoModeloIdRouteImport } from './routes/modelagem-financeira-2.projecao.$modeloId'
 import { Route as ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.fluxo.$modeloId'
@@ -239,6 +240,12 @@ const ModelagemFinanceira2NovoRoute =
     path: '/novo',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
+const ModelagemFinanceira2ImportarRoute =
+  ModelagemFinanceira2ImportarRouteImport.update({
+    id: '/importar',
+    path: '/importar',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
 const ModelagemFinanceira2ModeloIdRoute =
   ModelagemFinanceira2ModeloIdRouteImport.update({
     id: '/$modeloId',
@@ -290,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
+  '/modelagem-financeira-2/importar': typeof ModelagemFinanceira2ImportarRoute
   '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
@@ -329,6 +337,7 @@ export interface FileRoutesByTo {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
+  '/modelagem-financeira-2/importar': typeof ModelagemFinanceira2ImportarRoute
   '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
@@ -372,6 +381,7 @@ export interface FileRoutesById {
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
   '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
+  '/modelagem-financeira-2/importar': typeof ModelagemFinanceira2ImportarRoute
   '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
   '/modelagem-simplificada/capital-giro': typeof ModelagemSimplificadaCapitalGiroRoute
   '/modelagem-simplificada/demonstrativos': typeof ModelagemSimplificadaDemonstrativosRoute
@@ -416,6 +426,7 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-financeira-2/$modeloId'
+    | '/modelagem-financeira-2/importar'
     | '/modelagem-financeira-2/novo'
     | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/demonstrativos'
@@ -455,6 +466,7 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-financeira-2/$modeloId'
+    | '/modelagem-financeira-2/importar'
     | '/modelagem-financeira-2/novo'
     | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/demonstrativos'
@@ -497,6 +509,7 @@ export interface FileRouteTypes {
     | '/upload'
     | '/valuation'
     | '/modelagem-financeira-2/$modeloId'
+    | '/modelagem-financeira-2/importar'
     | '/modelagem-financeira-2/novo'
     | '/modelagem-simplificada/capital-giro'
     | '/modelagem-simplificada/demonstrativos'
@@ -788,6 +801,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemFinanceira2NovoRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
+    '/modelagem-financeira-2/importar': {
+      id: '/modelagem-financeira-2/importar'
+      path: '/importar'
+      fullPath: '/modelagem-financeira-2/importar'
+      preLoaderRoute: typeof ModelagemFinanceira2ImportarRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
     '/modelagem-financeira-2/$modeloId': {
       id: '/modelagem-financeira-2/$modeloId'
       path: '/$modeloId'
@@ -828,6 +848,7 @@ declare module '@tanstack/react-router' {
 
 interface ModelagemFinanceira2RouteChildren {
   ModelagemFinanceira2ModeloIdRoute: typeof ModelagemFinanceira2ModeloIdRoute
+  ModelagemFinanceira2ImportarRoute: typeof ModelagemFinanceira2ImportarRoute
   ModelagemFinanceira2NovoRoute: typeof ModelagemFinanceira2NovoRoute
   ModelagemFinanceira2IndexRoute: typeof ModelagemFinanceira2IndexRoute
   ModelagemFinanceira2ProjecaoModeloIdRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -838,6 +859,7 @@ interface ModelagemFinanceira2RouteChildren {
 
 const ModelagemFinanceira2RouteChildren: ModelagemFinanceira2RouteChildren = {
   ModelagemFinanceira2ModeloIdRoute: ModelagemFinanceira2ModeloIdRoute,
+  ModelagemFinanceira2ImportarRoute: ModelagemFinanceira2ImportarRoute,
   ModelagemFinanceira2NovoRoute: ModelagemFinanceira2NovoRoute,
   ModelagemFinanceira2IndexRoute: ModelagemFinanceira2IndexRoute,
   ModelagemFinanceira2ProjecaoModeloIdRoute:
