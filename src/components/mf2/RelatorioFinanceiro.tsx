@@ -180,14 +180,16 @@ export function NavRelatorios({
   atual,
 }: {
   modeloId: string;
-  atual: "dre" | "balanco" | "fluxo" | "indicadores";
+  atual: "dashboard" | "dre" | "balanco" | "fluxo" | "indicadores";
 }) {
   const itens = [
+    { chave: "dashboard", rotulo: "Dashboard", to: "/modelagem-financeira-2/dashboard/$modeloId" },
     { chave: "dre", rotulo: "DRE", to: "/modelagem-financeira-2/relatorios/dre/$modeloId" },
     { chave: "balanco", rotulo: "Balanço Patrimonial", to: "/modelagem-financeira-2/relatorios/balanco/$modeloId" },
     { chave: "fluxo", rotulo: "Fluxo de Caixa", to: "/modelagem-financeira-2/relatorios/fluxo/$modeloId" },
     { chave: "indicadores", rotulo: "Indicadores", to: "/modelagem-financeira-2/indicadores/$modeloId" },
   ] as const;
+
   return (
     <Card className="mb-6">
       <CardContent className="flex flex-wrap items-center gap-2 py-3">
