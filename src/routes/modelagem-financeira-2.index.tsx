@@ -98,6 +98,14 @@ function DashboardMF2() {
                       Abrir premissas
                     </Link>
                   </Button>
+                  <Button asChild size="sm" variant="outline" className="flex-1">
+                    <Link
+                      to="/modelagem-financeira-2/relatorios/dre/$modeloId"
+                      params={{ modeloId: m.id }}
+                    >
+                      Relatórios
+                    </Link>
+                  </Button>
                   <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => duplicarModelo(m.id)}>
                     <Copy className="h-3.5 w-3.5" />
                   </Button>
