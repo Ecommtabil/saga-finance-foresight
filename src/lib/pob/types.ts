@@ -1,3 +1,5 @@
+import type { PremissasPOB } from "./premissas";
+
 export interface CenarioOrcamento {
   id: string;
   nome: string;
@@ -5,6 +7,7 @@ export interface CenarioOrcamento {
   moeda: string;
   criadoEm: string;
   atualizadoEm: string;
+  premissas?: PremissasPOB;
 }
 
 export function uid(): string {
