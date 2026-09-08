@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SimuladoresRouteImport } from './routes/simuladores'
+import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as ModelagemSimplificadaRouteImport } from './routes/modelagem-simplificada'
 import { Route as ModelagemFinanceira2RouteImport } from './routes/modelagem-financeira-2'
@@ -27,6 +28,7 @@ import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlanejamentoIndexRouteImport } from './routes/planejamento.index'
 import { Route as OrcamentoIndexRouteImport } from './routes/orcamento.index'
 import { Route as ModelagemSimplificadaIndexRouteImport } from './routes/modelagem-simplificada.index'
 import { Route as ModelagemFinanceira2IndexRouteImport } from './routes/modelagem-financeira-2.index'
@@ -66,6 +68,11 @@ const UploadRoute = UploadRouteImport.update({
 const SimuladoresRoute = SimuladoresRouteImport.update({
   id: '/simuladores',
   path: '/simuladores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanejamentoRoute = PlanejamentoRouteImport.update({
+  id: '/planejamento',
+  path: '/planejamento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrcamentoRoute = OrcamentoRouteImport.update({
@@ -142,6 +149,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PlanejamentoIndexRoute = PlanejamentoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PlanejamentoRoute,
 } as any)
 const OrcamentoIndexRoute = OrcamentoIndexRouteImport.update({
   id: '/',
@@ -307,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/orcamento': typeof OrcamentoRouteWithChildren
+  '/planejamento': typeof PlanejamentoRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
@@ -329,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
+  '/planejamento/': typeof PlanejamentoIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -371,6 +385,7 @@ export interface FileRoutesByTo {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
+  '/planejamento': typeof PlanejamentoIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -395,6 +410,7 @@ export interface FileRoutesById {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/orcamento': typeof OrcamentoRouteWithChildren
+  '/planejamento': typeof PlanejamentoRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
@@ -417,6 +433,7 @@ export interface FileRoutesById {
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
+  '/planejamento/': typeof PlanejamentoIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -442,6 +459,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
+    | '/planejamento'
     | '/simuladores'
     | '/upload'
     | '/valuation'
@@ -464,6 +482,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
+    | '/planejamento/'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -506,6 +525,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
+    | '/planejamento'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -529,6 +549,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
+    | '/planejamento'
     | '/simuladores'
     | '/upload'
     | '/valuation'
@@ -551,6 +572,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
+    | '/planejamento/'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -575,6 +597,7 @@ export interface RootRouteChildren {
   ModelagemFinanceira2Route: typeof ModelagemFinanceira2RouteWithChildren
   ModelagemSimplificadaRoute: typeof ModelagemSimplificadaRouteWithChildren
   OrcamentoRoute: typeof OrcamentoRouteWithChildren
+  PlanejamentoRoute: typeof PlanejamentoRouteWithChildren
   SimuladoresRoute: typeof SimuladoresRoute
   UploadRoute: typeof UploadRoute
   ValuationRoute: typeof ValuationRoute
@@ -601,6 +624,13 @@ declare module '@tanstack/react-router' {
       path: '/simuladores'
       fullPath: '/simuladores'
       preLoaderRoute: typeof SimuladoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planejamento': {
+      id: '/planejamento'
+      path: '/planejamento'
+      fullPath: '/planejamento'
+      preLoaderRoute: typeof PlanejamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orcamento': {
@@ -707,6 +737,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/planejamento/': {
+      id: '/planejamento/'
+      path: '/'
+      fullPath: '/planejamento/'
+      preLoaderRoute: typeof PlanejamentoIndexRouteImport
+      parentRoute: typeof PlanejamentoRoute
     }
     '/orcamento/': {
       id: '/orcamento/'
@@ -974,6 +1011,18 @@ const OrcamentoRouteWithChildren = OrcamentoRoute._addFileChildren(
   OrcamentoRouteChildren,
 )
 
+interface PlanejamentoRouteChildren {
+  PlanejamentoIndexRoute: typeof PlanejamentoIndexRoute
+}
+
+const PlanejamentoRouteChildren: PlanejamentoRouteChildren = {
+  PlanejamentoIndexRoute: PlanejamentoIndexRoute,
+}
+
+const PlanejamentoRouteWithChildren = PlanejamentoRoute._addFileChildren(
+  PlanejamentoRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BalancoRoute: BalancoRoute,
@@ -990,6 +1039,7 @@ const rootRouteChildren: RootRouteChildren = {
   ModelagemFinanceira2Route: ModelagemFinanceira2RouteWithChildren,
   ModelagemSimplificadaRoute: ModelagemSimplificadaRouteWithChildren,
   OrcamentoRoute: OrcamentoRouteWithChildren,
+  PlanejamentoRoute: PlanejamentoRouteWithChildren,
   SimuladoresRoute: SimuladoresRoute,
   UploadRoute: UploadRoute,
   ValuationRoute: ValuationRoute,

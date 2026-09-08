@@ -19,6 +19,8 @@ import {
   Receipt,
   Zap,
   Wallet,
+  ClipboardList,
+
 } from "lucide-react";
 import {
   Sidebar,
@@ -72,7 +74,9 @@ const MODELAGEM_SIMPLIFICADA: SubItem[] = [
 
 const ORCAMENTO: SubItem[] = [
   { title: "Budget", url: "/orcamento", icon: Wallet, apenasCompleta: false },
+  { title: "Planejamento Orçamentário", url: "/planejamento", icon: ClipboardList, apenasCompleta: false },
 ];
+
 
 const ANALISE_DADOS: SubItem[] = [
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
