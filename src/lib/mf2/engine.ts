@@ -90,11 +90,54 @@ export interface LinhaMes {
   provaRealCaixa: number; // caixa DFC - caixa BP
 }
 
+export interface LinhaSchedDivida {
+  rotulo: string;
+  indice: number;
+  mesAposCaptacao: number | null;
+  saldoInicial: number;
+  captacao: number;
+  juros: number;
+  pagamento: number;
+  amortizacao: number;
+  saldoFinal: number;
+  curtoPrazo: number;
+  longoPrazo: number;
+}
+
+export interface LinhaSchedAtivo {
+  rotulo: string;
+  indice: number;
+  saldoInicial: number;
+  capex: number;
+  depreciacao: number;
+  saldoFinal: number;
+}
+
+export interface LinhaSchedWC {
+  rotulo: string;
+  indice: number;
+  tribInicial: number;
+  tribGerado: number;
+  tribFinal: number;
+  trabInicial: number;
+  trabProvisao: number;
+  trabPago: number;
+  trabFinal: number;
+}
+
+export interface SchedulesProjecao {
+  dividas: { nome: string; linhas: LinhaSchedDivida[] }[];
+  revolvente: LinhaSchedDivida[];
+  ativos: { nome: string; tipo: string; linhas: LinhaSchedAtivo[] }[];
+  capitalGiro: LinhaSchedWC[];
+}
+
 export interface ResultadoProjecao {
   meses: LinhaMes[];
   anuais: LinhaAno[];
   alertas: { mes: string; tipo: "balanco" | "caixa"; diferenca: number }[];
   balancoFecha: boolean;
+  schedules: SchedulesProjecao;
 }
 
 export interface LinhaAno {
@@ -216,11 +259,21 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
   };
 
   const meses: LinhaMes[] = [];
+  const schedDividas: { nome: string; linhas: LinhaSchedDivida[] }[] = m.dividas.map((d, i2) => ({
+    nome: d.nome || `Dívida ${i2 + 1}`,
+    linhas: [],
+  }));
+  const schedRevolvente: LinhaSchedDivida[] = [];
+  const schedAtivos: { nome: string; tipo: string; linhas: LinhaSchedAtivo[] }[] = m.ativos.map(
+    (a) => ({ nome: a.tipo, tipo: a.tipo, linhas: [] }),
+  );
+  const schedWC: LinhaSchedWC[] = [];
 
   for (let i = 0; i < MESES_PROJECAO; i++) {
     const ano = Math.floor(i / 12) + 1;
     const data = new Date(inicio.getFullYear(), inicio.getMonth() + i, 1);
     const mesCal = data.getMonth() + 1;
+    const rotuloMes = `${String(mesCal).padStart(2, "0")}/${data.getFullYear()}`;
     const pctSaz = sazon[data.getMonth()] / somaSaz;
 
     // --- 1. Receita
@@ -268,7 +321,8 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
     // --- 3. Schedule de ativos
     let capex = 0;
     let depreciacao = 0;
-    for (const est of ativosEstado) {
+    for (const [idxA, est] of ativosEstado.entries()) {
+      const saldoInicial = est.saldo;
       const invMes = serieAnual(est.ativo.investimentoPorAno, ano) / 12;
       const dep =
         est.ativo.tipo === "Investimentos"
@@ -277,6 +331,14 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
       capex += invMes;
       depreciacao += dep;
       est.saldo = est.saldo + invMes - dep;
+      schedAtivos[idxA].linhas.push({
+        rotulo: rotuloMes,
+        indice: i,
+        saldoInicial,
+        capex: invMes,
+        depreciacao: dep,
+        saldoFinal: est.saldo,
+      });
     }
 
     const despesasFixasSga = m.despesasFixasSga.reduce((a, l) => a + serieAnual(l.valores, ano), 0);
@@ -299,29 +361,49 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
     let amortizacoes = 0;
     let cpDividas = 0;
     let lpDividas = 0;
-    for (const d of dividas) {
+    for (const [idx, d] of dividas.entries()) {
+      const saldoInicial = d.saldo;
+      let captacaoMes = 0;
+      let juros = 0;
+      let parcela = 0;
+      let amort = 0;
+      let cp = 0;
       if (i === d.mesInicio) {
         d.saldo += d.divida.valorCaptacao || 0;
         captacoes += d.divida.valorCaptacao || 0;
+        captacaoMes = d.divida.valorCaptacao || 0;
       }
       if (d.saldo > 0.0001 && i >= d.mesInicio) {
         const prazoRestante = Math.max((d.divida.prazoMeses || 0) - (i - d.mesInicio), 1);
-        const juros = d.saldo * d.taxaMensal;
-        const parcela = Math.min(pmt(d.taxaMensal, prazoRestante, d.saldo), d.saldo + juros);
-        const amort = parcela - juros;
+        juros = d.saldo * d.taxaMensal;
+        parcela = Math.min(pmt(d.taxaMensal, prazoRestante, d.saldo), d.saldo + juros);
+        amort = parcela - juros;
         jurosDividas += juros;
         amortizacoes += Math.max(amort, 0);
         d.saldo = Math.max(d.saldo + juros - parcela, 0);
         // Curto x longo prazo: amortizações dos próximos 12 meses
         const prazoRest2 = Math.max(prazoRestante - 1, 0);
         const parcelaFutura = prazoRest2 > 0 ? pmt(d.taxaMensal, prazoRest2, d.saldo) : 0;
-        const cp = Math.min(
+        cp = Math.min(
           d.saldo,
           Math.max(parcelaFutura * Math.min(prazoRest2, 12) - d.saldo * d.taxaMensal * 12, 0),
         );
         cpDividas += cp;
         lpDividas += Math.max(d.saldo - cp, 0);
       }
+      schedDividas[idx].linhas.push({
+        rotulo: rotuloMes,
+        indice: i,
+        mesAposCaptacao: i >= d.mesInicio ? i - d.mesInicio + 1 : null,
+        saldoInicial,
+        captacao: captacaoMes,
+        juros,
+        pagamento: parcela,
+        amortizacao: Math.max(amort, 0),
+        saldoFinal: d.saldo,
+        curtoPrazo: cp,
+        longoPrazo: Math.max(d.saldo - cp, 0),
+      });
     }
     const jurosRevolvente = revolvente * ((selicAno || 0.12) / 12 + 0.005);
     const despesasFinanceiras = jurosDividas + jurosRevolvente;
@@ -346,10 +428,23 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
     const adiantFornecedores = custoDasVendas * pctAdiantForn;
     const adiantClientes = receitaBruta * pctAdiantClientes;
     const obrigacoesTributarias = Math.abs(Math.min(deducoes, 0)) + irpjCsll;
-    obrigTrabalhistas += folhaTotal / 12; // provisão de 13º
+    const trabInicial = obrigTrabalhistas;
+    const trabProvisao = folhaTotal / 12;
+    obrigTrabalhistas += trabProvisao; // provisão de 13º
     if (mesCal === 11) obrigTrabalhistas *= 0.5;
     else if (mesCal === 12) obrigTrabalhistas = 0;
     const obrigacoesTrabalhistas = obrigTrabalhistas;
+    schedWC.push({
+      rotulo: rotuloMes,
+      indice: i,
+      tribInicial: prev.trib,
+      tribGerado: tributosRecuperar - prev.trib,
+      tribFinal: tributosRecuperar,
+      trabInicial,
+      trabProvisao,
+      trabPago: trabInicial + trabProvisao - obrigacoesTrabalhistas,
+      trabFinal: obrigacoesTrabalhistas,
+    });
 
     // --- 7. Fluxo de caixa (indireto)
     const varAtivosWC =
@@ -384,9 +479,23 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
       caixaInicial + fluxoOperacional + fluxoInvestimento + fluxoFinanciamentoBase;
 
     let variacaoRevolvente = 0;
+    const revolventeInicial = revolvente;
     if (antesRevolvente < 0) variacaoRevolvente = -antesRevolvente;
     else if (revolvente > 0) variacaoRevolvente = -Math.min(revolvente, antesRevolvente);
     revolvente = Math.max(revolvente + variacaoRevolvente, 0);
+    schedRevolvente.push({
+      rotulo: rotuloMes,
+      indice: i,
+      mesAposCaptacao: null,
+      saldoInicial: revolventeInicial,
+      captacao: Math.max(variacaoRevolvente, 0),
+      juros: jurosRevolvente,
+      pagamento: Math.max(-variacaoRevolvente, 0),
+      amortizacao: Math.max(-variacaoRevolvente, 0),
+      saldoFinal: revolvente,
+      curtoPrazo: revolvente,
+      longoPrazo: 0,
+    });
 
     const fluxoFinanciamento = fluxoFinanciamentoBase + variacaoRevolvente;
     const caixaFinal = caixaInicial + fluxoOperacional + fluxoInvestimento + fluxoFinanciamento;
@@ -506,7 +615,18 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
       alertas.push({ mes: l.rotulo, tipo: "caixa", diferenca: l.provaRealCaixa });
   }
 
-  return { meses, anuais: agregarAnual(meses), alertas, balancoFecha: alertas.length === 0 };
+  return {
+    meses,
+    anuais: agregarAnual(meses),
+    alertas,
+    balancoFecha: alertas.length === 0,
+    schedules: {
+      dividas: schedDividas,
+      revolvente: schedRevolvente,
+      ativos: schedAtivos,
+      capitalGiro: schedWC,
+    },
+  };
 }
 
 /** Consolida a projeção mensal em 5 anos. */

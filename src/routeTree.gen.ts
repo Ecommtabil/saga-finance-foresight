@@ -47,6 +47,7 @@ import { Route as ModelagemFinanceira2NovoRouteImport } from './routes/modelagem
 import { Route as ModelagemFinanceira2ImportarRouteImport } from './routes/modelagem-financeira-2.importar'
 import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
 import { Route as ModelagemFinanceira2ProjecaoModeloIdRouteImport } from './routes/modelagem-financeira-2.projecao.$modeloId'
+import { Route as ModelagemFinanceira2IndicadoresModeloIdRouteImport } from './routes/modelagem-financeira-2.indicadores.$modeloId'
 import { Route as ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.fluxo.$modeloId'
 import { Route as ModelagemFinanceira2RelatoriosDreModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.dre.$modeloId'
 import { Route as ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.balanco.$modeloId'
@@ -258,6 +259,12 @@ const ModelagemFinanceira2ProjecaoModeloIdRoute =
     path: '/projecao/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
+const ModelagemFinanceira2IndicadoresModeloIdRoute =
+  ModelagemFinanceira2IndicadoresModeloIdRouteImport.update({
+    id: '/indicadores/$modeloId',
+    path: '/indicadores/$modeloId',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
 const ModelagemFinanceira2RelatoriosFluxoModeloIdRoute =
   ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport.update({
     id: '/relatorios/fluxo/$modeloId',
@@ -315,6 +322,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
+  '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
   '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
   '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
@@ -355,6 +363,7 @@ export interface FileRoutesByTo {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
+  '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
   '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
   '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
@@ -399,6 +408,7 @@ export interface FileRoutesById {
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
+  '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
   '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
   '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
@@ -444,6 +454,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
+    | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
     | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
     | '/modelagem-financeira-2/relatorios/dre/$modeloId'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
+    | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
     | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
     | '/modelagem-financeira-2/relatorios/dre/$modeloId'
@@ -527,6 +539,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
+    | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
     | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
     | '/modelagem-financeira-2/relatorios/dre/$modeloId'
@@ -822,6 +835,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
+    '/modelagem-financeira-2/indicadores/$modeloId': {
+      id: '/modelagem-financeira-2/indicadores/$modeloId'
+      path: '/indicadores/$modeloId'
+      fullPath: '/modelagem-financeira-2/indicadores/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2IndicadoresModeloIdRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
     '/modelagem-financeira-2/relatorios/fluxo/$modeloId': {
       id: '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
       path: '/relatorios/fluxo/$modeloId'
@@ -851,6 +871,7 @@ interface ModelagemFinanceira2RouteChildren {
   ModelagemFinanceira2ImportarRoute: typeof ModelagemFinanceira2ImportarRoute
   ModelagemFinanceira2NovoRoute: typeof ModelagemFinanceira2NovoRoute
   ModelagemFinanceira2IndexRoute: typeof ModelagemFinanceira2IndexRoute
+  ModelagemFinanceira2IndicadoresModeloIdRoute: typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   ModelagemFinanceira2ProjecaoModeloIdRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRoute
   ModelagemFinanceira2RelatoriosBalancoModeloIdRoute: typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
   ModelagemFinanceira2RelatoriosDreModeloIdRoute: typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
@@ -862,6 +883,8 @@ const ModelagemFinanceira2RouteChildren: ModelagemFinanceira2RouteChildren = {
   ModelagemFinanceira2ImportarRoute: ModelagemFinanceira2ImportarRoute,
   ModelagemFinanceira2NovoRoute: ModelagemFinanceira2NovoRoute,
   ModelagemFinanceira2IndexRoute: ModelagemFinanceira2IndexRoute,
+  ModelagemFinanceira2IndicadoresModeloIdRoute:
+    ModelagemFinanceira2IndicadoresModeloIdRoute,
   ModelagemFinanceira2ProjecaoModeloIdRoute:
     ModelagemFinanceira2ProjecaoModeloIdRoute,
   ModelagemFinanceira2RelatoriosBalancoModeloIdRoute:
