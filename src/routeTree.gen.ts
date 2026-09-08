@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SimuladoresRouteImport } from './routes/simuladores'
+import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as ModelagemSimplificadaRouteImport } from './routes/modelagem-simplificada'
 import { Route as ModelagemFinanceira2RouteImport } from './routes/modelagem-financeira-2'
@@ -27,9 +28,15 @@ import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlanejamentoIndexRouteImport } from './routes/planejamento.index'
 import { Route as OrcamentoIndexRouteImport } from './routes/orcamento.index'
 import { Route as ModelagemSimplificadaIndexRouteImport } from './routes/modelagem-simplificada.index'
 import { Route as ModelagemFinanceira2IndexRouteImport } from './routes/modelagem-financeira-2.index'
+import { Route as PlanejamentoVariacaoRouteImport } from './routes/planejamento.variacao'
+import { Route as PlanejamentoProjecaoRouteImport } from './routes/planejamento.projecao'
+import { Route as PlanejamentoPremissasRouteImport } from './routes/planejamento.premissas'
+import { Route as PlanejamentoDashboardRouteImport } from './routes/planejamento.dashboard'
+import { Route as PlanejamentoCustosRouteImport } from './routes/planejamento.custos'
 import { Route as OrcamentoDadosRouteImport } from './routes/orcamento.dados'
 import { Route as OrcamentoBudgetRouteImport } from './routes/orcamento.budget'
 import { Route as ModelagemSimplificadaValuationRouteImport } from './routes/modelagem-simplificada.valuation'
@@ -66,6 +73,11 @@ const UploadRoute = UploadRouteImport.update({
 const SimuladoresRoute = SimuladoresRouteImport.update({
   id: '/simuladores',
   path: '/simuladores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanejamentoRoute = PlanejamentoRouteImport.update({
+  id: '/planejamento',
+  path: '/planejamento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrcamentoRoute = OrcamentoRouteImport.update({
@@ -143,6 +155,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlanejamentoIndexRoute = PlanejamentoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
 const OrcamentoIndexRoute = OrcamentoIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -160,6 +177,31 @@ const ModelagemFinanceira2IndexRoute =
     path: '/',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
+const PlanejamentoVariacaoRoute = PlanejamentoVariacaoRouteImport.update({
+  id: '/variacao',
+  path: '/variacao',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoProjecaoRoute = PlanejamentoProjecaoRouteImport.update({
+  id: '/projecao',
+  path: '/projecao',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoPremissasRoute = PlanejamentoPremissasRouteImport.update({
+  id: '/premissas',
+  path: '/premissas',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoDashboardRoute = PlanejamentoDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoCustosRoute = PlanejamentoCustosRouteImport.update({
+  id: '/custos',
+  path: '/custos',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
 const OrcamentoDadosRoute = OrcamentoDadosRouteImport.update({
   id: '/dados',
   path: '/dados',
@@ -307,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/orcamento': typeof OrcamentoRouteWithChildren
+  '/planejamento': typeof PlanejamentoRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
@@ -326,9 +369,15 @@ export interface FileRoutesByFullPath {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/planejamento/custos': typeof PlanejamentoCustosRoute
+  '/planejamento/dashboard': typeof PlanejamentoDashboardRoute
+  '/planejamento/premissas': typeof PlanejamentoPremissasRoute
+  '/planejamento/projecao': typeof PlanejamentoProjecaoRoute
+  '/planejamento/variacao': typeof PlanejamentoVariacaoRoute
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
+  '/planejamento/': typeof PlanejamentoIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -368,9 +417,15 @@ export interface FileRoutesByTo {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/planejamento/custos': typeof PlanejamentoCustosRoute
+  '/planejamento/dashboard': typeof PlanejamentoDashboardRoute
+  '/planejamento/premissas': typeof PlanejamentoPremissasRoute
+  '/planejamento/projecao': typeof PlanejamentoProjecaoRoute
+  '/planejamento/variacao': typeof PlanejamentoVariacaoRoute
   '/modelagem-financeira-2': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
+  '/planejamento': typeof PlanejamentoIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -395,6 +450,7 @@ export interface FileRoutesById {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/orcamento': typeof OrcamentoRouteWithChildren
+  '/planejamento': typeof PlanejamentoRouteWithChildren
   '/simuladores': typeof SimuladoresRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
@@ -414,9 +470,15 @@ export interface FileRoutesById {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/planejamento/custos': typeof PlanejamentoCustosRoute
+  '/planejamento/dashboard': typeof PlanejamentoDashboardRoute
+  '/planejamento/premissas': typeof PlanejamentoPremissasRoute
+  '/planejamento/projecao': typeof PlanejamentoProjecaoRoute
+  '/planejamento/variacao': typeof PlanejamentoVariacaoRoute
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
+  '/planejamento/': typeof PlanejamentoIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -442,6 +504,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
+    | '/planejamento'
     | '/simuladores'
     | '/upload'
     | '/valuation'
@@ -461,9 +524,15 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/planejamento/custos'
+    | '/planejamento/dashboard'
+    | '/planejamento/premissas'
+    | '/planejamento/projecao'
+    | '/planejamento/variacao'
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
+    | '/planejamento/'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -503,9 +572,15 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/planejamento/custos'
+    | '/planejamento/dashboard'
+    | '/planejamento/premissas'
+    | '/planejamento/projecao'
+    | '/planejamento/variacao'
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
+    | '/planejamento'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -529,6 +604,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
+    | '/planejamento'
     | '/simuladores'
     | '/upload'
     | '/valuation'
@@ -548,9 +624,15 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/planejamento/custos'
+    | '/planejamento/dashboard'
+    | '/planejamento/premissas'
+    | '/planejamento/projecao'
+    | '/planejamento/variacao'
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
+    | '/planejamento/'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -575,6 +657,7 @@ export interface RootRouteChildren {
   ModelagemFinanceira2Route: typeof ModelagemFinanceira2RouteWithChildren
   ModelagemSimplificadaRoute: typeof ModelagemSimplificadaRouteWithChildren
   OrcamentoRoute: typeof OrcamentoRouteWithChildren
+  PlanejamentoRoute: typeof PlanejamentoRouteWithChildren
   SimuladoresRoute: typeof SimuladoresRoute
   UploadRoute: typeof UploadRoute
   ValuationRoute: typeof ValuationRoute
@@ -601,6 +684,13 @@ declare module '@tanstack/react-router' {
       path: '/simuladores'
       fullPath: '/simuladores'
       preLoaderRoute: typeof SimuladoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planejamento': {
+      id: '/planejamento'
+      path: '/planejamento'
+      fullPath: '/planejamento'
+      preLoaderRoute: typeof PlanejamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orcamento': {
@@ -708,6 +798,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/planejamento/': {
+      id: '/planejamento/'
+      path: '/'
+      fullPath: '/planejamento/'
+      preLoaderRoute: typeof PlanejamentoIndexRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
     '/orcamento/': {
       id: '/orcamento/'
       path: '/'
@@ -728,6 +825,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/modelagem-financeira-2/'
       preLoaderRoute: typeof ModelagemFinanceira2IndexRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
+    }
+    '/planejamento/variacao': {
+      id: '/planejamento/variacao'
+      path: '/variacao'
+      fullPath: '/planejamento/variacao'
+      preLoaderRoute: typeof PlanejamentoVariacaoRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/projecao': {
+      id: '/planejamento/projecao'
+      path: '/projecao'
+      fullPath: '/planejamento/projecao'
+      preLoaderRoute: typeof PlanejamentoProjecaoRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/premissas': {
+      id: '/planejamento/premissas'
+      path: '/premissas'
+      fullPath: '/planejamento/premissas'
+      preLoaderRoute: typeof PlanejamentoPremissasRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/dashboard': {
+      id: '/planejamento/dashboard'
+      path: '/dashboard'
+      fullPath: '/planejamento/dashboard'
+      preLoaderRoute: typeof PlanejamentoDashboardRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/custos': {
+      id: '/planejamento/custos'
+      path: '/custos'
+      fullPath: '/planejamento/custos'
+      preLoaderRoute: typeof PlanejamentoCustosRouteImport
+      parentRoute: typeof PlanejamentoRoute
     }
     '/orcamento/dados': {
       id: '/orcamento/dados'
@@ -974,6 +1106,28 @@ const OrcamentoRouteWithChildren = OrcamentoRoute._addFileChildren(
   OrcamentoRouteChildren,
 )
 
+interface PlanejamentoRouteChildren {
+  PlanejamentoCustosRoute: typeof PlanejamentoCustosRoute
+  PlanejamentoDashboardRoute: typeof PlanejamentoDashboardRoute
+  PlanejamentoPremissasRoute: typeof PlanejamentoPremissasRoute
+  PlanejamentoProjecaoRoute: typeof PlanejamentoProjecaoRoute
+  PlanejamentoVariacaoRoute: typeof PlanejamentoVariacaoRoute
+  PlanejamentoIndexRoute: typeof PlanejamentoIndexRoute
+}
+
+const PlanejamentoRouteChildren: PlanejamentoRouteChildren = {
+  PlanejamentoCustosRoute: PlanejamentoCustosRoute,
+  PlanejamentoDashboardRoute: PlanejamentoDashboardRoute,
+  PlanejamentoPremissasRoute: PlanejamentoPremissasRoute,
+  PlanejamentoProjecaoRoute: PlanejamentoProjecaoRoute,
+  PlanejamentoVariacaoRoute: PlanejamentoVariacaoRoute,
+  PlanejamentoIndexRoute: PlanejamentoIndexRoute,
+}
+
+const PlanejamentoRouteWithChildren = PlanejamentoRoute._addFileChildren(
+  PlanejamentoRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BalancoRoute: BalancoRoute,
@@ -990,6 +1144,7 @@ const rootRouteChildren: RootRouteChildren = {
   ModelagemFinanceira2Route: ModelagemFinanceira2RouteWithChildren,
   ModelagemSimplificadaRoute: ModelagemSimplificadaRouteWithChildren,
   OrcamentoRoute: OrcamentoRouteWithChildren,
+  PlanejamentoRoute: PlanejamentoRouteWithChildren,
   SimuladoresRoute: SimuladoresRoute,
   UploadRoute: UploadRoute,
   ValuationRoute: ValuationRoute,
