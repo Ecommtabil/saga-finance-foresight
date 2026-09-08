@@ -615,7 +615,18 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
       alertas.push({ mes: l.rotulo, tipo: "caixa", diferenca: l.provaRealCaixa });
   }
 
-  return { meses, anuais: agregarAnual(meses), alertas, balancoFecha: alertas.length === 0 };
+  return {
+    meses,
+    anuais: agregarAnual(meses),
+    alertas,
+    balancoFecha: alertas.length === 0,
+    schedules: {
+      dividas: schedDividas,
+      revolvente: schedRevolvente,
+      ativos: schedAtivos,
+      capitalGiro: schedWC,
+    },
+  };
 }
 
 /** Consolida a projeção mensal em 5 anos. */
