@@ -246,16 +246,21 @@ export function baixarPlanilhaModeloMF2(m?: ModeloMF2 | null) {
 
 type Rows = Record<string, unknown>[];
 
-function sheet(wb: XLSX.WorkBook, nome: string, matriz?: true) {
+function sheet(wb: XLSX.WorkBook, nome: string): Rows | null {
   const found = wb.SheetNames.find((n) => norm(n) === norm(nome));
   if (!found) return null;
-  return matriz
-    ? (XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[found], {
-        header: 1,
-        blankrows: false,
-      }) as unknown[][])
-    : (XLSX.utils.sheet_to_json(wb.Sheets[found], { defval: "" }) as Rows);
+  return XLSX.utils.sheet_to_json(wb.Sheets[found], { defval: "" }) as Rows;
 }
+
+function sheetMatriz(wb: XLSX.WorkBook, nome: string): unknown[][] | null {
+  const found = wb.SheetNames.find((n) => norm(n) === norm(nome));
+  if (!found) return null;
+  return XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[found], {
+    header: 1,
+    blankrows: false,
+  }) as unknown[][];
+}
+
 
 function pick(row: Record<string, unknown>, ...nomes: string[]): unknown {
   const keys = Object.keys(row);
