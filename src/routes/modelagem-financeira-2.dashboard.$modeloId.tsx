@@ -174,7 +174,7 @@ function DashboardMF2() {
       <PageHeader
         titulo={`Dashboard — ${modelo.nomeEmpresa}`}
         subtitulo="Visão executiva da projeção de 60 meses, com análise por produto e provas reais de integridade."
-        acoes={
+        action={
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={() => exportarDashboardExcel(modelo, projecao, base)}>
               <FileSpreadsheet className="mr-1.5 h-4 w-4" /> Excel
