@@ -273,6 +273,7 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
     const ano = Math.floor(i / 12) + 1;
     const data = new Date(inicio.getFullYear(), inicio.getMonth() + i, 1);
     const mesCal = data.getMonth() + 1;
+    const rotuloMes = `${String(mesCal).padStart(2, "0")}/${data.getFullYear()}`;
     const pctSaz = sazon[data.getMonth()] / somaSaz;
 
     // --- 1. Receita
@@ -320,7 +321,8 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
     // --- 3. Schedule de ativos
     let capex = 0;
     let depreciacao = 0;
-    for (const est of ativosEstado) {
+    for (const [idxA, est] of ativosEstado.entries()) {
+      const saldoInicial = est.saldo;
       const invMes = serieAnual(est.ativo.investimentoPorAno, ano) / 12;
       const dep =
         est.ativo.tipo === "Investimentos"
@@ -329,6 +331,14 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
       capex += invMes;
       depreciacao += dep;
       est.saldo = est.saldo + invMes - dep;
+      schedAtivos[idxA].linhas.push({
+        rotulo: rotuloMes,
+        indice: i,
+        saldoInicial,
+        capex: invMes,
+        depreciacao: dep,
+        saldoFinal: est.saldo,
+      });
     }
 
     const despesasFixasSga = m.despesasFixasSga.reduce((a, l) => a + serieAnual(l.valores, ano), 0);
@@ -418,10 +428,23 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
     const adiantFornecedores = custoDasVendas * pctAdiantForn;
     const adiantClientes = receitaBruta * pctAdiantClientes;
     const obrigacoesTributarias = Math.abs(Math.min(deducoes, 0)) + irpjCsll;
-    obrigTrabalhistas += folhaTotal / 12; // provisão de 13º
+    const trabInicial = obrigTrabalhistas;
+    const trabProvisao = folhaTotal / 12;
+    obrigTrabalhistas += trabProvisao; // provisão de 13º
     if (mesCal === 11) obrigTrabalhistas *= 0.5;
     else if (mesCal === 12) obrigTrabalhistas = 0;
     const obrigacoesTrabalhistas = obrigTrabalhistas;
+    schedWC.push({
+      rotulo: rotuloMes,
+      indice: i,
+      tribInicial: prev.trib,
+      tribGerado: tributosRecuperar - prev.trib,
+      tribFinal: tributosRecuperar,
+      trabInicial,
+      trabProvisao,
+      trabPago: trabInicial + trabProvisao - obrigacoesTrabalhistas,
+      trabFinal: obrigacoesTrabalhistas,
+    });
 
     // --- 7. Fluxo de caixa (indireto)
     const varAtivosWC =
@@ -456,9 +479,23 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
       caixaInicial + fluxoOperacional + fluxoInvestimento + fluxoFinanciamentoBase;
 
     let variacaoRevolvente = 0;
+    const revolventeInicial = revolvente;
     if (antesRevolvente < 0) variacaoRevolvente = -antesRevolvente;
     else if (revolvente > 0) variacaoRevolvente = -Math.min(revolvente, antesRevolvente);
     revolvente = Math.max(revolvente + variacaoRevolvente, 0);
+    schedRevolvente.push({
+      rotulo: rotuloMes,
+      indice: i,
+      mesAposCaptacao: null,
+      saldoInicial: revolventeInicial,
+      captacao: Math.max(variacaoRevolvente, 0),
+      juros: jurosRevolvente,
+      pagamento: Math.max(-variacaoRevolvente, 0),
+      amortizacao: Math.max(-variacaoRevolvente, 0),
+      saldoFinal: revolvente,
+      curtoPrazo: revolvente,
+      longoPrazo: 0,
+    });
 
     const fluxoFinanciamento = fluxoFinanciamentoBase + variacaoRevolvente;
     const caixaFinal = caixaInicial + fluxoOperacional + fluxoInvestimento + fluxoFinanciamento;
