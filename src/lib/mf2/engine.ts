@@ -259,6 +259,15 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
   };
 
   const meses: LinhaMes[] = [];
+  const schedDividas: { nome: string; linhas: LinhaSchedDivida[] }[] = m.dividas.map((d, i2) => ({
+    nome: d.nome || `Dívida ${i2 + 1}`,
+    linhas: [],
+  }));
+  const schedRevolvente: LinhaSchedDivida[] = [];
+  const schedAtivos: { nome: string; tipo: string; linhas: LinhaSchedAtivo[] }[] = m.ativos.map(
+    (a) => ({ nome: a.tipo, tipo: a.tipo, linhas: [] }),
+  );
+  const schedWC: LinhaSchedWC[] = [];
 
   for (let i = 0; i < MESES_PROJECAO; i++) {
     const ano = Math.floor(i / 12) + 1;
