@@ -90,11 +90,54 @@ export interface LinhaMes {
   provaRealCaixa: number; // caixa DFC - caixa BP
 }
 
+export interface LinhaSchedDivida {
+  rotulo: string;
+  indice: number;
+  mesAposCaptacao: number | null;
+  saldoInicial: number;
+  captacao: number;
+  juros: number;
+  pagamento: number;
+  amortizacao: number;
+  saldoFinal: number;
+  curtoPrazo: number;
+  longoPrazo: number;
+}
+
+export interface LinhaSchedAtivo {
+  rotulo: string;
+  indice: number;
+  saldoInicial: number;
+  capex: number;
+  depreciacao: number;
+  saldoFinal: number;
+}
+
+export interface LinhaSchedWC {
+  rotulo: string;
+  indice: number;
+  tribInicial: number;
+  tribGerado: number;
+  tribFinal: number;
+  trabInicial: number;
+  trabProvisao: number;
+  trabPago: number;
+  trabFinal: number;
+}
+
+export interface SchedulesProjecao {
+  dividas: { nome: string; linhas: LinhaSchedDivida[] }[];
+  revolvente: LinhaSchedDivida[];
+  ativos: { nome: string; tipo: string; linhas: LinhaSchedAtivo[] }[];
+  capitalGiro: LinhaSchedWC[];
+}
+
 export interface ResultadoProjecao {
   meses: LinhaMes[];
   anuais: LinhaAno[];
   alertas: { mes: string; tipo: "balanco" | "caixa"; diferenca: number }[];
   balancoFecha: boolean;
+  schedules: SchedulesProjecao;
 }
 
 export interface LinhaAno {
