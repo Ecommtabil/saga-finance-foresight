@@ -342,29 +342,49 @@ export function projetarModelo(m: ModeloMF2): ResultadoProjecao {
     let amortizacoes = 0;
     let cpDividas = 0;
     let lpDividas = 0;
-    for (const d of dividas) {
+    for (const [idx, d] of dividas.entries()) {
+      const saldoInicial = d.saldo;
+      let captacaoMes = 0;
+      let juros = 0;
+      let parcela = 0;
+      let amort = 0;
+      let cp = 0;
       if (i === d.mesInicio) {
         d.saldo += d.divida.valorCaptacao || 0;
         captacoes += d.divida.valorCaptacao || 0;
+        captacaoMes = d.divida.valorCaptacao || 0;
       }
       if (d.saldo > 0.0001 && i >= d.mesInicio) {
         const prazoRestante = Math.max((d.divida.prazoMeses || 0) - (i - d.mesInicio), 1);
-        const juros = d.saldo * d.taxaMensal;
-        const parcela = Math.min(pmt(d.taxaMensal, prazoRestante, d.saldo), d.saldo + juros);
-        const amort = parcela - juros;
+        juros = d.saldo * d.taxaMensal;
+        parcela = Math.min(pmt(d.taxaMensal, prazoRestante, d.saldo), d.saldo + juros);
+        amort = parcela - juros;
         jurosDividas += juros;
         amortizacoes += Math.max(amort, 0);
         d.saldo = Math.max(d.saldo + juros - parcela, 0);
         // Curto x longo prazo: amortizações dos próximos 12 meses
         const prazoRest2 = Math.max(prazoRestante - 1, 0);
         const parcelaFutura = prazoRest2 > 0 ? pmt(d.taxaMensal, prazoRest2, d.saldo) : 0;
-        const cp = Math.min(
+        cp = Math.min(
           d.saldo,
           Math.max(parcelaFutura * Math.min(prazoRest2, 12) - d.saldo * d.taxaMensal * 12, 0),
         );
         cpDividas += cp;
         lpDividas += Math.max(d.saldo - cp, 0);
       }
+      schedDividas[idx].linhas.push({
+        rotulo: rotuloMes,
+        indice: i,
+        mesAposCaptacao: i >= d.mesInicio ? i - d.mesInicio + 1 : null,
+        saldoInicial,
+        captacao: captacaoMes,
+        juros,
+        pagamento: parcela,
+        amortizacao: Math.max(amort, 0),
+        saldoFinal: d.saldo,
+        curtoPrazo: cp,
+        longoPrazo: Math.max(d.saldo - cp, 0),
+      });
     }
     const jurosRevolvente = revolvente * ((selicAno || 0.12) / 12 + 0.005);
     const despesasFinanceiras = jurosDividas + jurosRevolvente;
