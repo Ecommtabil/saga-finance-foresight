@@ -1,6 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Download, Upload as UploadIcon, RefreshCw, CheckCircle2, AlertCircle, FileDown } from "lucide-react";
+import {
+  Download,
+  Upload as UploadIcon,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  FileDown,
+  FileSpreadsheet,
+} from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,6 +18,7 @@ import { baixarPlanilhaModelo } from "@/lib/saga/template";
 import { lerPlanilha, PlanilhaError } from "@/lib/saga/parser";
 import { PdfPreviewDialog } from "@/components/saga/PdfPreviewDialog";
 import { PreviewImportacao } from "@/components/saga/PreviewImportacao";
+import { importarFonteBruta } from "@/lib/saga/etl-client";
 
 export const Route = createFileRoute("/upload")({
   head: () => ({
@@ -26,13 +35,16 @@ export const Route = createFileRoute("/upload")({
 function UploadPage() {
   const { modo, dados, setDados, empresa } = useSaga();
   const [erro, setErro] = useState<string | null>(null);
+  const [avisosEtl, setAvisosEtl] = useState<string[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const brutoRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File | undefined) => {
     if (!file || !modo) return;
     setErro(null);
+    setAvisosEtl([]);
     setCarregando(true);
     try {
       const d = await lerPlanilha(file, modo);
@@ -40,6 +52,22 @@ function UploadPage() {
     } catch (e) {
       if (e instanceof PlanilhaError) setErro(e.message);
       else setErro(`Erro ao ler planilha: ${(e as Error).message}`);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  const handleBruto = async (file: File | undefined) => {
+    if (!file || !modo) return;
+    setErro(null);
+    setAvisosEtl([]);
+    setCarregando(true);
+    try {
+      const r = await importarFonteBruta(file, modo, { useGliner: false });
+      setDados(r.dados);
+      setAvisosEtl(r.avisos ?? []);
+    } catch (e) {
+      setErro(`ETL: ${(e as Error).message}`);
     } finally {
       setCarregando(false);
     }
@@ -60,6 +88,8 @@ function UploadPage() {
       </div>
     );
   }
+
+  const idx = dados ? Math.max(0, dados.anos.length - 1) : 0;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -89,9 +119,7 @@ function UploadPage() {
           <CardHeader>
             <UploadIcon className="h-8 w-8 text-primary" />
             <CardTitle className="mt-2">2. Enviar planilha preenchida</CardTitle>
-            <CardDescription>
-              O arquivo é lido no navegador. Nenhum dado é enviado a servidores.
-            </CardDescription>
+            <CardDescription>O arquivo modelo é lido no navegador (sem servidor).</CardDescription>
           </CardHeader>
           <CardContent>
             <input
@@ -123,11 +151,54 @@ function UploadPage() {
         </Card>
       </div>
 
+      <Card>
+        <CardHeader>
+          <FileSpreadsheet className="h-8 w-8 text-primary" />
+          <CardTitle className="mt-2">3. Fonte bruta (PDF/Excel marketplace)</CardTitle>
+          <CardDescription>
+            Envia ao serviço ETL (ALTERDATA BP, planilhas ML/Shopee) e preenche DadosImportados.
+            Requer ETL em VITE_ETL_URL.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <input
+            ref={brutoRef}
+            type="file"
+            accept=".pdf,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            hidden
+            onChange={(e) => handleBruto(e.target.files?.[0])}
+          />
+          <Button
+            className="w-full"
+            variant="secondary"
+            disabled={carregando}
+            onClick={() => brutoRef.current?.click()}
+          >
+            <UploadIcon className="mr-2 h-4 w-4" />
+            {carregando ? "Processando no ETL…" : "Importar PDF/Excel bruto"}
+          </Button>
+        </CardContent>
+      </Card>
+
       {erro && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Falha na importação</AlertTitle>
           <AlertDescription>{erro}</AlertDescription>
+        </Alert>
+      )}
+
+      {avisosEtl.length > 0 && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Avisos do ETL</AlertTitle>
+          <AlertDescription>
+            <ul className="mt-2 list-disc space-y-1 pl-4 text-sm">
+              {avisosEtl.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
+            </ul>
+          </AlertDescription>
         </Alert>
       )}
 
@@ -142,13 +213,25 @@ function UploadPage() {
           <CardContent>
             <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
               <Item label="Empresa (planilha)" v={dados.empresaPlanilha || "—"} />
-              <Item label="Ano base" v={String(dados.anos[dados.anos.length - 1])} />
-              <Item label="Período" v={`${dados.anos[0]} – ${dados.anos[dados.anos.length - 1]}`} />
+              <Item label="Ano base" v={String(dados.anos[idx])} />
+              <Item label="Período" v={`${dados.anos[0]} – ${dados.anos[idx]}`} />
               <Item label="Modo" v={dados.modo === "completa" ? "Completa" : "Básica"} />
-              <Item label="Receita Líquida (ano base)" v={dados.dre.receitaLiquida[4].toLocaleString("pt-BR")} />
-              <Item label="Lucro Líquido (ano base)" v={dados.dre.lucroLiquido[4].toLocaleString("pt-BR")} />
-              <Item label="Ativo Total (ano base)" v={dados.balanco?.ativoTotal[4].toLocaleString("pt-BR") ?? "—"} />
-              <Item label="WACC (estimado)" v={`${(((dados.premissas.rf + dados.premissas.beta * dados.premissas.erp) * 100) || 0).toFixed(1)}% (base ke)`} />
+              <Item
+                label="Receita Líquida (ano base)"
+                v={(dados.dre.receitaLiquida[idx] ?? 0).toLocaleString("pt-BR")}
+              />
+              <Item
+                label="Lucro Líquido (ano base)"
+                v={(dados.dre.lucroLiquido[idx] ?? 0).toLocaleString("pt-BR")}
+              />
+              <Item
+                label="Ativo Total (ano base)"
+                v={dados.balanco?.ativoTotal[idx]?.toLocaleString("pt-BR") ?? "—"}
+              />
+              <Item
+                label="WACC (estimado)"
+                v={`${(((dados.premissas.rf + dados.premissas.beta * dados.premissas.erp) * 100) || 0).toFixed(1)}% (base ke)`}
+              />
             </dl>
             <div className="mt-6 flex flex-wrap gap-2">
               <Button asChild>
@@ -166,10 +249,7 @@ function UploadPage() {
               <Button asChild variant="outline">
                 <Link to="/valuation">Ver Valuation</Link>
               </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setPreviewOpen(true)}
-              >
+              <Button variant="secondary" onClick={() => setPreviewOpen(true)}>
                 <FileDown className="mr-2 h-4 w-4" /> Pré-visualizar Relatório PDF
               </Button>
             </div>
