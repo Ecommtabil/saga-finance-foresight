@@ -37,6 +37,7 @@ function UploadPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [avisosEtl, setAvisosEtl] = useState<string[]>([]);
   const [carregando, setCarregando] = useState(false);
+  const [useGliner, setUseGliner] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const brutoRef = useRef<HTMLInputElement>(null);
@@ -63,7 +64,7 @@ function UploadPage() {
     setAvisosEtl([]);
     setCarregando(true);
     try {
-      const r = await importarFonteBruta(file, modo, { useGliner: false });
+      const r = await importarFonteBruta(file, modo, { useGliner });
       setDados(r.dados);
       setAvisosEtl(r.avisos ?? []);
     } catch (e) {
@@ -177,6 +178,14 @@ function UploadPage() {
             <UploadIcon className="mr-2 h-4 w-4" />
             {carregando ? "Processando no ETL…" : "Importar PDF/Excel bruto"}
           </Button>
+          <label className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={useGliner}
+              onChange={(e) => setUseGliner(e.target.checked)}
+            />
+            Usar GLiNER no fallback de contas sem alias (requer token no ETL)
+          </label>
         </CardContent>
       </Card>
 

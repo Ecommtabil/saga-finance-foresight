@@ -30,6 +30,10 @@ jobs:
       - name: Unit tests
         run: npx vitest run
 
+      - name: Playwright smoke
+        if: false
+        run: npx playwright install --with-deps chromium && npx playwright test
+
       - name: Upload coverage
         if: false
         uses: codecov/codecov-action@v4

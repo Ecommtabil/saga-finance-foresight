@@ -53,7 +53,9 @@ Mínimo na CI:
 - Playwright smoke (quando a Issue da fase 4 estiver ativa)
 - Codecov (cobertura; não bloqueia no início se token ausente)
 
-Observabilidade MVP: **Sentry** (front + ETL).  
+Observabilidade MVP: **Sentry** (front via `VITE_SENTRY_DSN` + ETL via `SENTRY_DSN`).  
+Rate limit + API key já no ETL (`X-API-Key`, `RATE_LIMIT_PER_MINUTE`).  
+GLiNER: checkbox na UI + `GLINER_ENABLED` / `PIONEER_API_KEY` no ETL.  
 Backlog (não bloquear MVP): OpenTelemetry, Knip, arch-contract, Stryker, Endtest, 2º APM.
 
 Segurança/ops MVP: rate limit + API key no ETL; separar front e ETL; termos/privacidade via Issue jurídica.
