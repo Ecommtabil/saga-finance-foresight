@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+      POSTGRES_DB: saga
+    ports:
+      - "5432:5432"
+    volumes:
+      - saga_pg:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saga -d saga"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  etl:
+    build:
+      context: ./services/etl
+    environment:
+      DATABASE_URL: postgresql://saga:saga@db:5432/saga
+      ETL_API_KEY: ${ETL_API_KEY:-dev-etl-key}
+      SENTRY_DSN: ${SENTRY_DSN_ETL:-}
+      GLINER_ENABLED: ${GLINER_ENABLED:-false}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-30}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      VITE_ETL_URL: http://localhost:8000
+      ETL_API_KEY: ${ETL_API_KEY:-dev-etl-key}
+      DATABASE_URL: postgresql://saga:saga@db:5432/saga
+      SENTRY_DSN: ${SENTRY_DSN_APP:-}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - etl
+      - db
+
+volumes:
+  saga_pg:
