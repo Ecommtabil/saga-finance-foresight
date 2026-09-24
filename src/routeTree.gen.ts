@@ -16,6 +16,7 @@ import { Route as SimuladoresRouteImport } from './routes/simuladores'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
+import { Route as ModelagemSimplificada3RouteImport } from './routes/modelagem-simplificada-3'
 import { Route as ModelagemSimplificadaRouteImport } from './routes/modelagem-simplificada'
 import { Route as ModelagemFinanceira2RouteImport } from './routes/modelagem-financeira-2'
 import { Route as IndicesRouteImport } from './routes/indices'
@@ -95,6 +96,11 @@ const PlanejamentoRoute = PlanejamentoRouteImport.update({
 const OrcamentoRoute = OrcamentoRouteImport.update({
   id: '/orcamento',
   path: '/orcamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelagemSimplificada3Route = ModelagemSimplificada3RouteImport.update({
+  id: '/modelagem-simplificada-3',
+  path: '/modelagem-simplificada-3',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ModelagemSimplificadaRoute = ModelagemSimplificadaRouteImport.update({
@@ -360,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/indices': typeof IndicesRoute
   '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
+  '/modelagem-simplificada-3': typeof ModelagemSimplificada3Route
   '/orcamento': typeof OrcamentoRouteWithChildren
   '/planejamento': typeof PlanejamentoRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/fluxo-reverso': typeof FluxoReversoRoute
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
+  '/modelagem-simplificada-3': typeof ModelagemSimplificada3Route
   '/privacidade': typeof PrivacidadeRoute
   '/simuladores': typeof SimuladoresRoute
   '/termos': typeof TermosRoute
@@ -465,6 +473,7 @@ export interface FileRoutesById {
   '/indices': typeof IndicesRoute
   '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
+  '/modelagem-simplificada-3': typeof ModelagemSimplificada3Route
   '/orcamento': typeof OrcamentoRouteWithChildren
   '/planejamento': typeof PlanejamentoRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
@@ -521,6 +530,7 @@ export interface FileRouteTypes {
     | '/indices'
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
+    | '/modelagem-simplificada-3'
     | '/orcamento'
     | '/planejamento'
     | '/privacidade'
@@ -573,6 +583,7 @@ export interface FileRouteTypes {
     | '/fluxo-reverso'
     | '/indicadores'
     | '/indices'
+    | '/modelagem-simplificada-3'
     | '/privacidade'
     | '/simuladores'
     | '/termos'
@@ -625,6 +636,7 @@ export interface FileRouteTypes {
     | '/indices'
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
+    | '/modelagem-simplificada-3'
     | '/orcamento'
     | '/planejamento'
     | '/privacidade'
@@ -680,6 +692,7 @@ export interface RootRouteChildren {
   IndicesRoute: typeof IndicesRoute
   ModelagemFinanceira2Route: typeof ModelagemFinanceira2RouteWithChildren
   ModelagemSimplificadaRoute: typeof ModelagemSimplificadaRouteWithChildren
+  ModelagemSimplificada3Route: typeof ModelagemSimplificada3Route
   OrcamentoRoute: typeof OrcamentoRouteWithChildren
   PlanejamentoRoute: typeof PlanejamentoRouteWithChildren
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -738,6 +751,13 @@ declare module '@tanstack/react-router' {
       path: '/orcamento'
       fullPath: '/orcamento'
       preLoaderRoute: typeof OrcamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modelagem-simplificada-3': {
+      id: '/modelagem-simplificada-3'
+      path: '/modelagem-simplificada-3'
+      fullPath: '/modelagem-simplificada-3'
+      preLoaderRoute: typeof ModelagemSimplificada3RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/modelagem-simplificada': {
@@ -1183,6 +1203,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndicesRoute: IndicesRoute,
   ModelagemFinanceira2Route: ModelagemFinanceira2RouteWithChildren,
   ModelagemSimplificadaRoute: ModelagemSimplificadaRouteWithChildren,
+  ModelagemSimplificada3Route: ModelagemSimplificada3Route,
   OrcamentoRoute: OrcamentoRouteWithChildren,
   PlanejamentoRoute: PlanejamentoRouteWithChildren,
   PrivacidadeRoute: PrivacidadeRoute,

@@ -70,6 +70,7 @@ const MODELAGEM: MenuItem[] = [
 const MODELAGEM_SIMPLIFICADA: SubItem[] = [
   { title: "Modelagem Simplificada 1", url: "/modelagem-simplificada", icon: Zap, apenasCompleta: false },
   { title: "Modelagem Simplificada 2", url: "/modelagem-financeira-2", icon: LayoutDashboard, apenasCompleta: false },
+  { title: "Modelagem Simplificada 3", url: "/modelagem-simplificada-3", icon: Calculator, apenasCompleta: false },
 ];
 
 const ORCAMENTO: SubItem[] = [
