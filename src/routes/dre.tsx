@@ -19,7 +19,6 @@ export const Route = createFileRoute("/dre")({
 function DrePage() {
   const { dados, empresa } = useSaga();
   if (!dados) return <><PageHeader titulo="DRE" /><EmptyState titulo="DRE indisponível" /></>;
-  const m = margens(dados);
   const moeda = empresa?.moeda ?? "R$";
   return (
     <div className="space-y-6">
