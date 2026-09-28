@@ -36,7 +36,7 @@ import { fmtPct, fmtMult, fmtNum, fmtPctTable, fmtMoney } from "@/lib/saga/forma
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { usePersistedState } from "@/hooks/use-persisted-state";
-import { safeDiv } from "@/lib/saga/calculations";
+import { safeDiv } from "@/lib/saga/formatters";
 import { InfoTooltip } from "@/components/saga/InfoTooltip";
 
 export const Route = createFileRoute("/indicadores")({
