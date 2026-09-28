@@ -1,3 +1,4 @@
+import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Upload, ArrowDownUp, AlertTriangle } from "lucide-react";
@@ -129,10 +130,10 @@ function FluxoReversoPage() {
   const { dados, empresa } = useSaga();
   const moeda = empresa?.moeda ?? "R$";
   const inputRef = useRef<HTMLInputElement>(null);
-  const [txs, setTxs] = useState<TransacaoOFX[] | null>(null);
-  const [arquivo, setArquivo] = useState("");
+  const [txs, setTxs] = usePersistedState<TransacaoOFX[] | null>("saga.fluxo-reverso.txs", null);
+  const [arquivo, setArquivo] = usePersistedState("saga.fluxo-reverso.arquivo", "");
   const [erro, setErro] = useState<string | null>(null);
-  const [ajustes, setAjustes] = useState<AjustesReversos>(() => {
+  const [ajustes, setAjustes] = usePersistedState<AjustesReversos>("saga.fluxo-reverso.ajustes", () => {
     if (!dados) return AJUSTES_ZERO;
     const i = dados.anos.length - 1;
     const b = dados.balanco;

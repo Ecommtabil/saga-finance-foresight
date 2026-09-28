@@ -1,3 +1,4 @@
+import { usePersistedState } from "@/hooks/use-persisted-state";
 import { Fragment, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Download, Upload, AlertTriangle, TrendingUp } from "lucide-react";
@@ -254,18 +255,18 @@ function DreVendasPage() {
   const { empresa } = useSaga();
   const moeda = empresa?.moeda ?? "R$";
 
-  const [vendas, setVendas] = useState<LinhaVenda[]>([]);
-  const [despesas, setDespesas] = useState<LinhaDespesaFixa[]>([]);
+  const [vendas, setVendas] = usePersistedState<LinhaVenda[]>("saga.dre-vendas.vendas", []);
+  const [despesas, setDespesas] = usePersistedState<LinhaDespesaFixa[]>("saga.dre-vendas.despesas", []);
   const [erro, setErro] = useState<string | null>(null);
 
-  const [selecionados, setSelecionados] = useState<string[]>([]);
-  const [modoBase, setModoBase] = useState<"soma" | "media">("soma");
-  const [cargaStr, setCargaStr] = useState("12,0");
-  const [qtdProj, setQtdProj] = useState(6);
-  const [rotuloProj, setRotuloProj] = useState("P");
-  const [crescimento, setCrescimento] = useState<GruposCrescimento>(CRESCIMENTO_PADRAO);
-  const [detalharFixas, setDetalharFixas] = useState(true);
-  const [modoDespesas, setModoDespesas] = useState<ModoDespesas>("auto");
+  const [selecionados, setSelecionados] = usePersistedState<string[]>("saga.dre-vendas.selecionados", []);
+  const [modoBase, setModoBase] = usePersistedState<"soma" | "media">("saga.dre-vendas.modoBase", "soma");
+  const [cargaStr, setCargaStr] = usePersistedState("saga.dre-vendas.cargaStr", "12,0");
+  const [qtdProj, setQtdProj] = usePersistedState("saga.dre-vendas.qtdProj", 6);
+  const [rotuloProj, setRotuloProj] = usePersistedState("saga.dre-vendas.rotuloProj", "P");
+  const [crescimento, setCrescimento] = usePersistedState<GruposCrescimento>("saga.dre-vendas.crescimento", CRESCIMENTO_PADRAO);
+  const [detalharFixas, setDetalharFixas] = usePersistedState("saga.dre-vendas.detalharFixas", true);
+  const [modoDespesas, setModoDespesas] = usePersistedState<ModoDespesas>("saga.dre-vendas.modoDespesas", "auto");
   const [dimensao, setDimensao] = useState<DimensaoProduto>("produto");
   const [foco, setFoco] = useState<string | null>(null);
 
