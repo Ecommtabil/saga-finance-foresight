@@ -3,6 +3,9 @@ import { useState } from "react";
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
+  ReferenceLine,
   XAxis,
   YAxis,
   Tooltip,
@@ -29,7 +32,12 @@ import {
   cicloCaixa,
   crescimento,
 } from "@/lib/saga/calculations";
-import { fmtPct, fmtMult, fmtNum, fmtPctTable } from "@/lib/saga/formatters";
+import { fmtPct, fmtMult, fmtNum, fmtPctTable, fmtMoney } from "@/lib/saga/formatters";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { usePersistedState } from "@/hooks/use-persisted-state";
+import { safeDiv } from "@/lib/saga/calculations";
+import { InfoTooltip } from "@/components/saga/InfoTooltip";
 
 export const Route = createFileRoute("/indicadores")({
   head: () => ({
