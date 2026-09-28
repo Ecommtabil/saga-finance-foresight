@@ -3,7 +3,6 @@ import { PageHeader } from "@/components/saga/PageHeader";
 import { EmptyState } from "@/components/saga/EmptyState";
 import { FinancialTable } from "@/components/saga/FinancialTable";
 import { useSaga } from "@/lib/saga/context";
-import { margens } from "@/lib/saga/calculations";
 
 export const Route = createFileRoute("/dre")({
   head: () => ({
@@ -20,7 +19,6 @@ export const Route = createFileRoute("/dre")({
 function DrePage() {
   const { dados, empresa } = useSaga();
   if (!dados) return <><PageHeader titulo="DRE" /><EmptyState titulo="DRE indisponível" /></>;
-  const m = margens(dados);
   const moeda = empresa?.moeda ?? "R$";
   return (
     <div className="space-y-6">
@@ -47,19 +45,6 @@ function DrePage() {
           { label: "= Lucro Líquido", values: dados.dre.lucroLiquido, bold: true },
         ]}
       />
-      <div>
-        <h2 className="mb-3 text-lg font-semibold">Margens</h2>
-        <FinancialTable
-          anos={dados.anos}
-          moeda="%"
-          rows={[
-            { label: "Margem Bruta", values: m.bruta, isPct: true },
-            { label: "Margem EBITDA", values: m.ebitda, isPct: true },
-            { label: "Margem Operacional", values: m.operacional, isPct: true },
-            { label: "Margem Líquida", values: m.liquida, isPct: true, bold: true },
-          ]}
-        />
-      </div>
     </div>
   );
 }
