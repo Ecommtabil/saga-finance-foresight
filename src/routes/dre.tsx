@@ -3,7 +3,6 @@ import { PageHeader } from "@/components/saga/PageHeader";
 import { EmptyState } from "@/components/saga/EmptyState";
 import { FinancialTable } from "@/components/saga/FinancialTable";
 import { useSaga } from "@/lib/saga/context";
-import { margens } from "@/lib/saga/calculations";
 
 export const Route = createFileRoute("/dre")({
   head: () => ({
