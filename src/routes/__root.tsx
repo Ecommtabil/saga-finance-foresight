@@ -149,7 +149,7 @@ function RootComponent() {
                       : "SAGA · Análise e Avaliação de Empresas"}
                 </span>
                 <div className="ml-auto flex items-center gap-1">
-                  {!isolado && <ProjectActions />}
+                  <ProjectActions />
                   <ContaMenu />
                 </div>
               </header>
