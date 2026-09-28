@@ -18,6 +18,7 @@ import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/saga/AppSidebar";
 import { ProjectActions } from "../components/saga/ProjectActions";
 import { ContaMenu } from "../components/saga/ContaMenu";
+import { Toaster } from "../components/ui/sonner";
 
 initSentry();
 
@@ -159,6 +160,7 @@ function RootComponent() {
             </div>
           </div>
         </SidebarProvider>
+        <Toaster richColors />
       </SagaProvider>
     </QueryClientProvider>
   );
