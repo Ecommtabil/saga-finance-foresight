@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { DadosImportados, Empresa, Modo, Premissas } from "./types";
 import type { DatasetEstatistico } from "./stats";
 
@@ -67,6 +67,19 @@ export function SagaProvider({ children }: { children: ReactNode }) {
     setDados(p.dados ?? null);
     setStatsDataset(p.statsDataset ?? null);
   };
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("saga.nuvem.pendente");
+      if (!raw) return;
+      sessionStorage.removeItem("saga.nuvem.pendente");
+      const p = JSON.parse(raw) as ProjetoSaga | null;
+      if (p) carregarProjeto(p);
+    } catch {
+      /* ignora */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Ctx.Provider

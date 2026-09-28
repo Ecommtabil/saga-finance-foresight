@@ -17,6 +17,7 @@ import { SagaProvider } from "../lib/saga/context";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/saga/AppSidebar";
 import { ProjectActions } from "../components/saga/ProjectActions";
+import { ContaMenu } from "../components/saga/ContaMenu";
 
 initSentry();
 
@@ -147,11 +148,10 @@ function RootComponent() {
                       ? "SAGA · Orçamento (dados isolados)"
                       : "SAGA · Análise e Avaliação de Empresas"}
                 </span>
-                {!isolado && (
-                  <div className="ml-auto">
-                    <ProjectActions />
-                  </div>
-                )}
+                <div className="ml-auto flex items-center gap-1">
+                  {!isolado && <ProjectActions />}
+                  <ContaMenu />
+                </div>
               </header>
               <main className="flex-1 overflow-auto p-6">
                 <Outlet />
