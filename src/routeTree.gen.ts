@@ -13,6 +13,7 @@ import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SimuladoresRouteImport } from './routes/simuladores'
+import { Route as ProjetosRouteImport } from './routes/projetos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
@@ -30,6 +31,7 @@ import { Route as DreRouteImport } from './routes/dre'
 import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as BalancoRouteImport } from './routes/balanco'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlanejamentoIndexRouteImport } from './routes/planejamento.index'
 import { Route as OrcamentoIndexRouteImport } from './routes/orcamento.index'
@@ -81,6 +83,11 @@ const TermosRoute = TermosRouteImport.update({
 const SimuladoresRoute = SimuladoresRouteImport.update({
   id: '/simuladores',
   path: '/simuladores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjetosRoute = ProjetosRouteImport.update({
+  id: '/projetos',
+  path: '/projetos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
@@ -166,6 +173,11 @@ const DcfExplicadoRoute = DcfExplicadoRouteImport.update({
 const BalancoRoute = BalancoRouteImport.update({
   id: '/balanco',
   path: '/balanco',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -353,6 +365,7 @@ const ModelagemFinanceira2RelatoriosBalancoModeloIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/balanco': typeof BalancoRoute
   '/dcf-explicado': typeof DcfExplicadoRoute
   '/diagnostico': typeof DiagnosticoRoute
@@ -370,6 +383,7 @@ export interface FileRoutesByFullPath {
   '/orcamento': typeof OrcamentoRouteWithChildren
   '/planejamento': typeof PlanejamentoRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
+  '/projetos': typeof ProjetosRoute
   '/simuladores': typeof SimuladoresRoute
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
@@ -408,6 +422,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/balanco': typeof BalancoRoute
   '/dcf-explicado': typeof DcfExplicadoRoute
   '/diagnostico': typeof DiagnosticoRoute
@@ -421,6 +436,7 @@ export interface FileRoutesByTo {
   '/indices': typeof IndicesRoute
   '/modelagem-simplificada-3': typeof ModelagemSimplificada3Route
   '/privacidade': typeof PrivacidadeRoute
+  '/projetos': typeof ProjetosRoute
   '/simuladores': typeof SimuladoresRoute
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
@@ -460,6 +476,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/balanco': typeof BalancoRoute
   '/dcf-explicado': typeof DcfExplicadoRoute
   '/diagnostico': typeof DiagnosticoRoute
@@ -477,6 +494,7 @@ export interface FileRoutesById {
   '/orcamento': typeof OrcamentoRouteWithChildren
   '/planejamento': typeof PlanejamentoRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
+  '/projetos': typeof ProjetosRoute
   '/simuladores': typeof SimuladoresRoute
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
@@ -517,6 +535,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/balanco'
     | '/dcf-explicado'
     | '/diagnostico'
@@ -534,6 +553,7 @@ export interface FileRouteTypes {
     | '/orcamento'
     | '/planejamento'
     | '/privacidade'
+    | '/projetos'
     | '/simuladores'
     | '/termos'
     | '/upload'
@@ -572,6 +592,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/balanco'
     | '/dcf-explicado'
     | '/diagnostico'
@@ -585,6 +606,7 @@ export interface FileRouteTypes {
     | '/indices'
     | '/modelagem-simplificada-3'
     | '/privacidade'
+    | '/projetos'
     | '/simuladores'
     | '/termos'
     | '/upload'
@@ -623,6 +645,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/balanco'
     | '/dcf-explicado'
     | '/diagnostico'
@@ -640,6 +663,7 @@ export interface FileRouteTypes {
     | '/orcamento'
     | '/planejamento'
     | '/privacidade'
+    | '/projetos'
     | '/simuladores'
     | '/termos'
     | '/upload'
@@ -679,6 +703,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   BalancoRoute: typeof BalancoRoute
   DcfExplicadoRoute: typeof DcfExplicadoRoute
   DiagnosticoRoute: typeof DiagnosticoRoute
@@ -696,6 +721,7 @@ export interface RootRouteChildren {
   OrcamentoRoute: typeof OrcamentoRouteWithChildren
   PlanejamentoRoute: typeof PlanejamentoRouteWithChildren
   PrivacidadeRoute: typeof PrivacidadeRoute
+  ProjetosRoute: typeof ProjetosRoute
   SimuladoresRoute: typeof SimuladoresRoute
   TermosRoute: typeof TermosRoute
   UploadRoute: typeof UploadRoute
@@ -730,6 +756,13 @@ declare module '@tanstack/react-router' {
       path: '/simuladores'
       fullPath: '/simuladores'
       preLoaderRoute: typeof SimuladoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projetos': {
+      id: '/projetos'
+      path: '/projetos'
+      fullPath: '/projetos'
+      preLoaderRoute: typeof ProjetosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidade': {
@@ -849,6 +882,13 @@ declare module '@tanstack/react-router' {
       path: '/balanco'
       fullPath: '/balanco'
       preLoaderRoute: typeof BalancoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1190,6 +1230,7 @@ const PlanejamentoRouteWithChildren = PlanejamentoRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   BalancoRoute: BalancoRoute,
   DcfExplicadoRoute: DcfExplicadoRoute,
   DiagnosticoRoute: DiagnosticoRoute,
@@ -1207,6 +1248,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrcamentoRoute: OrcamentoRouteWithChildren,
   PlanejamentoRoute: PlanejamentoRouteWithChildren,
   PrivacidadeRoute: PrivacidadeRoute,
+  ProjetosRoute: ProjetosRoute,
   SimuladoresRoute: SimuladoresRoute,
   TermosRoute: TermosRoute,
   UploadRoute: UploadRoute,
