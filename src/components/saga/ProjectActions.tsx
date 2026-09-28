@@ -1,64 +1,87 @@
-import { useRef } from "react";
-import { Save, FolderOpen } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, ChevronDown, FolderKanban, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useSaga, type ProjetoSaga } from "@/lib/saga/context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  criarProjeto,
+  excluirProjeto,
+  lerEstado,
+  renomearProjeto,
+  trocarProjeto,
+  type Workspace,
+} from "@/lib/workspaces";
 
-function slug(s: string) {
-  return (s || "projeto")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .toLowerCase();
-}
-
+/** Seletor de projetos (trabalhos): cada projeto guarda todos os dados de forma independente. */
 export function ProjectActions() {
-  const { empresa, exportarProjeto, carregarProjeto } = useSaga();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [projetos, setProjetos] = useState<Workspace[]>([]);
+  const [ativoId, setAtivoId] = useState("");
 
-  const salvar = () => {
-    const projeto = exportarProjeto();
-    const blob = new Blob([JSON.stringify(projeto, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `saga-${slug(empresa?.nome ?? "")}-${new Date().toISOString().slice(0, 10)}.saga.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const atualizar = () => {
+    const e = lerEstado();
+    setProjetos(e.projetos);
+    setAtivoId(e.ativoId);
   };
+  useEffect(atualizar, []);
 
-  const abrir = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    try {
-      const projeto = JSON.parse(await file.text()) as ProjetoSaga;
-      if (!projeto || typeof projeto !== "object" || !("versao" in projeto)) {
-        throw new Error("formato");
-      }
-      carregarProjeto(projeto);
-    } catch {
-      alert("Arquivo de projeto inválido. Selecione um arquivo .saga.json salvo pelo SAGA.");
-    }
-  };
+  const ativo = projetos.find((p) => p.id === ativoId);
 
   return (
-    <div className="flex items-center gap-1">
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".json,application/json"
-        className="hidden"
-        onChange={abrir}
-      />
-      <Button variant="ghost" size="sm" onClick={() => inputRef.current?.click()}>
-        <FolderOpen className="h-4 w-4" />
-        <span className="hidden sm:inline">Abrir projeto</span>
-      </Button>
-      <Button variant="outline" size="sm" onClick={salvar}>
-        <Save className="h-4 w-4" />
-        <span className="hidden sm:inline">Salvar projeto</span>
-      </Button>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="max-w-[220px]">
+          <FolderKanban className="h-4 w-4" />
+          <span className="truncate">{ativo?.nome ?? "Projeto"}</span>
+          <ChevronDown className="h-3 w-3 opacity-60" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuLabel>Meus trabalhos</DropdownMenuLabel>
+        {projetos.map((p) => (
+          <DropdownMenuItem key={p.id} onSelect={() => trocarProjeto(p.id)}>
+            <Check className={`h-4 w-4 ${p.id === ativoId ? "opacity-100" : "opacity-0"}`} />
+            <span className="truncate">{p.nome}</span>
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={() => {
+            const nome = prompt("Nome do novo projeto:", `Projeto ${projetos.length + 1}`);
+            if (nome !== null) criarProjeto(nome);
+          }}
+        >
+          <Plus className="h-4 w-4" /> Novo projeto
+        </DropdownMenuItem>
+        {ativo && (
+          <DropdownMenuItem
+            onSelect={() => {
+              const nome = prompt("Renomear projeto:", ativo.nome);
+              if (nome?.trim()) {
+                renomearProjeto(ativo.id, nome.trim());
+                atualizar();
+              }
+            }}
+          >
+            <Pencil className="h-4 w-4" /> Renomear atual
+          </DropdownMenuItem>
+        )}
+        {ativo && projetos.length > 1 && (
+          <DropdownMenuItem
+            className="text-destructive"
+            onSelect={() => {
+              if (confirm(`Excluir "${ativo.nome}" e todos os seus dados?`)) excluirProjeto(ativo.id);
+            }}
+          >
+            <Trash2 className="h-4 w-4" /> Excluir atual
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
