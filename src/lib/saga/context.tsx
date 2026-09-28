@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { DadosImportados, Empresa, Modo, Premissas } from "./types";
 import type { DatasetEstatistico } from "./stats";
@@ -95,7 +96,7 @@ export function SagaProvider({ children }: { children: ReactNode }) {
         JSON.stringify({ versao: 1, salvoEm: new Date().toISOString(), modo, empresa, dados, statsDataset }),
       );
     } catch {
-      /* limite de espaço */
+      toast.error("Não foi possível salvar os dados neste navegador (espaço cheio). Exclua projetos antigos.");
     }
   }, [carregado, modo, empresa, dados, statsDataset]);
 
