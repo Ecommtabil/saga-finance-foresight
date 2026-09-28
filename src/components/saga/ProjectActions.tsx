@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { Check, ChevronDown, FolderKanban, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,8 +39,40 @@ export function ProjectActions() {
   useEffect(atualizar, []);
 
   const ativo = projetos.find((p) => p.id === ativoId);
+  const [modo, setModo] = useState<null | "novo" | "renomear">(null);
+  const [nome, setNome] = useState("");
+
+  const confirmar = () => {
+    const n = nome.trim();
+    if (modo === "novo") {
+      setModo(null);
+      setTimeout(() => criarProjeto(n), 0);
+    } else if (modo === "renomear" && ativo && n) {
+      renomearProjeto(ativo.id, n);
+      atualizar();
+      setModo(null);
+    }
+  };
 
   return (
+    <>
+    <Dialog open={modo !== null} onOpenChange={(o) => !o && setModo(null)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{modo === "novo" ? "Novo projeto" : "Renomear projeto"}</DialogTitle>
+        </DialogHeader>
+        <Input
+          autoFocus
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && confirmar()}
+        />
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setModo(null)}>Cancelar</Button>
+          <Button onClick={confirmar}>{modo === "novo" ? "Criar" : "Salvar"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="max-w-[220px]">
@@ -52,8 +92,8 @@ export function ProjectActions() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => {
-            const nome = prompt("Nome do novo projeto:", `Projeto ${projetos.length + 1}`);
-            if (nome !== null) criarProjeto(nome);
+            setNome(`Projeto ${projetos.length + 1}`);
+            setModo("novo");
           }}
         >
           <Plus className="h-4 w-4" /> Novo projeto
@@ -61,11 +101,8 @@ export function ProjectActions() {
         {ativo && (
           <DropdownMenuItem
             onSelect={() => {
-              const nome = prompt("Renomear projeto:", ativo.nome);
-              if (nome?.trim()) {
-                renomearProjeto(ativo.id, nome.trim());
-                atualizar();
-              }
+              setNome(ativo.nome);
+              setModo("renomear");
             }}
           >
             <Pencil className="h-4 w-4" /> Renomear atual
@@ -83,5 +120,6 @@ export function ProjectActions() {
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+    </>
   );
 }
