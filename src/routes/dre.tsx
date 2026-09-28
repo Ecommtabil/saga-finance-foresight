@@ -47,19 +47,6 @@ function DrePage() {
           { label: "= Lucro Líquido", values: dados.dre.lucroLiquido, bold: true },
         ]}
       />
-      <div>
-        <h2 className="mb-3 text-lg font-semibold">Margens</h2>
-        <FinancialTable
-          anos={dados.anos}
-          moeda="%"
-          rows={[
-            { label: "Margem Bruta", values: m.bruta, isPct: true },
-            { label: "Margem EBITDA", values: m.ebitda, isPct: true },
-            { label: "Margem Operacional", values: m.operacional, isPct: true },
-            { label: "Margem Líquida", values: m.liquida, isPct: true, bold: true },
-          ]}
-        />
-      </div>
     </div>
   );
 }
