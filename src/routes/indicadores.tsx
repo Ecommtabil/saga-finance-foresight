@@ -3,6 +3,9 @@ import { useState } from "react";
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
+  ReferenceLine,
   XAxis,
   YAxis,
   Tooltip,
@@ -29,7 +32,12 @@ import {
   cicloCaixa,
   crescimento,
 } from "@/lib/saga/calculations";
-import { fmtPct, fmtMult, fmtNum, fmtPctTable } from "@/lib/saga/formatters";
+import { fmtPct, fmtMult, fmtNum, fmtPctTable, fmtMoney } from "@/lib/saga/formatters";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { usePersistedState } from "@/hooks/use-persisted-state";
+import { safeDiv } from "@/lib/saga/formatters";
+import { InfoTooltip } from "@/components/saga/InfoTooltip";
 
 export const Route = createFileRoute("/indicadores")({
   head: () => ({
@@ -143,6 +151,157 @@ function ChartCard({
   );
 }
 
+function parseNum(v: string): number {
+  const n = Number(v.replace(/\./g, "").replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types").DadosImportados; anoIdx: number }) {
+  const [ticketMedio, setTicketMedio] = usePersistedState<string>("saga.mc.ticketMedio", "");
+  const [potencial, setPotencial] = usePersistedState<string>("saga.mc.potencialVendas", "");
+
+  const rl = dados.dre.receitaLiquida[anoIdx] ?? 0;
+  const cmv = dados.dre.cmv[anoIdx] ?? 0;
+  const despFixas = dados.dre.despOperacionais[anoIdx] ?? 0;
+
+  // Premissa simplificada: CMV/CPV é o custo variável; despesas operacionais são fixas.
+  const mc = rl - cmv;
+  const mcPct = safeDiv(mc, rl);
+  const peValor = mcPct > 0 ? despFixas / mcPct : 0;
+
+  const ticket = parseNum(ticketMedio);
+  const pot = parseNum(potencial);
+  const peUnidades = ticket > 0 ? peValor / ticket : 0;
+  const receitaPotencial = ticket > 0 && pot > 0 ? ticket * pot : 0;
+  const margemSeguranca = peValor > 0 ? (rl - peValor) / rl : 0;
+  const cobertura = peValor > 0 ? rl / peValor : 0;
+
+  const chartData = dados.anos.map((a, i) => {
+    const r = dados.dre.receitaLiquida[i] ?? 0;
+    const mcp = safeDiv(r - (dados.dre.cmv[i] ?? 0), r);
+    const pe = mcp > 0 ? (dados.dre.despOperacionais[i] ?? 0) / mcp : 0;
+    return { ano: a, Receita: r, "Ponto de equilíbrio": pe };
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <h2 className="text-lg font-semibold">Margem de Contribuição e Ponto de Equilíbrio</h2>
+        <InfoTooltip text="Premissa simplificada: o CMV/CPV é tratado como custo variável e as despesas operacionais como fixas. Margem de contribuição = Receita líquida − CMV. Ponto de equilíbrio = Despesas fixas ÷ Margem de contribuição (%)." />
+      </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Entradas simplificadas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="ticket" className="flex items-center gap-1.5">
+                Ticket médio (R$)
+                <InfoTooltip text="Valor médio de cada venda. Usado para converter o ponto de equilíbrio em unidades." />
+              </Label>
+              <Input
+                id="ticket"
+                inputMode="decimal"
+                placeholder="Ex.: 250,00"
+                value={ticketMedio}
+                onChange={(e) => setTicketMedio(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="potencial" className="flex items-center gap-1.5">
+                Potencial de vendas (unidades/ano)
+                <InfoTooltip text="Quantidade de vendas que a empresa consegue realizar no ano. Combinado ao ticket médio, gera a receita potencial." />
+              </Label>
+              <Input
+                id="potencial"
+                inputMode="numeric"
+                placeholder="Ex.: 5.000"
+                value={potencial}
+                onChange={(e) => setPotencial(e.target.value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <Kpi titulo="Margem de Contribuição" valor={fmtMoney(mc)} sub={`${fmtPct(mcPct)} da receita líquida`} />
+        <Kpi
+          titulo="Ponto de Equilíbrio"
+          valor={fmtMoney(peValor)}
+          sub={ticket > 0 ? `${fmtNum(peUnidades, 0)} unidades/ano` : "Informe o ticket médio para ver em unidades"}
+        />
+        <Kpi
+          titulo="Margem de Segurança"
+          valor={fmtPct(margemSeguranca)}
+          sub={margemSeguranca >= 0 ? "Receita acima do equilíbrio" : "Receita abaixo do equilíbrio"}
+        />
+        <Kpi
+          titulo="Receita Potencial"
+          valor={receitaPotencial > 0 ? fmtMoney(receitaPotencial) : "—"}
+          sub={receitaPotencial > 0 ? `Ticket × ${fmtNum(pot, 0)} unidades` : "Informe ticket e potencial"}
+        />
+      </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-1.5">
+            Receita líquida vs. ponto de equilíbrio
+            <InfoTooltip text="Barras: receita líquida de cada ano. Linha: ponto de equilíbrio. Quando a barra supera a linha, a empresa lucra; abaixo, opera com prejuízo." />
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-3">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Cobertura do ponto de equilíbrio ({dados.anos[anoIdx]})</span>
+              <span className="font-medium text-foreground">{fmtPct(cobertura)}</span>
+            </div>
+            <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className={`h-full rounded-full transition-all ${cobertura >= 1 ? "bg-emerald-500" : "bg-red-500"}`}
+                style={{ width: `${Math.min(100, Math.max(0, cobertura * 100))}%` }}
+              />
+            </div>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 12, right: 16, left: -12, bottom: 0 }}>
+                <CartesianGrid vertical={false} stroke="var(--border)" strokeOpacity={0.6} />
+                <XAxis dataKey="ano" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} tickMargin={8} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} tickMargin={4} tickFormatter={(v: number) => fmtNum(v, 1)} />
+                <Tooltip
+                  cursor={{ fill: "var(--muted)", fillOpacity: 0.4 }}
+                  contentStyle={{
+                    background: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 10,
+                    boxShadow: "0 8px 24px -12px rgba(0,0,0,0.18)",
+                    fontSize: 12,
+                  }}
+                  formatter={(v: number) => fmtMoney(v)}
+                />
+                <Legend iconType="plainline" wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                <Bar dataKey="Receita" fill="var(--chart-1)" radius={[6, 6, 0, 0]} maxBarSize={56} />
+                <Bar dataKey="Ponto de equilíbrio" fill="var(--chart-3)" radius={[6, 6, 0, 0]} maxBarSize={56} />
+                {receitaPotencial > 0 && (
+                  <ReferenceLine
+                    y={receitaPotencial}
+                    stroke="var(--chart-2)"
+                    strokeDasharray="6 4"
+                    label={{ value: "Potencial", position: "insideTopRight", fontSize: 11, fill: "var(--chart-2)" }}
+                  />
+                )}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 function IndicadoresPage() {
   const { dados, modo } = useSaga();
   const [anoBase, setAnoBase] = useState<number | null>(null);
@@ -249,6 +408,8 @@ function IndicadoresPage() {
           />
         )}
       </div>
+
+      <MargemContribuicao dados={dados} anoIdx={last} />
 
       {modo === "completa" && liq && end && (
         <div className="grid gap-3 md:grid-cols-4">
