@@ -27,6 +27,7 @@ interface SagaState {
 }
 
 const Ctx = createContext<SagaState | null>(null);
+const AUTOSAVE_KEY = "saga.principal.v1";
 
 export function SagaProvider({ children }: { children: ReactNode }) {
   const [modo, setModoState] = useState<Modo | null>(null);
@@ -68,18 +69,35 @@ export function SagaProvider({ children }: { children: ReactNode }) {
     setStatsDataset(p.statsDataset ?? null);
   };
 
+  const [carregado, setCarregado] = useState(false);
+
+  // Restaura automaticamente o último trabalho (ou um projeto aberto da nuvem)
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem("saga.nuvem.pendente");
-      if (!raw) return;
-      sessionStorage.removeItem("saga.nuvem.pendente");
-      const p = JSON.parse(raw) as ProjetoSaga | null;
+      const pend = sessionStorage.getItem("saga.nuvem.pendente");
+      if (pend) sessionStorage.removeItem("saga.nuvem.pendente");
+      const raw = pend ?? localStorage.getItem(AUTOSAVE_KEY);
+      const p = raw ? (JSON.parse(raw) as ProjetoSaga | null) : null;
       if (p) carregarProjeto(p);
     } catch {
       /* ignora */
     }
+    setCarregado(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Salva automaticamente no aplicativo a cada alteração
+  useEffect(() => {
+    if (!carregado) return;
+    try {
+      localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({ versao: 1, salvoEm: new Date().toISOString(), modo, empresa, dados, statsDataset }),
+      );
+    } catch {
+      /* limite de espaço */
+    }
+  }, [carregado, modo, empresa, dados, statsDataset]);
 
   return (
     <Ctx.Provider
