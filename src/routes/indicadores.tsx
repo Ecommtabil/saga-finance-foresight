@@ -341,7 +341,7 @@ function IndicadoresPage() {
 
       <div className="grid gap-3 md:grid-cols-4">
         <Kpi titulo="Margem Líquida" valor={fmtPct(m.liquida[last])} sub="Ano base" />
-        <Kpi titulo="ROE" valor={fmtPct(rent.roe[last])} sub="Ano base" />
+        {rent && <Kpi titulo="ROE" valor={fmtPct(rent.roe[last])} sub="Ano base" />}
         <Kpi titulo="CAGR Receita" valor={fmtPct(cresc.cagrReceita)} sub={`${dados.anos[0]}–${dados.anos[4]}`} />
         <Kpi titulo="CAGR Lucro" valor={fmtPct(cresc.cagrLucro)} sub={`${dados.anos[0]}–${dados.anos[4]}`} />
       </div>
@@ -357,17 +357,19 @@ function IndicadoresPage() {
             { name: "M. Líquida", data: m.liquida, color: "var(--chart-3)" },
           ]}
         />
-        <ChartCard
-          titulo="Retornos (%)"
-          anos={dados.anos}
-          pct
-          series={[
-            { name: "ROE", data: rent.roe, color: "var(--chart-1)" },
-            { name: "ROA", data: rent.roa, color: "var(--chart-2)" },
-            { name: "ROIC", data: rent.roic, color: "var(--chart-4)" },
-          ]}
-        />
-        {modo === "completa" && liq && (
+        {rent && (
+          <ChartCard
+            titulo="Retornos (%)"
+            anos={dados.anos}
+            pct
+            series={[
+              { name: "ROE", data: rent.roe, color: "var(--chart-1)" },
+              { name: "ROA", data: rent.roa, color: "var(--chart-2)" },
+              { name: "ROIC", data: rent.roic, color: "var(--chart-4)" },
+            ]}
+          />
+        )}
+        {liq && (
           <ChartCard
             titulo="Liquidez (x)"
             anos={dados.anos}
