@@ -39,6 +39,7 @@ import { Label } from "@/components/ui/label";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { safeDiv } from "@/lib/saga/formatters";
 import { InfoTooltip } from "@/components/saga/InfoTooltip";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/indicadores")({
   head: () => ({
@@ -155,6 +156,119 @@ function ChartCard({
 function parseNum(v: string): number {
   const n = Number(v.replace(/\./g, "").replace(",", "."));
   return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+interface LinhaPE {
+  label: string;
+  real: number;
+  pe: number;
+  bold?: boolean;
+  indent?: boolean;
+  av?: number; // % sobre a receita líquida no PE
+}
+
+function DREPontoEquilibrio({
+  dados,
+  anoIdx,
+}: {
+  dados: import("@/lib/saga/types").DadosImportados;
+  anoIdx: number;
+}) {
+  const rl = dados.dre.receitaLiquida[anoIdx] ?? 0;
+  const bruta = dados.dre.receitaBruta[anoIdx] ?? 0;
+  const deducoes = dados.dre.deducoes[anoIdx] ?? 0;
+  const cmv = dados.dre.cmv[anoIdx] ?? 0;
+  const despFixas = dados.dre.despOperacionais[anoIdx] ?? 0;
+  const ano = dados.anos[anoIdx];
+
+  const mcPct = safeDiv(rl - cmv, rl);
+  const peValor = mcPct > 0 ? despFixas / mcPct : 0;
+  const fatorPE = rl > 0 ? peValor / rl : 0;
+
+  const linhas: LinhaPE[] = [
+    { label: "Receita Bruta", real: bruta, pe: bruta * fatorPE, av: safeDiv(bruta * fatorPE, peValor) },
+    {
+      label: "(-) Deduções",
+      real: deducoes,
+      pe: deducoes * fatorPE,
+      indent: true,
+      av: safeDiv(deducoes * fatorPE, peValor),
+    },
+    { label: "= Receita Líquida", real: rl, pe: peValor, bold: true, av: 1 },
+    {
+      label: "(-) Custos Variáveis (CMV)",
+      real: cmv,
+      pe: peValor * safeDiv(cmv, rl || 1),
+      indent: true,
+      av: safeDiv(cmv, rl),
+    },
+    {
+      label: "= Margem de Contribuição",
+      real: rl - cmv,
+      pe: despFixas,
+      bold: true,
+      av: mcPct,
+    },
+    {
+      label: "(-) Custos Fixos (Despesas Operacionais)",
+      real: despFixas,
+      pe: despFixas,
+      indent: true,
+      av: safeDiv(despFixas, peValor),
+    },
+    { label: "= Resultado (Lucro Operacional)", real: rl - cmv - despFixas, pe: 0, bold: true, av: 0 },
+  ];
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm flex items-center gap-1.5">
+          DRE do Ponto de Equilíbrio ({ano})
+          <InfoTooltip text="Mostra como ficaria a DRE no exato ponto de equilíbrio do ano selecionado: a receita cai ao nível em que a margem de contribuição cobre apenas os custos fixos e o resultado zera. A coluna Real traz a DRE importada, para comparar a folga (ou o déficit) de cada conta." />
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto rounded-lg border bg-card">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50">
+              <tr>
+                <th className="px-4 py-2 text-left font-semibold text-muted-foreground">Conta (R$)</th>
+                <th className="px-4 py-2 text-right font-semibold text-muted-foreground">Real {ano}</th>
+                <th className="px-4 py-2 text-right font-semibold text-muted-foreground">No Ponto de Equilíbrio</th>
+                <th className="px-4 py-2 text-right font-semibold text-muted-foreground">% da Receita (PE)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {linhas.map((l, i) => (
+                <tr
+                  key={l.label}
+                  className={cn(
+                    "border-t",
+                    l.bold && "bg-muted/30 font-semibold",
+                    i % 2 === 1 && !l.bold && "bg-muted/10",
+                  )}
+                >
+                  <td className={cn("px-4 py-2", l.indent && "pl-8")}>{l.label}</td>
+                  <td className="px-4 py-2 text-right tabular-nums">
+                    <span className={l.real < 0 ? "text-destructive" : undefined}>{fmtNum(l.real, 0)}</span>
+                  </td>
+                  <td className="px-4 py-2 text-right tabular-nums">{fmtNum(l.pe, 0)}</td>
+                  <td className="px-4 py-2 text-right text-xs tabular-nums text-muted-foreground">
+                    {l.av === undefined ? "—" : fmtPctTable(l.av)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {mcPct <= 0 && (
+          <p className="mt-2 text-xs text-destructive">
+            Não é possível calcular o ponto de equilíbrio neste ano: a margem de contribuição é nula ou negativa.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types").DadosImportados; anoIdx: number }) {
@@ -299,6 +413,8 @@ function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types
           </div>
         </CardContent>
       </Card>
+
+      <DREPontoEquilibrio dados={dados} anoIdx={anoIdx} />
     </div>
   );
 }
