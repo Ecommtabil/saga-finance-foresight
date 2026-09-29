@@ -413,6 +413,8 @@ function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types
           </div>
         </CardContent>
       </Card>
+
+      <DREPontoEquilibrio dados={dados} anoIdx={anoIdx} />
     </div>
   );
 }
