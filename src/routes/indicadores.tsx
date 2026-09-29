@@ -308,11 +308,12 @@ function IndicadoresPage() {
   const [anoBase, setAnoBase] = useState<number | null>(null);
   if (!dados) return <><PageHeader titulo="Indicadores" /><EmptyState titulo="Indicadores indisponíveis" /></>;
 
+  const completa = modo === "completa" && !!dados.balanco;
   const m = margens(dados);
-  const liq = indicadoresLiquidez(dados);
-  const end = indicadoresEndividamento(dados);
-  const rent = indicadoresRentabilidade(dados);
-  const ciclo = cicloCaixa(dados);
+  const liq = completa ? indicadoresLiquidez(dados) : null;
+  const end = completa ? indicadoresEndividamento(dados) : null;
+  const rent = completa ? indicadoresRentabilidade(dados) : null;
+  const ciclo = completa ? cicloCaixa(dados) : null;
   const cresc = crescimento(dados);
   const anoSel = anoBase ?? dados.anos[dados.anos.length - 1];
   const last = Math.max(0, dados.anos.indexOf(anoSel));
@@ -340,7 +341,7 @@ function IndicadoresPage() {
 
       <div className="grid gap-3 md:grid-cols-4">
         <Kpi titulo="Margem Líquida" valor={fmtPct(m.liquida[last])} sub="Ano base" />
-        <Kpi titulo="ROE" valor={fmtPct(rent.roe[last])} sub="Ano base" />
+        {rent && <Kpi titulo="ROE" valor={fmtPct(rent.roe[last])} sub="Ano base" />}
         <Kpi titulo="CAGR Receita" valor={fmtPct(cresc.cagrReceita)} sub={`${dados.anos[0]}–${dados.anos[4]}`} />
         <Kpi titulo="CAGR Lucro" valor={fmtPct(cresc.cagrLucro)} sub={`${dados.anos[0]}–${dados.anos[4]}`} />
       </div>
@@ -356,17 +357,19 @@ function IndicadoresPage() {
             { name: "M. Líquida", data: m.liquida, color: "var(--chart-3)" },
           ]}
         />
-        <ChartCard
-          titulo="Retornos (%)"
-          anos={dados.anos}
-          pct
-          series={[
-            { name: "ROE", data: rent.roe, color: "var(--chart-1)" },
-            { name: "ROA", data: rent.roa, color: "var(--chart-2)" },
-            { name: "ROIC", data: rent.roic, color: "var(--chart-4)" },
-          ]}
-        />
-        {modo === "completa" && liq && (
+        {rent && (
+          <ChartCard
+            titulo="Retornos (%)"
+            anos={dados.anos}
+            pct
+            series={[
+              { name: "ROE", data: rent.roe, color: "var(--chart-1)" },
+              { name: "ROA", data: rent.roa, color: "var(--chart-2)" },
+              { name: "ROIC", data: rent.roic, color: "var(--chart-4)" },
+            ]}
+          />
+        )}
+        {liq && (
           <ChartCard
             titulo="Liquidez (x)"
             anos={dados.anos}
@@ -377,7 +380,7 @@ function IndicadoresPage() {
             ]}
           />
         )}
-        {modo === "completa" && end && (
+        {end && (
           <ChartCard
             titulo="Endividamento"
             anos={dados.anos}
@@ -396,7 +399,7 @@ function IndicadoresPage() {
             { name: "Lucro", data: cresc.lucroYoY, color: "var(--chart-3)" },
           ]}
         />
-        {modo === "completa" && ciclo && (
+        {ciclo && (
           <ChartCard
             titulo="Ciclo de Caixa (dias)"
             anos={dados.anos}
@@ -426,7 +429,7 @@ function IndicadoresPage() {
 
       <MargemContribuicao dados={dados} anoIdx={last} />
 
-      {modo === "completa" && liq && end && (
+      {liq && end && (
         <div className="grid gap-3 md:grid-cols-4">
           <Kpi titulo="Liquidez Corrente" valor={fmtMult(liq.corrente[last])} />
           <Kpi titulo="Dívida / PL" valor={fmtMult(end.dividaSobrePL[last])} />
