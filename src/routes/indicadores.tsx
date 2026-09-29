@@ -308,11 +308,12 @@ function IndicadoresPage() {
   const [anoBase, setAnoBase] = useState<number | null>(null);
   if (!dados) return <><PageHeader titulo="Indicadores" /><EmptyState titulo="Indicadores indisponíveis" /></>;
 
+  const completa = modo === "completa" && !!dados.balanco;
   const m = margens(dados);
-  const liq = indicadoresLiquidez(dados);
-  const end = indicadoresEndividamento(dados);
-  const rent = indicadoresRentabilidade(dados);
-  const ciclo = cicloCaixa(dados);
+  const liq = completa ? indicadoresLiquidez(dados) : null;
+  const end = completa ? indicadoresEndividamento(dados) : null;
+  const rent = completa ? indicadoresRentabilidade(dados) : null;
+  const ciclo = completa ? cicloCaixa(dados) : null;
   const cresc = crescimento(dados);
   const anoSel = anoBase ?? dados.anos[dados.anos.length - 1];
   const last = Math.max(0, dados.anos.indexOf(anoSel));

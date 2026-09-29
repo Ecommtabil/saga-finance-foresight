@@ -61,10 +61,10 @@ const MODELAGEM: MenuItem[] = [
     ],
   },
   { title: "Indicadores", url: "/indicadores", icon: Gauge, apenasCompleta: false },
-  { title: "Diagnóstico", url: "/diagnostico", icon: Stethoscope, apenasCompleta: false },
-  { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: false },
-  { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: false },
-  { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: false },
+  { title: "Diagnóstico", url: "/diagnostico", icon: Stethoscope, apenasCompleta: true },
+  { title: "Valuation (DCF)", url: "/valuation", icon: Calculator, apenasCompleta: true },
+  { title: "DCF Explicado", url: "/dcf-explicado", icon: GraduationCap, apenasCompleta: true },
+  { title: "Simuladores", url: "/simuladores", icon: Sliders, apenasCompleta: true },
 ];
 
 const MODELAGEM_SIMPLIFICADA: SubItem[] = [
