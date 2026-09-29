@@ -232,7 +232,7 @@ function DREPontoEquilibrio({
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-2 text-left font-semibold text-muted-foreground">Conta ({dados.modo === "completa" ? "R$" : "R$"})</th>
+                <th className="px-4 py-2 text-left font-semibold text-muted-foreground">Conta (R$)</th>
                 <th className="px-4 py-2 text-right font-semibold text-muted-foreground">Real {ano}</th>
                 <th className="px-4 py-2 text-right font-semibold text-muted-foreground">No Ponto de Equilíbrio</th>
                 <th className="px-4 py-2 text-right font-semibold text-muted-foreground">% da Receita (PE)</th>
