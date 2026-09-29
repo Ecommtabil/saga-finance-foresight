@@ -380,7 +380,7 @@ function IndicadoresPage() {
             ]}
           />
         )}
-        {modo === "completa" && end && (
+        {end && (
           <ChartCard
             titulo="Endividamento"
             anos={dados.anos}
@@ -399,7 +399,7 @@ function IndicadoresPage() {
             { name: "Lucro", data: cresc.lucroYoY, color: "var(--chart-3)" },
           ]}
         />
-        {modo === "completa" && ciclo && (
+        {ciclo && (
           <ChartCard
             titulo="Ciclo de Caixa (dias)"
             anos={dados.anos}
@@ -429,7 +429,7 @@ function IndicadoresPage() {
 
       <MargemContribuicao dados={dados} anoIdx={last} />
 
-      {modo === "completa" && liq && end && (
+      {liq && end && (
         <div className="grid gap-3 md:grid-cols-4">
           <Kpi titulo="Liquidez Corrente" valor={fmtMult(liq.corrente[last])} />
           <Kpi titulo="Dívida / PL" valor={fmtMult(end.dividaSobrePL[last])} />
