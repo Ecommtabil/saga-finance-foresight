@@ -176,9 +176,9 @@ function DREPontoEquilibrio({
 }) {
   const rl = dados.dre.receitaLiquida[anoIdx] ?? 0;
   const bruta = dados.dre.receitaBruta[anoIdx] ?? 0;
-  const deducoes = dados.dre.deducoes[anoIdx] ?? 0;
-  const cmv = dados.dre.cmv[anoIdx] ?? 0;
-  const despFixas = dados.dre.despOperacionais[anoIdx] ?? 0;
+  const deducoes = Math.abs(dados.dre.deducoes[anoIdx] ?? 0);
+  const cmv = Math.abs(dados.dre.cmv[anoIdx] ?? 0);
+  const despFixas = Math.abs(dados.dre.despOperacionais[anoIdx] ?? 0);
   const ano = dados.anos[anoIdx];
 
   const mcPct = safeDiv(rl - cmv, rl);
@@ -276,8 +276,8 @@ function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types
   const [potencial, setPotencial] = usePersistedState<string>("saga.mc.potencialVendas", "");
 
   const rl = dados.dre.receitaLiquida[anoIdx] ?? 0;
-  const cmv = dados.dre.cmv[anoIdx] ?? 0;
-  const despFixas = dados.dre.despOperacionais[anoIdx] ?? 0;
+  const cmv = Math.abs(dados.dre.cmv[anoIdx] ?? 0);
+  const despFixas = Math.abs(dados.dre.despOperacionais[anoIdx] ?? 0);
 
   // Premissa simplificada: CMV/CPV é o custo variável; despesas operacionais são fixas.
   const mc = rl - cmv;
@@ -293,8 +293,8 @@ function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types
 
   const chartData = dados.anos.map((a, i) => {
     const r = dados.dre.receitaLiquida[i] ?? 0;
-    const mcp = safeDiv(r - (dados.dre.cmv[i] ?? 0), r);
-    const pe = mcp > 0 ? (dados.dre.despOperacionais[i] ?? 0) / mcp : 0;
+    const mcp = safeDiv(r - Math.abs(dados.dre.cmv[i] ?? 0), r);
+    const pe = mcp > 0 ? Math.abs(dados.dre.despOperacionais[i] ?? 0) / mcp : 0;
     return { ano: a, Receita: r, "Ponto de equilíbrio": pe };
   });
 
