@@ -19,6 +19,8 @@ import { Demonstrativos } from "@/components/pob/Demonstrativos";
 import { calcularProjecaoPOB, rotulosMeses, sazonalidadeDe, vendasBase } from "@/lib/pob/projecao";
 import { fmtMoney, fmtNum } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
+import { Download } from "lucide-react";
+import { exportarXlsx } from "@/lib/pob/export-xlsx";
 
 export const Route = createFileRoute("/planejamento/projecao")({
   head: () => ({
@@ -133,16 +135,43 @@ function ProjecaoPage() {
           <TabsTrigger value="demonstrativos">Demonstrativos</TabsTrigger>
         </TabsList>
         <TabsContent value="demonstrativos">
-          <Demonstrativos parametros={p} meses={meses} moeda={moeda} onAbertura={(abertura) => atualizar({ parametros: { ...p, abertura } })} />
+          <Demonstrativos nomeCenario={cenario.nome} parametros={p} meses={meses} moeda={moeda} onAbertura={(abertura) => atualizar({ parametros: { ...p, abertura } })} />
         </TabsContent>
         <TabsContent value="operacional">
       <Card>
         <CardHeader>
-          <CardTitle>Projeção Orçamentária</CardTitle>
-          <CardDescription>12 meses calculados em cadeia a partir das Premissas do modelo.</CardDescription>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="space-y-1.5">
+              <CardTitle>Projeção Orçamentária</CardTitle>
+              <CardDescription>12 meses calculados em cadeia a partir das Premissas do modelo.</CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                exportarXlsx(`Projecao ${cenario.nome}`, [
+                  {
+                    nome: "Projeção",
+                    linhas: [
+                      ["Conta", ...meses, "Total"],
+                      ...proj.blocos.flatMap((b) => [
+                        [b.bloco.toUpperCase()],
+                        ...b.linhas.map((l) => {
+                          const somavel = !/estoque|capacidade|saldo|preço|necessidade/i.test(l.rotulo);
+                          return [l.rotulo, ...l.valores, somavel ? l.valores.reduce((a, v) => a + v, 0) : null];
+                        }),
+                      ]),
+                    ],
+                  },
+                ])
+              }
+            >
+              <Download className="mr-1.5 h-4 w-4" /> Exportar para Excel
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="max-h-[70vh] overflow-auto rounded-md border">
+          <div className="max-h-[70vh] overflow-auto overscroll-x-contain scroll-smooth rounded-md border [-webkit-overflow-scrolling:touch]">
             <table className="w-full text-xs tabular-nums">
               <thead className="sticky top-0 z-20 bg-card shadow-sm">
                 <tr>

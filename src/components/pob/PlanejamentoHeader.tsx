@@ -46,6 +46,16 @@ export function PlanejamentoHeader() {
             </SelectContent>
           </Select>
         </div>
+        <div className="min-w-[160px] flex-1 space-y-1">
+          <span className="text-xs font-medium text-muted-foreground">Renomear</span>
+          <Input
+            className="h-9"
+            maxLength={60}
+            value={cenario?.nome ?? ""}
+            onChange={(e) => atualizar({ nome: e.target.value })}
+            onBlur={(e) => !e.target.value.trim() && atualizar({ nome: "Cenário sem nome" })}
+          />
+        </div>
         <div className="w-24 space-y-1">
           <span className="text-xs font-medium text-muted-foreground">Ano</span>
           <Input
@@ -78,9 +88,10 @@ export function PlanejamentoHeader() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="h-9" onClick={() => cenario && duplicar(cenario.id)}>
-            <Copy className="mr-1.5 h-4 w-4" /> Duplicar
+            <Copy className="mr-1.5 h-4 w-4" /> Duplicar como novo
           </Button>
-          <Button variant="outline" size="sm" className="h-9" onClick={() => cenario && remover(cenario.id)}>
+          <Button variant="outline" size="sm" className="h-9" disabled={cenarios.length <= 1}
+            onClick={() => cenario && window.confirm(`Excluir o cenário "${cenario.nome}"?`) && remover(cenario.id)}>
             <Trash2 className="mr-1.5 h-4 w-4" /> Excluir
           </Button>
         </div>

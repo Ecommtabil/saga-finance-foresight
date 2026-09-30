@@ -10,6 +10,9 @@ import { usePlanejamento } from "@/lib/pob/store";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { fmtMoney, fmtNum, fmtPctTable } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
+import { Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { exportarXlsx } from "@/lib/pob/export-xlsx";
 
 type Realizado = { volume: string; preco: string; cv: string; cf: string };
 const VAZIO: Realizado = { volume: "", preco: "", cv: "", cf: "" };
@@ -131,11 +134,38 @@ export function PlanejamentoVariacao() {
         <>
           <Card>
             <CardHeader>
+              <div className="flex flex-wrap items-start justify-between gap-3">
               <CardTitle>Orçado x Realizado — {meses[mes]}</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  exportarXlsx(`Variacao ${cenario?.nome ?? ""} ${meses[mes].replace("/", "-")}`, [
+                    {
+                      nome: "Orçado x Realizado",
+                      linhas: [
+                        ["Linha", "Orçado", "Realizado", "Variação %", "Variação"],
+                        ...linhas.map((l) => [l.rotulo, l.orc, l.real, Math.abs(l.orc) > 0.004 ? (l.real - l.orc) / Math.abs(l.orc) : null, l.real - l.orc]),
+                      ],
+                    },
+                    {
+                      nome: "Decomposição",
+                      linhas: [
+                        ["Efeito", "Valor", "Fórmula"],
+                        ...efeitos.map((e) => [e.rotulo, e.valor, e.formula]),
+                        ["Variação total do lucro", total, "Soma dos efeitos"],
+                      ],
+                    },
+                  ])
+                }
+              >
+                <Download className="mr-1.5 h-4 w-4" /> Exportar para Excel
+              </Button>
+              </div>
               <CardDescription>Custos variáveis orçados incluem matéria-prima, mão de obra, custo indireto variável, impostos sobre vendas, propaganda e comissões; fixos incluem custos indiretos fixos, despesas fixas, depreciação e juros.</CardDescription>
             </CardHeader>
-            <CardContent className="overflow-x-auto">
-              <table className="w-full text-sm tabular-nums">
+            <CardContent className="overflow-x-auto overscroll-x-contain scroll-smooth [-webkit-overflow-scrolling:touch]">
+              <table className="w-full min-w-[560px] text-sm tabular-nums">
                 <thead className="text-muted-foreground">
                   <tr className="border-b"><th className="py-2 text-left font-medium">Linha</th><th className="text-right font-medium">Orçado</th><th className="text-right font-medium">Realizado</th><th className="text-right font-medium">Variação %</th><th className="text-right font-medium">Variação {moeda}</th></tr>
                 </thead>

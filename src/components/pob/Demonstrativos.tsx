@@ -1,5 +1,7 @@
 import { useMemo } from "react";
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { exportarXlsx, type AbaXlsx } from "@/lib/pob/export-xlsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +34,7 @@ function Tabela({
         <CardTitle className="text-base">{titulo}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-auto rounded-md border">
+        <div className="overflow-auto overscroll-x-contain scroll-smooth rounded-md border [-webkit-overflow-scrolling:touch]">
           <table className="w-full text-xs tabular-nums">
             <thead className="sticky top-0 bg-muted">
               <tr>
@@ -81,10 +83,12 @@ export function Demonstrativos({
   meses,
   moeda,
   onAbertura,
+  nomeCenario = "Cenario",
 }: {
   parametros: ParametrosPOB;
   meses: string[];
   moeda: string;
+  nomeCenario?: string;
   onAbertura: (a: Abertura) => void;
 }) {
   const d = useMemo(() => calcularDemonstrativosPOB(parametros), [parametros]);
@@ -97,8 +101,31 @@ export function Demonstrativos({
     ["aliquotaIR", "Alíquota IR/CSLL (%)", false],
   ];
 
+  const aba = (nome: string, linhas: LinhaDem[], total: boolean): AbaXlsx => ({
+    nome,
+    linhas: [
+      ["Conta", ...meses, ...(total ? ["Total"] : [])],
+      ...linhas.map((l) => [
+        l.rotulo,
+        ...l.valores,
+        ...(total ? [/saldo/i.test(l.rotulo) ? null : l.valores.reduce((a, b) => a + b, 0)] : []),
+      ]),
+    ],
+  });
+  const exportar = () =>
+    exportarXlsx(`Demonstrativos ${nomeCenario}`, [
+      aba("DRE", d.dre, true),
+      aba("Fluxo de Caixa", d.fluxo, true),
+      aba("Balanço", [...d.balancoAtivo, { rotulo: "", valores: [] }, ...d.balancoPassivo], false),
+    ]);
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={exportar}>
+          <Download className="mr-1.5 h-4 w-4" /> Exportar para Excel
+        </Button>
+      </div>
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Saldos de abertura</CardTitle>
