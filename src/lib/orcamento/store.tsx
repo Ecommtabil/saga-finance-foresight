@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { ConfigForecast, LinhaOrcamento, Orcamento } from "./types";
+import type { ConfigForecast, LinhaOrcamento, Orcamento, TipoConta } from "./types";
 import { CONFIG_PADRAO, nulls12, uid, zeros12 } from "./types";
 import { analisarVariancia, calcularBudget } from "./engine";
 
@@ -39,6 +39,11 @@ interface Ctx {
   adicionarLinha: () => void;
   atualizarLinha: (id: string, patch: Partial<LinhaOrcamento>) => void;
   removerLinha: (id: string) => void;
+  gerarProximoAno: (
+    modo: "manual" | "premissas",
+    crescimento: Partial<Record<TipoConta, number>>,
+    base: "orcado" | "realizado",
+  ) => void;
   exportarEstado: () => string;
   importarEstado: (json: string) => void;
 }
@@ -150,6 +155,27 @@ export function OrcamentoProvider({ children }: { children: ReactNode }) {
       })),
     removerLinha: (id) =>
       patchAtivo((o) => ({ ...o, linhas: o.linhas.filter((l) => l.id !== id) })),
+    gerarProximoAno: (modo, crescimento, base) => {
+      if (!orcamento) return;
+      const ano = orcamento.ano + 1;
+      const linhas: LinhaOrcamento[] = orcamento.linhas.map((l) => {
+        const g = 1 + (crescimento[l.tipo] ?? 0) / 100;
+        const orcado =
+          modo === "manual"
+            ? zeros12()
+            : l.orcado.map((v, i) => {
+                const b = base === "realizado" ? (l.realizado[i] ?? v) : v;
+                return Math.round(b * g * 100) / 100;
+              });
+        return { ...l, id: uid(), orcado, realizado: nulls12() };
+      });
+      const o: Orcamento = {
+        ...novoOrcamento(`${orcamento.nome.replace(/\s*·?\s*\d{4}$/, "")}`, ano),
+        linhas,
+      };
+      setOrcamentos((prev) => [...prev, o]);
+      setAtivoId(o.id);
+    },
     exportarEstado: () => JSON.stringify({ versao: 1, orcamentos, ativoId }, null, 2),
     importarEstado: (json) => {
       const p = JSON.parse(json) as { orcamentos: Orcamento[]; ativoId?: string };
