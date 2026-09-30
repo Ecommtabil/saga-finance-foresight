@@ -26,6 +26,99 @@ import { fmtNum } from "@/lib/saga/formatters";
 
 export const Route = createFileRoute("/orcamento/dados")({ component: DadosPage });
 
+function ProximoAno() {
+  const { orcamento, gerarProximoAno } = useOrcamento();
+  const [modo, setModo] = useState<"manual" | "premissas">("premissas");
+  const [base, setBase] = useState<"orcado" | "realizado">("orcado");
+  const [cresc, setCresc] = useState<Record<TipoConta, number>>({
+    receita: 10,
+    custo: 8,
+    despesa: 5,
+    outros: 0,
+  });
+  if (!orcamento) return null;
+  const semContas = orcamento.linhas.length === 0;
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">Orçamento do próximo ano ({orcamento.ano + 1})</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-muted-foreground">
+          Depois de definir o primeiro período, escolha como montar o ano seguinte: digitar/importar os
+          valores ou projetar a partir de premissas de crescimento por tipo de conta.
+        </p>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1">
+            <span className="text-xs font-medium text-muted-foreground">Como definir</span>
+            <Select value={modo} onValueChange={(v) => setModo(v as typeof modo)}>
+              <SelectTrigger className="h-9 w-60">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="premissas">Premissas de crescimento</SelectItem>
+                <SelectItem value="manual">Inputar ou importar planilha</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {modo === "premissas" && (
+            <>
+              <div className="space-y-1">
+                <span className="text-xs font-medium text-muted-foreground">Base</span>
+                <Select value={base} onValueChange={(v) => setBase(v as typeof base)}>
+                  <SelectTrigger className="h-9 w-44">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="orcado">Orçado {orcamento.ano}</SelectItem>
+                    <SelectItem value="realizado">Realizado {orcamento.ano}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {(Object.keys(TIPO_LABEL) as TipoConta[]).map((t) => (
+                <div key={t} className="w-28 space-y-1">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {TIPO_LABEL[t]} (% a.a.)
+                  </span>
+                  <Input
+                    className="h-9"
+                    type="number"
+                    value={cresc[t]}
+                    onChange={(e) => setCresc({ ...cresc, [t]: Number(e.target.value) || 0 })}
+                  />
+                </div>
+              ))}
+            </>
+          )}
+          <Button
+            size="sm"
+            className="h-9"
+            disabled={semContas}
+            onClick={() => {
+              gerarProximoAno(modo, cresc, base);
+              toast.success(
+                modo === "manual"
+                  ? `Orçamento ${orcamento.ano + 1} criado com as mesmas contas. Preencha ou importe os valores.`
+                  : `Orçamento ${orcamento.ano + 1} projetado pelas premissas.`,
+              );
+            }}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Criar {orcamento.ano + 1}
+          </Button>
+        </div>
+        {semContas && (
+          <p className="text-xs text-muted-foreground">Cadastre ou importe o primeiro período antes.</p>
+        )}
+        {base === "realizado" && modo === "premissas" && (
+          <p className="text-xs text-muted-foreground">
+            Meses sem realizado usam o orçado como base.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function DadosPage() {
   const { orcamento, substituirLinhas, adicionarLinha, atualizarLinha, removerLinha } = useOrcamento();
   const orcRef = useRef<HTMLInputElement>(null);
@@ -134,6 +227,10 @@ function DadosPage() {
           </Card>
         ))}
       </div>
+
+      <ProximoAno />
+
+
 
 
       {avisos.length > 0 && (
