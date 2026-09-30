@@ -1,25 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PlanejamentoVariacao } from "@/components/pob/PlanejamentoVariacao";
 
 export const Route = createFileRoute("/planejamento/variacao")({
   head: () => ({
     meta: [
       { title: "Variação Orçado x Realizado | SAGA" },
-      { name: "description", content: "Análise de variância de volume, preço, custos variáveis e fixos em gráfico cascata." },
+      { name: "description", content: "Decomposição da variação do lucro em efeitos de volume, preço, custos variáveis e fixos, com gráfico ponte." },
       { property: "og:title", content: "Variação Orçado x Realizado | SAGA" },
       { property: "og:description", content: "Comparação entre orçado e realizado com decomposição das variações." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>Variação</CardTitle>
-        <CardDescription>
-          Aqui ficará a comparação Orçado x Realizado, com decomposição por volume, preço, custos
-          variáveis e custos fixos em gráfico de cascata.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">Seção em construção.</CardContent>
-    </Card>
-  ),
+  component: PlanejamentoVariacao,
 });
