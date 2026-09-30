@@ -74,7 +74,7 @@ const MODELAGEM_SIMPLIFICADA: SubItem[] = [
 ];
 
 const ORCAMENTO: SubItem[] = [
-  { title: "Budget", url: "/orcamento", icon: Wallet, apenasCompleta: false },
+  { title: "Base Zero", url: "/orcamento", icon: Wallet, apenasCompleta: false },
   { title: "Planejamento Orçamentário", url: "/planejamento", icon: ClipboardList, apenasCompleta: false },
 ];
 
