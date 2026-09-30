@@ -19,6 +19,7 @@ const ABAS: { to: string; label: string; exact?: boolean }[] = [
   { to: "/orcamento", label: "Dashboard", exact: true },
   { to: "/orcamento/dados", label: "Dados & Importação" },
   { to: "/orcamento/budget", label: "Base Zero" },
+  { to: "/orcamento/rolling", label: "Rolling Forecast" },
 ];
 
 export function OrcamentoHeader() {
