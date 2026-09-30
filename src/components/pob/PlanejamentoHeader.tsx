@@ -14,12 +14,11 @@ import { usePlanejamento } from "@/lib/pob/store";
 import { cn } from "@/lib/utils";
 
 const ABAS: { to: string; label: string; exact?: boolean }[] = [
-  { to: "/planejamento", label: "Início", exact: true },
+  { to: "/planejamento", label: "Dashboard", exact: true },
   { to: "/planejamento/premissas", label: "Premissas" },
   { to: "/planejamento/projecao", label: "Projeção Orçamentária" },
   { to: "/planejamento/variacao", label: "Variação" },
   { to: "/planejamento/custos", label: "Custos" },
-  { to: "/planejamento/dashboard", label: "Dashboard" },
 ];
 
 export function PlanejamentoHeader() {
