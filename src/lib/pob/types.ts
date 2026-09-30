@@ -1,4 +1,5 @@
 import type { PremissasPOB } from "./premissas";
+import type { ParametrosPOB } from "./parametros";
 
 export interface CenarioOrcamento {
   id: string;
@@ -8,6 +9,7 @@ export interface CenarioOrcamento {
   criadoEm: string;
   atualizadoEm: string;
   premissas?: PremissasPOB;
+  parametros?: ParametrosPOB;
 }
 
 export function uid(): string {
