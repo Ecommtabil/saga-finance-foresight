@@ -60,7 +60,11 @@ export interface ParametrosPOB {
   };
   capex: CapexItem[];
   emprestimos: EmprestimoItem[];
+  /** Saldos de abertura — opcionais para compatibilidade. */
+  abertura?: { caixaInicial: number; capitalSocial: number; imobilizadoInicial: number; aliquotaIR: number };
 }
+
+export const ABERTURA_PADRAO = { caixaInicial: 50000, capitalSocial: 100000, imobilizadoInicial: 36000, aliquotaIR: 24 };
 
 export function parametrosPadrao(ano = new Date().getFullYear()): ParametrosPOB {
   return {
@@ -70,7 +74,7 @@ export function parametrosPadrao(ano = new Date().getFullYear()): ParametrosPOB 
       recebeMesmoMes: 60,
       recebeMesSeguinte: 40,
       quantidadeAnualBase: 12000,
-      precoBase: 200,
+      precoBase: 320,
       mesBase: 1,
       sazonalidade: Array.from({ length: 12 }, () => 100 / 12),
     },

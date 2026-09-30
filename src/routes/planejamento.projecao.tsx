@@ -14,6 +14,8 @@ import {
 import { usePlanejamento } from "@/lib/pob/store";
 import { MESES_POB } from "@/lib/pob/types";
 import { parametrosPadrao, type ParametrosPOB } from "@/lib/pob/parametros";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Demonstrativos } from "@/components/pob/Demonstrativos";
 import { calcularProjecaoPOB, rotulosMeses, sazonalidadeDe, vendasBase } from "@/lib/pob/projecao";
 import { fmtMoney, fmtNum } from "@/lib/saga/formatters";
 import { cn } from "@/lib/utils";
@@ -125,6 +127,15 @@ function ProjecaoPage() {
         </CardContent>
       </Card>
 
+      <Tabs defaultValue="operacional">
+        <TabsList>
+          <TabsTrigger value="operacional">Orçamento operacional</TabsTrigger>
+          <TabsTrigger value="demonstrativos">Demonstrativos</TabsTrigger>
+        </TabsList>
+        <TabsContent value="demonstrativos">
+          <Demonstrativos parametros={p} meses={meses} moeda={moeda} onAbertura={(abertura) => atualizar({ parametros: { ...p, abertura } })} />
+        </TabsContent>
+        <TabsContent value="operacional">
       <Card>
         <CardHeader>
           <CardTitle>Projeção Orçamentária</CardTitle>
@@ -174,6 +185,8 @@ function ProjecaoPage() {
           </p>
         </CardContent>
       </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
