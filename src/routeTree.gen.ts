@@ -42,6 +42,7 @@ import { Route as PlanejamentoProjecaoRouteImport } from './routes/planejamento.
 import { Route as PlanejamentoPremissasRouteImport } from './routes/planejamento.premissas'
 import { Route as PlanejamentoDashboardRouteImport } from './routes/planejamento.dashboard'
 import { Route as PlanejamentoCustosRouteImport } from './routes/planejamento.custos'
+import { Route as OrcamentoRollingRouteImport } from './routes/orcamento.rolling'
 import { Route as OrcamentoDadosRouteImport } from './routes/orcamento.dados'
 import { Route as OrcamentoBudgetRouteImport } from './routes/orcamento.budget'
 import { Route as ModelagemSimplificadaValuationRouteImport } from './routes/modelagem-simplificada.valuation'
@@ -232,6 +233,11 @@ const PlanejamentoCustosRoute = PlanejamentoCustosRouteImport.update({
   path: '/custos',
   getParentRoute: () => PlanejamentoRoute,
 } as any)
+const OrcamentoRollingRoute = OrcamentoRollingRouteImport.update({
+  id: '/rolling',
+  path: '/rolling',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
 const OrcamentoDadosRoute = OrcamentoDadosRouteImport.update({
   id: '/dados',
   path: '/dados',
@@ -404,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/orcamento/rolling': typeof OrcamentoRollingRoute
   '/planejamento/custos': typeof PlanejamentoCustosRoute
   '/planejamento/dashboard': typeof PlanejamentoDashboardRoute
   '/planejamento/premissas': typeof PlanejamentoPremissasRoute
@@ -457,6 +464,7 @@ export interface FileRoutesByTo {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/orcamento/rolling': typeof OrcamentoRollingRoute
   '/planejamento/custos': typeof PlanejamentoCustosRoute
   '/planejamento/dashboard': typeof PlanejamentoDashboardRoute
   '/planejamento/premissas': typeof PlanejamentoPremissasRoute
@@ -515,6 +523,7 @@ export interface FileRoutesById {
   '/modelagem-simplificada/valuation': typeof ModelagemSimplificadaValuationRoute
   '/orcamento/budget': typeof OrcamentoBudgetRoute
   '/orcamento/dados': typeof OrcamentoDadosRoute
+  '/orcamento/rolling': typeof OrcamentoRollingRoute
   '/planejamento/custos': typeof PlanejamentoCustosRoute
   '/planejamento/dashboard': typeof PlanejamentoDashboardRoute
   '/planejamento/premissas': typeof PlanejamentoPremissasRoute
@@ -574,6 +583,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/orcamento/rolling'
     | '/planejamento/custos'
     | '/planejamento/dashboard'
     | '/planejamento/premissas'
@@ -627,6 +637,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/orcamento/rolling'
     | '/planejamento/custos'
     | '/planejamento/dashboard'
     | '/planejamento/premissas'
@@ -684,6 +695,7 @@ export interface FileRouteTypes {
     | '/modelagem-simplificada/valuation'
     | '/orcamento/budget'
     | '/orcamento/dados'
+    | '/orcamento/rolling'
     | '/planejamento/custos'
     | '/planejamento/dashboard'
     | '/planejamento/premissas'
@@ -961,6 +973,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlanejamentoCustosRouteImport
       parentRoute: typeof PlanejamentoRoute
     }
+    '/orcamento/rolling': {
+      id: '/orcamento/rolling'
+      path: '/rolling'
+      fullPath: '/orcamento/rolling'
+      preLoaderRoute: typeof OrcamentoRollingRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
     '/orcamento/dados': {
       id: '/orcamento/dados'
       path: '/dados'
@@ -1193,12 +1212,14 @@ const ModelagemSimplificadaRouteWithChildren =
 interface OrcamentoRouteChildren {
   OrcamentoBudgetRoute: typeof OrcamentoBudgetRoute
   OrcamentoDadosRoute: typeof OrcamentoDadosRoute
+  OrcamentoRollingRoute: typeof OrcamentoRollingRoute
   OrcamentoIndexRoute: typeof OrcamentoIndexRoute
 }
 
 const OrcamentoRouteChildren: OrcamentoRouteChildren = {
   OrcamentoBudgetRoute: OrcamentoBudgetRoute,
   OrcamentoDadosRoute: OrcamentoDadosRoute,
+  OrcamentoRollingRoute: OrcamentoRollingRoute,
   OrcamentoIndexRoute: OrcamentoIndexRoute,
 }
 
