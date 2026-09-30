@@ -74,7 +74,7 @@ export function parametrosPadrao(ano = new Date().getFullYear()): ParametrosPOB 
       recebeMesmoMes: 60,
       recebeMesSeguinte: 40,
       quantidadeAnualBase: 12000,
-      precoBase: 200,
+      precoBase: 320,
       mesBase: 1,
       sazonalidade: Array.from({ length: 12 }, () => 100 / 12),
     },
