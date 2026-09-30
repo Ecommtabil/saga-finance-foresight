@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const ABAS: { to: string; label: string; exact?: boolean }[] = [
   { to: "/orcamento", label: "Dashboard", exact: true },
   { to: "/orcamento/dados", label: "Dados & Importação" },
-  { to: "/orcamento/budget", label: "Budget" },
+  { to: "/orcamento/budget", label: "Base Zero" },
 ];
 
 export function OrcamentoHeader() {

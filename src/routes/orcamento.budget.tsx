@@ -34,16 +34,16 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/orcamento/budget")({
   head: () => ({
     meta: [
-      { title: "Budget — Discrepâncias entre orçado e realizado | SAGA" },
+      { title: "Base Zero — Discrepâncias entre orçado e realizado | SAGA" },
       {
         name: "description",
         content:
           "KPIs de controle orçamentário: atingimento, acurácia, execução de gastos, ponte de variações e ranking de desvios por conta.",
       },
-      { property: "og:title", content: "Budget — Discrepâncias entre orçado e realizado | SAGA" },
+      { property: "og:title", content: "Base Zero — Discrepâncias entre orçado e realizado | SAGA" },
       {
         property: "og:description",
-        content: "Análise Budget do SAGA: variações, acurácia orçamentária e ranking de desvios.",
+        content: "Análise Base Zero do SAGA: variações, acurácia orçamentária e ranking de desvios.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -130,7 +130,7 @@ function BudgetPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        titulo="Budget — orçado × realizado"
+        titulo="Base Zero — orçado × realizado"
         subtitulo={`Discrepâncias acumuladas de ${MESES[0]} a ${MESES[b.ateMes]} (${b.mesesFechados} ${b.mesesFechados === 1 ? "mês" : "meses"}).`}
         action={
           <div className="flex items-center gap-2">
