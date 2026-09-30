@@ -16,3 +16,4 @@
 3. Mencione a Issue no PR (`Closes #N`), valide, liste riscos e próximos passos.
 4. Não reescreva engines/modelos existentes; estenda via ETL/`DadosImportados`.
 5. Preferir soluções simples; GLiNER é fallback, não caminho feliz.
+6. O Dashboard do Planejamento é compartilhado entre `/planejamento` e `/planejamento/dashboard`, mantendo a entrada do módulo e o link legado consistentes.
