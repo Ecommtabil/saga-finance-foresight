@@ -19,6 +19,7 @@ import {
   type PremissasPOB,
 } from "@/lib/pob/premissas";
 import { fmtMoney, fmtNum, fmtPct } from "@/lib/saga/formatters";
+import { PremissasEditor } from "@/components/pob/PremissasEditor";
 
 export const Route = createFileRoute("/planejamento/premissas")({
   head: () => ({
@@ -72,6 +73,7 @@ function PremissasPage() {
 
   return (
     <div className="space-y-6">
+      <PremissasEditor />
       <Card>
         <CardHeader>
           <CardTitle>Premissas por planilha</CardTitle>
