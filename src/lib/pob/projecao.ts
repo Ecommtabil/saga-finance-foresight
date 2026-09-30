@@ -1,6 +1,6 @@
 /** Motor da Projeção Orçamentária (12 meses) a partir das Premissas do modelo. */
 import { MESES_POB } from "./types";
-import { evolucaoEmprestimo, parametrosPadrao, type ParametrosPOB } from "./parametros";
+import { ABERTURA_PADRAO, evolucaoEmprestimo, parametrosPadrao, type ParametrosPOB } from "./parametros";
 
 const Z = () => Array.from({ length: 12 }, () => 0);
 
@@ -99,7 +99,11 @@ export function calcularProjecaoPOB(p: ParametrosPOB) {
   const saldo = Z();
   const amort = Z();
   const juros = Z();
+  const captacao = Z();
+  let emprestimosIniciais = 0;
   for (const e of p.emprestimos) {
+    if (e.tipo === "novo") captacao[Math.min(12, Math.max(1, e.mesContratacao)) - 1] += e.valor;
+    else emprestimosIniciais += e.valor;
     evolucaoEmprestimo(e).forEach((l, i) => {
       saldo[i] += l.saldoFinal;
       amort[i] += l.amortizacao;
@@ -110,6 +114,11 @@ export function calcularProjecaoPOB(p: ParametrosPOB) {
   return {
     qtdAno,
     preco,
+    raw: {
+      qtd, fatLiq, receb, producao, estIniPA, compraMP, custoCompra, pagFornec, estFinalMP,
+      custoMOD, cifTotal, despFixas, despVar, aquisicoes, deprec, desembolso,
+      saldo, amort, juros, captacao, emprestimosIniciais,
+    },
     blocos: [
       {
         bloco: "Vendas",
@@ -186,5 +195,146 @@ export function calcularProjecaoPOB(p: ParametrosPOB) {
       bloco: string;
       linhas: { rotulo: string; valores: number[]; un?: boolean; destaque?: boolean; alerta?: boolean }[];
     }[],
+  };
+}
+
+export type LinhaDem = { rotulo: string; valores: number[]; tipo?: "total" | "sub" | "neg" };
+
+/** DRE, Fluxo de Caixa direto e Balanço mensais — fechamento garantido por construção. */
+export function calcularDemonstrativosPOB(p: ParametrosPOB) {
+  const { raw: r } = calcularProjecaoPOB(p);
+  const ab = { ...ABERTURA_PADRAO, ...(p.abertura ?? {}) };
+  const custoMP = p.compras.custoUnitarioMP;
+  const n = 12;
+
+  // Estoques em valor (MP ao custo; PA ao custo médio de produção do mês)
+  const estMPIni0 = p.producao.estoqueInicialMP * custoMP;
+  const estMPFin = r.estFinalMP.map((q) => q * custoMP);
+  const consumoMP = Z();
+  const custoProd = Z();
+  const estPAFin = Z();
+  const cpv = Z();
+  const unit0 = (() => {
+    const i = r.producao.findIndex((x) => x > 0);
+    if (i < 0) return 0;
+    return ((r.producao[i] * p.producao.mpPorUnidade * custoMP) + r.custoMOD[i] + r.cifTotal[i]) / r.producao[i];
+  })();
+  const estPAIni0 = p.producao.estoqueInicialPA * unit0;
+  let qtdPA = p.producao.estoqueInicialPA;
+  for (let i = 0; i < n; i++) {
+    const mpIni = i === 0 ? estMPIni0 : estMPFin[i - 1];
+    consumoMP[i] = mpIni + r.custoCompra[i] - estMPFin[i];
+    custoProd[i] = consumoMP[i] + r.custoMOD[i] + r.cifTotal[i];
+    const paIni = i === 0 ? estPAIni0 : estPAFin[i - 1];
+    qtdPA = Math.max(0, qtdPA + r.producao[i] - r.qtd[i]);
+    const unit = r.producao[i] > 0 ? custoProd[i] / r.producao[i] : unit0;
+    estPAFin[i] = qtdPA * unit;
+    cpv[i] = paIni + custoProd[i] - estPAFin[i];
+  }
+
+  // DRE
+  const receita = r.fatLiq;
+  const lucroBruto = receita.map((v, i) => v - cpv[i]);
+  const despOp = r.despFixas.map((v, i) => v + r.despVar[i]);
+  const ebitda = lucroBruto.map((v, i) => v - despOp[i]);
+  const ebit = ebitda.map((v, i) => v - r.deprec[i]);
+  const lair = ebit.map((v, i) => v - r.juros[i]);
+  const ir = lair.map((v) => (v > 0 ? (v * ab.aliquotaIR) / 100 : 0));
+  const ll = lair.map((v, i) => v - ir[i]);
+
+  // Fluxo de caixa
+  const irPago = ir.map((_, i) => (i > 0 ? ir[i - 1] : 0));
+  const fco = r.receb.map((v, i) => v - r.pagFornec[i] - r.custoMOD[i] - r.cifTotal[i] - despOp[i] - irPago[i]);
+  const fci = r.desembolso.map((v) => -v);
+  const fcf = r.captacao.map((v, i) => v - r.amort[i] - r.juros[i]);
+  const saldoIni = Z();
+  const saldoFin = Z();
+  for (let i = 0; i < n; i++) {
+    saldoIni[i] = i === 0 ? ab.caixaInicial : saldoFin[i - 1];
+    saldoFin[i] = saldoIni[i] + fco[i] + fci[i] + fcf[i];
+  }
+
+  // Balanço
+  let arAcc = 0, fornAcc = 0, capexAcc = 0, imob = ab.imobilizadoInicial;
+  const ar = Z(), forn = Z(), capexPagar = Z(), imobL = Z();
+  for (let i = 0; i < n; i++) {
+    arAcc += receita[i] - r.receb[i];
+    fornAcc += r.custoCompra[i] - r.pagFornec[i];
+    capexAcc += r.aquisicoes[i] - r.desembolso[i];
+    imob += r.aquisicoes[i] - r.deprec[i];
+    ar[i] = arAcc; forn[i] = fornAcc; capexPagar[i] = capexAcc; imobL[i] = imob;
+  }
+  const impPagar = ir;
+  const ac = saldoFin.map((v, i) => v + ar[i] + estPAFin[i] + estMPFin[i]);
+  const at = ac.map((v, i) => v + imobL[i]);
+  const pc = forn.map((v, i) => v + impPagar[i] + capexPagar[i]);
+  const pnc = r.saldo;
+  const capital = Z().map(() => ab.capitalSocial);
+  // Lucros acumulados de abertura fecham o balanço inicial
+  const lucrosIni =
+    ab.caixaInicial + estPAIni0 + estMPIni0 + ab.imobilizadoInicial - r.emprestimosIniciais - ab.capitalSocial;
+  const lucrosAc = Z();
+  let acc = lucrosIni;
+  for (let i = 0; i < n; i++) { acc += ll[i]; lucrosAc[i] = acc; }
+  const pl = capital.map((v, i) => v + lucrosAc[i]);
+  const ppl = pc.map((v, i) => v + pnc[i] + pl[i]);
+  const diferenca = at.map((v, i) => v - ppl[i]);
+
+  const neg = (a: number[]) => a.map((v) => -v);
+  return {
+    lucrosIni,
+    diferenca,
+    dre: [
+      { rotulo: "Receita (faturamento líquido)", valores: receita, tipo: "sub" },
+      { rotulo: "(−) Custos dos produtos vendidos", valores: neg(cpv), tipo: "neg" },
+      { rotulo: "(=) Lucro bruto", valores: lucroBruto, tipo: "total" },
+      { rotulo: "(−) Despesas operacionais", valores: neg(despOp), tipo: "neg" },
+      { rotulo: "(=) EBITDA", valores: ebitda, tipo: "total" },
+      { rotulo: "(−) Depreciação", valores: neg(r.deprec), tipo: "neg" },
+      { rotulo: "(=) EBIT", valores: ebit, tipo: "total" },
+      { rotulo: "(−) Despesas financeiras", valores: neg(r.juros), tipo: "neg" },
+      { rotulo: "(=) Lucro antes do imposto", valores: lair, tipo: "total" },
+      { rotulo: `(−) IR/CSLL (${ab.aliquotaIR}%)`, valores: neg(ir), tipo: "neg" },
+      { rotulo: "(=) Lucro líquido", valores: ll, tipo: "total" },
+    ] as LinhaDem[],
+    fluxo: [
+      { rotulo: "Saldo inicial de caixa", valores: saldoIni, tipo: "sub" },
+      { rotulo: "(+) Recebimento operacional", valores: r.receb },
+      { rotulo: "(−) Pagamento a fornecedores de MP", valores: neg(r.pagFornec), tipo: "neg" },
+      { rotulo: "(−) Pagamento de MOD", valores: neg(r.custoMOD), tipo: "neg" },
+      { rotulo: "(−) Pagamento de CIF", valores: neg(r.cifTotal), tipo: "neg" },
+      { rotulo: "(−) Despesas operacionais", valores: neg(despOp), tipo: "neg" },
+      { rotulo: "(−) Impostos pagos (IR/CSLL)", valores: neg(irPago), tipo: "neg" },
+      { rotulo: "(=) Atividades operacionais", valores: fco, tipo: "total" },
+      { rotulo: "(+) Entradas de investimento", valores: Z() },
+      { rotulo: "(−) Desembolso com CAPEX", valores: fci, tipo: "neg" },
+      { rotulo: "(=) Atividades de investimento", valores: fci, tipo: "total" },
+      { rotulo: "(+) Novos empréstimos", valores: r.captacao },
+      { rotulo: "(−) Amortização", valores: neg(r.amort), tipo: "neg" },
+      { rotulo: "(−) Juros pagos", valores: neg(r.juros), tipo: "neg" },
+      { rotulo: "(=) Atividades de financiamento", valores: fcf, tipo: "total" },
+      { rotulo: "Saldo final de caixa", valores: saldoFin, tipo: "total" },
+    ] as LinhaDem[],
+    balancoAtivo: [
+      { rotulo: "Caixa", valores: saldoFin },
+      { rotulo: "Contas a receber", valores: ar },
+      { rotulo: "Estoque de produtos acabados", valores: estPAFin },
+      { rotulo: "Estoque de matéria-prima", valores: estMPFin },
+      { rotulo: "Ativo circulante", valores: ac, tipo: "sub" },
+      { rotulo: "Imobilizado líquido", valores: imobL },
+      { rotulo: "Ativo total", valores: at, tipo: "total" },
+    ] as LinhaDem[],
+    balancoPassivo: [
+      { rotulo: "Fornecedores a pagar", valores: forn },
+      { rotulo: "Impostos a pagar", valores: impPagar },
+      { rotulo: "Contas a pagar de investimentos", valores: capexPagar },
+      { rotulo: "Passivo circulante", valores: pc, tipo: "sub" },
+      { rotulo: "Empréstimos e financiamentos", valores: pnc },
+      { rotulo: "Passivo não circulante", valores: pnc, tipo: "sub" },
+      { rotulo: "Capital social", valores: capital },
+      { rotulo: "Lucros acumulados", valores: lucrosAc },
+      { rotulo: "Patrimônio líquido", valores: pl, tipo: "sub" },
+      { rotulo: "Passivo + PL total", valores: ppl, tipo: "total" },
+    ] as LinhaDem[],
   };
 }

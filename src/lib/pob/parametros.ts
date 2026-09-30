@@ -60,7 +60,11 @@ export interface ParametrosPOB {
   };
   capex: CapexItem[];
   emprestimos: EmprestimoItem[];
+  /** Saldos de abertura — opcionais para compatibilidade. */
+  abertura?: { caixaInicial: number; capitalSocial: number; imobilizadoInicial: number; aliquotaIR: number };
 }
+
+export const ABERTURA_PADRAO = { caixaInicial: 50000, capitalSocial: 100000, imobilizadoInicial: 36000, aliquotaIR: 24 };
 
 export function parametrosPadrao(ano = new Date().getFullYear()): ParametrosPOB {
   return {
