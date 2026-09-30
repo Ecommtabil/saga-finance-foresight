@@ -23,7 +23,17 @@ export interface EmprestimoItem {
 }
 
 export interface ParametrosPOB {
-  vendas: { crescVolume: number; crescPreco: number; recebeMesmoMes: number; recebeMesSeguinte: number };
+  vendas: {
+    crescVolume: number;
+    crescPreco: number;
+    recebeMesmoMes: number;
+    recebeMesSeguinte: number;
+    /** Base (ano anterior) — opcionais para compatibilidade com cenários salvos. */
+    quantidadeAnualBase?: number;
+    precoBase?: number;
+    mesBase?: number; // 1-12
+    sazonalidade?: number[]; // 12 valores em %, soma 100
+  };
   impostos: { pis: number; cofins: number; icms: number };
   producao: {
     capacidadeMensal: number;
@@ -54,7 +64,16 @@ export interface ParametrosPOB {
 
 export function parametrosPadrao(ano = new Date().getFullYear()): ParametrosPOB {
   return {
-    vendas: { crescVolume: 25, crescPreco: 5, recebeMesmoMes: 60, recebeMesSeguinte: 40 },
+    vendas: {
+      crescVolume: 25,
+      crescPreco: 5,
+      recebeMesmoMes: 60,
+      recebeMesSeguinte: 40,
+      quantidadeAnualBase: 12000,
+      precoBase: 200,
+      mesBase: 1,
+      sazonalidade: Array.from({ length: 12 }, () => 100 / 12),
+    },
     impostos: { pis: 1.65, cofins: 7.6, icms: 4 },
     producao: {
       capacidadeMensal: 1800,
