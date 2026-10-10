@@ -45,6 +45,9 @@ export function ProjectActions() {
   const [nome, setNome] = useState("");
 
   const [ocupado, setOcupado] = useState(false);
+  const [destino, setDestino] = useState<string | null>(null);
+  const [montado, setMontado] = useState(false);
+  useEffect(() => setMontado(true), []);
 
   const salvar = async () => {
     setOcupado(true);
@@ -62,10 +65,12 @@ export function ProjectActions() {
   const trocar = async (id: string) => {
     if (id === ativoId) return;
     setOcupado(true);
+    setDestino(projetos.find((p) => p.id === id)?.nome ?? null);
     try {
       await trocarProjeto(id);
     } catch {
       setOcupado(false);
+      setDestino(null);
       toast.error("Falha ao trocar de projeto. Tente novamente.");
     }
   };
@@ -75,6 +80,7 @@ export function ProjectActions() {
     if (modo === "novo") {
       setModo(null);
       setOcupado(true);
+      setDestino(n || null);
       setTimeout(() => void criarProjeto(n).catch(() => { setOcupado(false); toast.error("Falha ao criar projeto."); }), 0);
     } else if (modo === "renomear" && ativo && n) {
       renomearProjeto(ativo.id, n);
@@ -111,7 +117,7 @@ export function ProjectActions() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="max-w-[220px]" disabled={ocupado}>
           <FolderKanban className="h-4 w-4" />
-          <span className="truncate">{ativo?.nome ?? "Projeto"}</span>
+          <span className="truncate">{!montado ? "\u00A0" : destino ?? ativo?.nome ?? "Projeto"}</span>
           <ChevronDown className="h-3 w-3 opacity-60" />
         </Button>
       </DropdownMenuTrigger>
