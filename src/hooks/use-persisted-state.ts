@@ -9,7 +9,7 @@ export function usePersistedState<T>(key: string, inicial: T | (() => T)): [T, D
   const [valor, setValor] = useState<T>(inicial);
   const inicialRef = useRef(inicial);
   const chaveCarregada = useRef<string | null>(null);
-  const pularGravacao = useRef(false);
+  const valorCarregado = useRef<unknown>(undefined);
 
   useEffect(() => {
     let v: T | undefined;
@@ -22,16 +22,13 @@ export function usePersistedState<T>(key: string, inicial: T | (() => T)): [T, D
     const ini = inicialRef.current;
     const novo = v !== undefined ? v : typeof ini === "function" ? (ini as () => T)() : ini;
     chaveCarregada.current = key;
-    pularGravacao.current = true;
+    valorCarregado.current = novo;
     setValor(novo);
   }, [key]);
 
   useEffect(() => {
     if (chaveCarregada.current !== key) return;
-    if (pularGravacao.current) {
-      pularGravacao.current = false;
-      return;
-    }
+    if (Object.is(valor, valorCarregado.current)) return;
     try {
       localStorage.setItem(key, JSON.stringify(valor));
     } catch {
