@@ -10,6 +10,7 @@ export interface Workspace {
   id: string;
   nome: string;
   criadoEm: string;
+  salvoEm?: string;
 }
 
 interface Estado {
@@ -132,7 +133,18 @@ function gravar(e: Estado) {
 }
 
 function recarregar() {
-  window.location.assign("/");
+  // permanece na mesma tela após trocar de projeto
+  window.location.reload();
+}
+
+/** Salva explicitamente o projeto ativo (cópia de segurança no IndexedDB). */
+export async function salvarAtual(): Promise<void> {
+  const e = lerEstado();
+  await salvarSnapshot(e.ativoId, capturar());
+  gravar({
+    ...e,
+    projetos: e.projetos.map((p) => (p.id === e.ativoId ? { ...p, salvoEm: new Date().toISOString() } : p)),
+  });
 }
 
 export async function trocarProjeto(id: string) {
