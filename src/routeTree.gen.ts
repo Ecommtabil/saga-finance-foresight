@@ -9,171 +9,66 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ValuationRouteImport } from './routes/valuation'
-import { Route as UploadRouteImport } from './routes/upload'
-import { Route as TermosRouteImport } from './routes/termos'
-import { Route as SimuladoresRouteImport } from './routes/simuladores'
-import { Route as ProjetosRouteImport } from './routes/projetos'
-import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as PlanejamentoRouteImport } from './routes/planejamento'
-import { Route as OrcamentoRouteImport } from './routes/orcamento'
-import { Route as ModelagemSimplificada3RouteImport } from './routes/modelagem-simplificada-3'
-import { Route as ModelagemSimplificadaRouteImport } from './routes/modelagem-simplificada'
-import { Route as ModelagemFinanceira2RouteImport } from './routes/modelagem-financeira-2'
-import { Route as IndicesRouteImport } from './routes/indices'
-import { Route as IndicadoresRouteImport } from './routes/indicadores'
-import { Route as FluxoReversoRouteImport } from './routes/fluxo-reverso'
-import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
-import { Route as EstatisticasRouteImport } from './routes/estatisticas'
-import { Route as EmpresaRouteImport } from './routes/empresa'
-import { Route as DreVendasRouteImport } from './routes/dre-vendas'
-import { Route as DreRouteImport } from './routes/dre'
-import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
-import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
-import { Route as BalancoRouteImport } from './routes/balanco'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PlanejamentoIndexRouteImport } from './routes/planejamento.index'
-import { Route as OrcamentoIndexRouteImport } from './routes/orcamento.index'
-import { Route as ModelagemSimplificadaIndexRouteImport } from './routes/modelagem-simplificada.index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BalancoRouteImport } from './routes/balanco'
+import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
+import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
+import { Route as DreRouteImport } from './routes/dre'
+import { Route as DreVendasRouteImport } from './routes/dre-vendas'
+import { Route as EmpresaRouteImport } from './routes/empresa'
+import { Route as EstatisticasRouteImport } from './routes/estatisticas'
+import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
+import { Route as FluxoReversoRouteImport } from './routes/fluxo-reverso'
+import { Route as IndicadoresRouteImport } from './routes/indicadores'
+import { Route as IndicesRouteImport } from './routes/indices'
+import { Route as ModelagemFinanceira2RouteImport } from './routes/modelagem-financeira-2'
+import { Route as ModelagemSimplificadaRouteImport } from './routes/modelagem-simplificada'
+import { Route as ModelagemSimplificada3RouteImport } from './routes/modelagem-simplificada-3'
+import { Route as OrcamentoRouteImport } from './routes/orcamento'
+import { Route as PlanejamentoRouteImport } from './routes/planejamento'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as ProjetosRouteImport } from './routes/projetos'
+import { Route as SimuladoresRouteImport } from './routes/simuladores'
+import { Route as TermosRouteImport } from './routes/termos'
+import { Route as UploadRouteImport } from './routes/upload'
+import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as ModelagemFinanceira2IndexRouteImport } from './routes/modelagem-financeira-2.index'
-import { Route as PlanejamentoVariacaoRouteImport } from './routes/planejamento.variacao'
-import { Route as PlanejamentoProjecaoRouteImport } from './routes/planejamento.projecao'
-import { Route as PlanejamentoPremissasRouteImport } from './routes/planejamento.premissas'
-import { Route as PlanejamentoDashboardRouteImport } from './routes/planejamento.dashboard'
-import { Route as PlanejamentoCustosRouteImport } from './routes/planejamento.custos'
-import { Route as OrcamentoRollingRouteImport } from './routes/orcamento.rolling'
-import { Route as OrcamentoDadosRouteImport } from './routes/orcamento.dados'
-import { Route as OrcamentoBudgetRouteImport } from './routes/orcamento.budget'
-import { Route as ModelagemSimplificadaValuationRouteImport } from './routes/modelagem-simplificada.valuation'
-import { Route as ModelagemSimplificadaReceitasRouteImport } from './routes/modelagem-simplificada.receitas'
-import { Route as ModelagemSimplificadaPremissasRouteImport } from './routes/modelagem-simplificada.premissas'
-import { Route as ModelagemSimplificadaPessoalRouteImport } from './routes/modelagem-simplificada.pessoal'
-import { Route as ModelagemSimplificadaOpexRouteImport } from './routes/modelagem-simplificada.opex'
-import { Route as ModelagemSimplificadaInvestimentosRouteImport } from './routes/modelagem-simplificada.investimentos'
-import { Route as ModelagemSimplificadaImportarRouteImport } from './routes/modelagem-simplificada.importar'
-import { Route as ModelagemSimplificadaFundingRouteImport } from './routes/modelagem-simplificada.funding'
-import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
-import { Route as ModelagemSimplificadaDemonstrativosRouteImport } from './routes/modelagem-simplificada.demonstrativos'
-import { Route as ModelagemSimplificadaCapitalGiroRouteImport } from './routes/modelagem-simplificada.capital-giro'
-import { Route as ModelagemFinanceira2NovoRouteImport } from './routes/modelagem-financeira-2.novo'
-import { Route as ModelagemFinanceira2ImportarRouteImport } from './routes/modelagem-financeira-2.importar'
 import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
-import { Route as ModelagemFinanceira2ProjecaoModeloIdRouteImport } from './routes/modelagem-financeira-2.projecao.$modeloId'
-import { Route as ModelagemFinanceira2IndicadoresModeloIdRouteImport } from './routes/modelagem-financeira-2.indicadores.$modeloId'
+import { Route as ModelagemFinanceira2ImportarRouteImport } from './routes/modelagem-financeira-2.importar'
+import { Route as ModelagemFinanceira2NovoRouteImport } from './routes/modelagem-financeira-2.novo'
+import { Route as ModelagemSimplificadaIndexRouteImport } from './routes/modelagem-simplificada.index'
+import { Route as ModelagemSimplificadaCapitalGiroRouteImport } from './routes/modelagem-simplificada.capital-giro'
+import { Route as ModelagemSimplificadaDemonstrativosRouteImport } from './routes/modelagem-simplificada.demonstrativos'
+import { Route as ModelagemSimplificadaEmpresasRouteImport } from './routes/modelagem-simplificada.empresas'
+import { Route as ModelagemSimplificadaFundingRouteImport } from './routes/modelagem-simplificada.funding'
+import { Route as ModelagemSimplificadaImportarRouteImport } from './routes/modelagem-simplificada.importar'
+import { Route as ModelagemSimplificadaInvestimentosRouteImport } from './routes/modelagem-simplificada.investimentos'
+import { Route as ModelagemSimplificadaOpexRouteImport } from './routes/modelagem-simplificada.opex'
+import { Route as ModelagemSimplificadaPessoalRouteImport } from './routes/modelagem-simplificada.pessoal'
+import { Route as ModelagemSimplificadaPremissasRouteImport } from './routes/modelagem-simplificada.premissas'
+import { Route as ModelagemSimplificadaReceitasRouteImport } from './routes/modelagem-simplificada.receitas'
+import { Route as ModelagemSimplificadaValuationRouteImport } from './routes/modelagem-simplificada.valuation'
+import { Route as OrcamentoIndexRouteImport } from './routes/orcamento.index'
+import { Route as OrcamentoBudgetRouteImport } from './routes/orcamento.budget'
+import { Route as OrcamentoDadosRouteImport } from './routes/orcamento.dados'
+import { Route as OrcamentoRollingRouteImport } from './routes/orcamento.rolling'
+import { Route as PlanejamentoIndexRouteImport } from './routes/planejamento.index'
+import { Route as PlanejamentoCustosRouteImport } from './routes/planejamento.custos'
+import { Route as PlanejamentoDashboardRouteImport } from './routes/planejamento.dashboard'
+import { Route as PlanejamentoPremissasRouteImport } from './routes/planejamento.premissas'
+import { Route as PlanejamentoProjecaoRouteImport } from './routes/planejamento.projecao'
+import { Route as PlanejamentoVariacaoRouteImport } from './routes/planejamento.variacao'
 import { Route as ModelagemFinanceira2DashboardModeloIdRouteImport } from './routes/modelagem-financeira-2.dashboard.$modeloId'
-import { Route as ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.fluxo.$modeloId'
-import { Route as ModelagemFinanceira2RelatoriosDreModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.dre.$modeloId'
+import { Route as ModelagemFinanceira2IndicadoresModeloIdRouteImport } from './routes/modelagem-financeira-2.indicadores.$modeloId'
+import { Route as ModelagemFinanceira2ProjecaoModeloIdRouteImport } from './routes/modelagem-financeira-2.projecao.$modeloId'
 import { Route as ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.balanco.$modeloId'
+import { Route as ModelagemFinanceira2RelatoriosDreModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.dre.$modeloId'
+import { Route as ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport } from './routes/modelagem-financeira-2.relatorios.fluxo.$modeloId'
 
-const ValuationRoute = ValuationRouteImport.update({
-  id: '/valuation',
-  path: '/valuation',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UploadRoute = UploadRouteImport.update({
-  id: '/upload',
-  path: '/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermosRoute = TermosRouteImport.update({
-  id: '/termos',
-  path: '/termos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SimuladoresRoute = SimuladoresRouteImport.update({
-  id: '/simuladores',
-  path: '/simuladores',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjetosRoute = ProjetosRouteImport.update({
-  id: '/projetos',
-  path: '/projetos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadeRoute = PrivacidadeRouteImport.update({
-  id: '/privacidade',
-  path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlanejamentoRoute = PlanejamentoRouteImport.update({
-  id: '/planejamento',
-  path: '/planejamento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrcamentoRoute = OrcamentoRouteImport.update({
-  id: '/orcamento',
-  path: '/orcamento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ModelagemSimplificada3Route = ModelagemSimplificada3RouteImport.update({
-  id: '/modelagem-simplificada-3',
-  path: '/modelagem-simplificada-3',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ModelagemSimplificadaRoute = ModelagemSimplificadaRouteImport.update({
-  id: '/modelagem-simplificada',
-  path: '/modelagem-simplificada',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ModelagemFinanceira2Route = ModelagemFinanceira2RouteImport.update({
-  id: '/modelagem-financeira-2',
-  path: '/modelagem-financeira-2',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndicesRoute = IndicesRouteImport.update({
-  id: '/indices',
-  path: '/indices',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndicadoresRoute = IndicadoresRouteImport.update({
-  id: '/indicadores',
-  path: '/indicadores',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FluxoReversoRoute = FluxoReversoRouteImport.update({
-  id: '/fluxo-reverso',
-  path: '/fluxo-reverso',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FluxoCaixaRoute = FluxoCaixaRouteImport.update({
-  id: '/fluxo-caixa',
-  path: '/fluxo-caixa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EstatisticasRoute = EstatisticasRouteImport.update({
-  id: '/estatisticas',
-  path: '/estatisticas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmpresaRoute = EmpresaRouteImport.update({
-  id: '/empresa',
-  path: '/empresa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DreVendasRoute = DreVendasRouteImport.update({
-  id: '/dre-vendas',
-  path: '/dre-vendas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DreRoute = DreRouteImport.update({
-  id: '/dre',
-  path: '/dre',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DiagnosticoRoute = DiagnosticoRouteImport.update({
-  id: '/diagnostico',
-  path: '/diagnostico',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DcfExplicadoRoute = DcfExplicadoRouteImport.update({
-  id: '/dcf-explicado',
-  path: '/dcf-explicado',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BalancoRoute = BalancoRouteImport.update({
-  id: '/balanco',
-  path: '/balanco',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -181,149 +76,120 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const BalancoRoute = BalancoRouteImport.update({
+  id: '/balanco',
+  path: '/balanco',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlanejamentoIndexRoute = PlanejamentoIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PlanejamentoRoute,
+const DcfExplicadoRoute = DcfExplicadoRouteImport.update({
+  id: '/dcf-explicado',
+  path: '/dcf-explicado',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const OrcamentoIndexRoute = OrcamentoIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => OrcamentoRoute,
+const DiagnosticoRoute = DiagnosticoRouteImport.update({
+  id: '/diagnostico',
+  path: '/diagnostico',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const ModelagemSimplificadaIndexRoute =
-  ModelagemSimplificadaIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
+const DreRoute = DreRouteImport.update({
+  id: '/dre',
+  path: '/dre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DreVendasRoute = DreVendasRouteImport.update({
+  id: '/dre-vendas',
+  path: '/dre-vendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresaRoute = EmpresaRouteImport.update({
+  id: '/empresa',
+  path: '/empresa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstatisticasRoute = EstatisticasRouteImport.update({
+  id: '/estatisticas',
+  path: '/estatisticas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FluxoCaixaRoute = FluxoCaixaRouteImport.update({
+  id: '/fluxo-caixa',
+  path: '/fluxo-caixa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FluxoReversoRoute = FluxoReversoRouteImport.update({
+  id: '/fluxo-reverso',
+  path: '/fluxo-reverso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndicadoresRoute = IndicadoresRouteImport.update({
+  id: '/indicadores',
+  path: '/indicadores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndicesRoute = IndicesRouteImport.update({
+  id: '/indices',
+  path: '/indices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelagemFinanceira2Route = ModelagemFinanceira2RouteImport.update({
+  id: '/modelagem-financeira-2',
+  path: '/modelagem-financeira-2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelagemSimplificadaRoute = ModelagemSimplificadaRouteImport.update({
+  id: '/modelagem-simplificada',
+  path: '/modelagem-simplificada',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelagemSimplificada3Route = ModelagemSimplificada3RouteImport.update({
+  id: '/modelagem-simplificada-3',
+  path: '/modelagem-simplificada-3',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrcamentoRoute = OrcamentoRouteImport.update({
+  id: '/orcamento',
+  path: '/orcamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanejamentoRoute = PlanejamentoRouteImport.update({
+  id: '/planejamento',
+  path: '/planejamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjetosRoute = ProjetosRouteImport.update({
+  id: '/projetos',
+  path: '/projetos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SimuladoresRoute = SimuladoresRouteImport.update({
+  id: '/simuladores',
+  path: '/simuladores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UploadRoute = UploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ValuationRoute = ValuationRouteImport.update({
+  id: '/valuation',
+  path: '/valuation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModelagemFinanceira2IndexRoute =
   ModelagemFinanceira2IndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => ModelagemFinanceira2Route,
-  } as any)
-const PlanejamentoVariacaoRoute = PlanejamentoVariacaoRouteImport.update({
-  id: '/variacao',
-  path: '/variacao',
-  getParentRoute: () => PlanejamentoRoute,
-} as any)
-const PlanejamentoProjecaoRoute = PlanejamentoProjecaoRouteImport.update({
-  id: '/projecao',
-  path: '/projecao',
-  getParentRoute: () => PlanejamentoRoute,
-} as any)
-const PlanejamentoPremissasRoute = PlanejamentoPremissasRouteImport.update({
-  id: '/premissas',
-  path: '/premissas',
-  getParentRoute: () => PlanejamentoRoute,
-} as any)
-const PlanejamentoDashboardRoute = PlanejamentoDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => PlanejamentoRoute,
-} as any)
-const PlanejamentoCustosRoute = PlanejamentoCustosRouteImport.update({
-  id: '/custos',
-  path: '/custos',
-  getParentRoute: () => PlanejamentoRoute,
-} as any)
-const OrcamentoRollingRoute = OrcamentoRollingRouteImport.update({
-  id: '/rolling',
-  path: '/rolling',
-  getParentRoute: () => OrcamentoRoute,
-} as any)
-const OrcamentoDadosRoute = OrcamentoDadosRouteImport.update({
-  id: '/dados',
-  path: '/dados',
-  getParentRoute: () => OrcamentoRoute,
-} as any)
-const OrcamentoBudgetRoute = OrcamentoBudgetRouteImport.update({
-  id: '/budget',
-  path: '/budget',
-  getParentRoute: () => OrcamentoRoute,
-} as any)
-const ModelagemSimplificadaValuationRoute =
-  ModelagemSimplificadaValuationRouteImport.update({
-    id: '/valuation',
-    path: '/valuation',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaReceitasRoute =
-  ModelagemSimplificadaReceitasRouteImport.update({
-    id: '/receitas',
-    path: '/receitas',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaPremissasRoute =
-  ModelagemSimplificadaPremissasRouteImport.update({
-    id: '/premissas',
-    path: '/premissas',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaPessoalRoute =
-  ModelagemSimplificadaPessoalRouteImport.update({
-    id: '/pessoal',
-    path: '/pessoal',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaOpexRoute =
-  ModelagemSimplificadaOpexRouteImport.update({
-    id: '/opex',
-    path: '/opex',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaInvestimentosRoute =
-  ModelagemSimplificadaInvestimentosRouteImport.update({
-    id: '/investimentos',
-    path: '/investimentos',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaImportarRoute =
-  ModelagemSimplificadaImportarRouteImport.update({
-    id: '/importar',
-    path: '/importar',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaFundingRoute =
-  ModelagemSimplificadaFundingRouteImport.update({
-    id: '/funding',
-    path: '/funding',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaEmpresasRoute =
-  ModelagemSimplificadaEmpresasRouteImport.update({
-    id: '/empresas',
-    path: '/empresas',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaDemonstrativosRoute =
-  ModelagemSimplificadaDemonstrativosRouteImport.update({
-    id: '/demonstrativos',
-    path: '/demonstrativos',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemSimplificadaCapitalGiroRoute =
-  ModelagemSimplificadaCapitalGiroRouteImport.update({
-    id: '/capital-giro',
-    path: '/capital-giro',
-    getParentRoute: () => ModelagemSimplificadaRoute,
-  } as any)
-const ModelagemFinanceira2NovoRoute =
-  ModelagemFinanceira2NovoRouteImport.update({
-    id: '/novo',
-    path: '/novo',
-    getParentRoute: () => ModelagemFinanceira2Route,
-  } as any)
-const ModelagemFinanceira2ImportarRoute =
-  ModelagemFinanceira2ImportarRouteImport.update({
-    id: '/importar',
-    path: '/importar',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
 const ModelagemFinanceira2ModeloIdRoute =
@@ -332,10 +198,144 @@ const ModelagemFinanceira2ModeloIdRoute =
     path: '/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
-const ModelagemFinanceira2ProjecaoModeloIdRoute =
-  ModelagemFinanceira2ProjecaoModeloIdRouteImport.update({
-    id: '/projecao/$modeloId',
-    path: '/projecao/$modeloId',
+const ModelagemFinanceira2ImportarRoute =
+  ModelagemFinanceira2ImportarRouteImport.update({
+    id: '/importar',
+    path: '/importar',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
+const ModelagemFinanceira2NovoRoute =
+  ModelagemFinanceira2NovoRouteImport.update({
+    id: '/novo',
+    path: '/novo',
+    getParentRoute: () => ModelagemFinanceira2Route,
+  } as any)
+const ModelagemSimplificadaIndexRoute =
+  ModelagemSimplificadaIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaCapitalGiroRoute =
+  ModelagemSimplificadaCapitalGiroRouteImport.update({
+    id: '/capital-giro',
+    path: '/capital-giro',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaDemonstrativosRoute =
+  ModelagemSimplificadaDemonstrativosRouteImport.update({
+    id: '/demonstrativos',
+    path: '/demonstrativos',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaEmpresasRoute =
+  ModelagemSimplificadaEmpresasRouteImport.update({
+    id: '/empresas',
+    path: '/empresas',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaFundingRoute =
+  ModelagemSimplificadaFundingRouteImport.update({
+    id: '/funding',
+    path: '/funding',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaImportarRoute =
+  ModelagemSimplificadaImportarRouteImport.update({
+    id: '/importar',
+    path: '/importar',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaInvestimentosRoute =
+  ModelagemSimplificadaInvestimentosRouteImport.update({
+    id: '/investimentos',
+    path: '/investimentos',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaOpexRoute =
+  ModelagemSimplificadaOpexRouteImport.update({
+    id: '/opex',
+    path: '/opex',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaPessoalRoute =
+  ModelagemSimplificadaPessoalRouteImport.update({
+    id: '/pessoal',
+    path: '/pessoal',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaPremissasRoute =
+  ModelagemSimplificadaPremissasRouteImport.update({
+    id: '/premissas',
+    path: '/premissas',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaReceitasRoute =
+  ModelagemSimplificadaReceitasRouteImport.update({
+    id: '/receitas',
+    path: '/receitas',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const ModelagemSimplificadaValuationRoute =
+  ModelagemSimplificadaValuationRouteImport.update({
+    id: '/valuation',
+    path: '/valuation',
+    getParentRoute: () => ModelagemSimplificadaRoute,
+  } as any)
+const OrcamentoIndexRoute = OrcamentoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
+const OrcamentoBudgetRoute = OrcamentoBudgetRouteImport.update({
+  id: '/budget',
+  path: '/budget',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
+const OrcamentoDadosRoute = OrcamentoDadosRouteImport.update({
+  id: '/dados',
+  path: '/dados',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
+const OrcamentoRollingRoute = OrcamentoRollingRouteImport.update({
+  id: '/rolling',
+  path: '/rolling',
+  getParentRoute: () => OrcamentoRoute,
+} as any)
+const PlanejamentoIndexRoute = PlanejamentoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoCustosRoute = PlanejamentoCustosRouteImport.update({
+  id: '/custos',
+  path: '/custos',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoDashboardRoute = PlanejamentoDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoPremissasRoute = PlanejamentoPremissasRouteImport.update({
+  id: '/premissas',
+  path: '/premissas',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoProjecaoRoute = PlanejamentoProjecaoRouteImport.update({
+  id: '/projecao',
+  path: '/projecao',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const PlanejamentoVariacaoRoute = PlanejamentoVariacaoRouteImport.update({
+  id: '/variacao',
+  path: '/variacao',
+  getParentRoute: () => PlanejamentoRoute,
+} as any)
+const ModelagemFinanceira2DashboardModeloIdRoute =
+  ModelagemFinanceira2DashboardModeloIdRouteImport.update({
+    id: '/dashboard/$modeloId',
+    path: '/dashboard/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
 const ModelagemFinanceira2IndicadoresModeloIdRoute =
@@ -344,16 +344,16 @@ const ModelagemFinanceira2IndicadoresModeloIdRoute =
     path: '/indicadores/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
-const ModelagemFinanceira2DashboardModeloIdRoute =
-  ModelagemFinanceira2DashboardModeloIdRouteImport.update({
-    id: '/dashboard/$modeloId',
-    path: '/dashboard/$modeloId',
+const ModelagemFinanceira2ProjecaoModeloIdRoute =
+  ModelagemFinanceira2ProjecaoModeloIdRouteImport.update({
+    id: '/projecao/$modeloId',
+    path: '/projecao/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
-const ModelagemFinanceira2RelatoriosFluxoModeloIdRoute =
-  ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport.update({
-    id: '/relatorios/fluxo/$modeloId',
-    path: '/relatorios/fluxo/$modeloId',
+const ModelagemFinanceira2RelatoriosBalancoModeloIdRoute =
+  ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport.update({
+    id: '/relatorios/balanco/$modeloId',
+    path: '/relatorios/balanco/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
 const ModelagemFinanceira2RelatoriosDreModeloIdRoute =
@@ -362,10 +362,10 @@ const ModelagemFinanceira2RelatoriosDreModeloIdRoute =
     path: '/relatorios/dre/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
-const ModelagemFinanceira2RelatoriosBalancoModeloIdRoute =
-  ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport.update({
-    id: '/relatorios/balanco/$modeloId',
-    path: '/relatorios/balanco/$modeloId',
+const ModelagemFinanceira2RelatoriosFluxoModeloIdRoute =
+  ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport.update({
+    id: '/relatorios/fluxo/$modeloId',
+    path: '/relatorios/fluxo/$modeloId',
     getParentRoute: () => ModelagemFinanceira2Route,
   } as any)
 
@@ -742,158 +742,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/valuation': {
-      id: '/valuation'
-      path: '/valuation'
-      fullPath: '/valuation'
-      preLoaderRoute: typeof ValuationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/upload': {
-      id: '/upload'
-      path: '/upload'
-      fullPath: '/upload'
-      preLoaderRoute: typeof UploadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/termos': {
-      id: '/termos'
-      path: '/termos'
-      fullPath: '/termos'
-      preLoaderRoute: typeof TermosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/simuladores': {
-      id: '/simuladores'
-      path: '/simuladores'
-      fullPath: '/simuladores'
-      preLoaderRoute: typeof SimuladoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projetos': {
-      id: '/projetos'
-      path: '/projetos'
-      fullPath: '/projetos'
-      preLoaderRoute: typeof ProjetosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidade': {
-      id: '/privacidade'
-      path: '/privacidade'
-      fullPath: '/privacidade'
-      preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/planejamento': {
-      id: '/planejamento'
-      path: '/planejamento'
-      fullPath: '/planejamento'
-      preLoaderRoute: typeof PlanejamentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/orcamento': {
-      id: '/orcamento'
-      path: '/orcamento'
-      fullPath: '/orcamento'
-      preLoaderRoute: typeof OrcamentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/modelagem-simplificada-3': {
-      id: '/modelagem-simplificada-3'
-      path: '/modelagem-simplificada-3'
-      fullPath: '/modelagem-simplificada-3'
-      preLoaderRoute: typeof ModelagemSimplificada3RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/modelagem-simplificada': {
-      id: '/modelagem-simplificada'
-      path: '/modelagem-simplificada'
-      fullPath: '/modelagem-simplificada'
-      preLoaderRoute: typeof ModelagemSimplificadaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/modelagem-financeira-2': {
-      id: '/modelagem-financeira-2'
-      path: '/modelagem-financeira-2'
-      fullPath: '/modelagem-financeira-2'
-      preLoaderRoute: typeof ModelagemFinanceira2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/indices': {
-      id: '/indices'
-      path: '/indices'
-      fullPath: '/indices'
-      preLoaderRoute: typeof IndicesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/indicadores': {
-      id: '/indicadores'
-      path: '/indicadores'
-      fullPath: '/indicadores'
-      preLoaderRoute: typeof IndicadoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fluxo-reverso': {
-      id: '/fluxo-reverso'
-      path: '/fluxo-reverso'
-      fullPath: '/fluxo-reverso'
-      preLoaderRoute: typeof FluxoReversoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fluxo-caixa': {
-      id: '/fluxo-caixa'
-      path: '/fluxo-caixa'
-      fullPath: '/fluxo-caixa'
-      preLoaderRoute: typeof FluxoCaixaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/estatisticas': {
-      id: '/estatisticas'
-      path: '/estatisticas'
-      fullPath: '/estatisticas'
-      preLoaderRoute: typeof EstatisticasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/empresa': {
-      id: '/empresa'
-      path: '/empresa'
-      fullPath: '/empresa'
-      preLoaderRoute: typeof EmpresaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dre-vendas': {
-      id: '/dre-vendas'
-      path: '/dre-vendas'
-      fullPath: '/dre-vendas'
-      preLoaderRoute: typeof DreVendasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dre': {
-      id: '/dre'
-      path: '/dre'
-      fullPath: '/dre'
-      preLoaderRoute: typeof DreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/diagnostico': {
-      id: '/diagnostico'
-      path: '/diagnostico'
-      fullPath: '/diagnostico'
-      preLoaderRoute: typeof DiagnosticoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dcf-explicado': {
-      id: '/dcf-explicado'
-      path: '/dcf-explicado'
-      fullPath: '/dcf-explicado'
-      preLoaderRoute: typeof DcfExplicadoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/balanco': {
-      id: '/balanco'
-      path: '/balanco'
-      fullPath: '/balanco'
-      preLoaderRoute: typeof BalancoRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -903,186 +756,165 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/balanco': {
+      id: '/balanco'
+      path: '/balanco'
+      fullPath: '/balanco'
+      preLoaderRoute: typeof BalancoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/planejamento/': {
-      id: '/planejamento/'
-      path: '/'
-      fullPath: '/planejamento/'
-      preLoaderRoute: typeof PlanejamentoIndexRouteImport
-      parentRoute: typeof PlanejamentoRoute
+    '/dcf-explicado': {
+      id: '/dcf-explicado'
+      path: '/dcf-explicado'
+      fullPath: '/dcf-explicado'
+      preLoaderRoute: typeof DcfExplicadoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/orcamento/': {
-      id: '/orcamento/'
-      path: '/'
-      fullPath: '/orcamento/'
-      preLoaderRoute: typeof OrcamentoIndexRouteImport
-      parentRoute: typeof OrcamentoRoute
+    '/diagnostico': {
+      id: '/diagnostico'
+      path: '/diagnostico'
+      fullPath: '/diagnostico'
+      preLoaderRoute: typeof DiagnosticoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/modelagem-simplificada/': {
-      id: '/modelagem-simplificada/'
-      path: '/'
-      fullPath: '/modelagem-simplificada/'
-      preLoaderRoute: typeof ModelagemSimplificadaIndexRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
+    '/dre': {
+      id: '/dre'
+      path: '/dre'
+      fullPath: '/dre'
+      preLoaderRoute: typeof DreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dre-vendas': {
+      id: '/dre-vendas'
+      path: '/dre-vendas'
+      fullPath: '/dre-vendas'
+      preLoaderRoute: typeof DreVendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresa': {
+      id: '/empresa'
+      path: '/empresa'
+      fullPath: '/empresa'
+      preLoaderRoute: typeof EmpresaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estatisticas': {
+      id: '/estatisticas'
+      path: '/estatisticas'
+      fullPath: '/estatisticas'
+      preLoaderRoute: typeof EstatisticasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fluxo-caixa': {
+      id: '/fluxo-caixa'
+      path: '/fluxo-caixa'
+      fullPath: '/fluxo-caixa'
+      preLoaderRoute: typeof FluxoCaixaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fluxo-reverso': {
+      id: '/fluxo-reverso'
+      path: '/fluxo-reverso'
+      fullPath: '/fluxo-reverso'
+      preLoaderRoute: typeof FluxoReversoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/indicadores': {
+      id: '/indicadores'
+      path: '/indicadores'
+      fullPath: '/indicadores'
+      preLoaderRoute: typeof IndicadoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/indices': {
+      id: '/indices'
+      path: '/indices'
+      fullPath: '/indices'
+      preLoaderRoute: typeof IndicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modelagem-financeira-2': {
+      id: '/modelagem-financeira-2'
+      path: '/modelagem-financeira-2'
+      fullPath: '/modelagem-financeira-2'
+      preLoaderRoute: typeof ModelagemFinanceira2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modelagem-simplificada': {
+      id: '/modelagem-simplificada'
+      path: '/modelagem-simplificada'
+      fullPath: '/modelagem-simplificada'
+      preLoaderRoute: typeof ModelagemSimplificadaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modelagem-simplificada-3': {
+      id: '/modelagem-simplificada-3'
+      path: '/modelagem-simplificada-3'
+      fullPath: '/modelagem-simplificada-3'
+      preLoaderRoute: typeof ModelagemSimplificada3RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orcamento': {
+      id: '/orcamento'
+      path: '/orcamento'
+      fullPath: '/orcamento'
+      preLoaderRoute: typeof OrcamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planejamento': {
+      id: '/planejamento'
+      path: '/planejamento'
+      fullPath: '/planejamento'
+      preLoaderRoute: typeof PlanejamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projetos': {
+      id: '/projetos'
+      path: '/projetos'
+      fullPath: '/projetos'
+      preLoaderRoute: typeof ProjetosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/simuladores': {
+      id: '/simuladores'
+      path: '/simuladores'
+      fullPath: '/simuladores'
+      preLoaderRoute: typeof SimuladoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/upload': {
+      id: '/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/valuation': {
+      id: '/valuation'
+      path: '/valuation'
+      fullPath: '/valuation'
+      preLoaderRoute: typeof ValuationRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/modelagem-financeira-2/': {
       id: '/modelagem-financeira-2/'
       path: '/'
       fullPath: '/modelagem-financeira-2/'
       preLoaderRoute: typeof ModelagemFinanceira2IndexRouteImport
-      parentRoute: typeof ModelagemFinanceira2Route
-    }
-    '/planejamento/variacao': {
-      id: '/planejamento/variacao'
-      path: '/variacao'
-      fullPath: '/planejamento/variacao'
-      preLoaderRoute: typeof PlanejamentoVariacaoRouteImport
-      parentRoute: typeof PlanejamentoRoute
-    }
-    '/planejamento/projecao': {
-      id: '/planejamento/projecao'
-      path: '/projecao'
-      fullPath: '/planejamento/projecao'
-      preLoaderRoute: typeof PlanejamentoProjecaoRouteImport
-      parentRoute: typeof PlanejamentoRoute
-    }
-    '/planejamento/premissas': {
-      id: '/planejamento/premissas'
-      path: '/premissas'
-      fullPath: '/planejamento/premissas'
-      preLoaderRoute: typeof PlanejamentoPremissasRouteImport
-      parentRoute: typeof PlanejamentoRoute
-    }
-    '/planejamento/dashboard': {
-      id: '/planejamento/dashboard'
-      path: '/dashboard'
-      fullPath: '/planejamento/dashboard'
-      preLoaderRoute: typeof PlanejamentoDashboardRouteImport
-      parentRoute: typeof PlanejamentoRoute
-    }
-    '/planejamento/custos': {
-      id: '/planejamento/custos'
-      path: '/custos'
-      fullPath: '/planejamento/custos'
-      preLoaderRoute: typeof PlanejamentoCustosRouteImport
-      parentRoute: typeof PlanejamentoRoute
-    }
-    '/orcamento/rolling': {
-      id: '/orcamento/rolling'
-      path: '/rolling'
-      fullPath: '/orcamento/rolling'
-      preLoaderRoute: typeof OrcamentoRollingRouteImport
-      parentRoute: typeof OrcamentoRoute
-    }
-    '/orcamento/dados': {
-      id: '/orcamento/dados'
-      path: '/dados'
-      fullPath: '/orcamento/dados'
-      preLoaderRoute: typeof OrcamentoDadosRouteImport
-      parentRoute: typeof OrcamentoRoute
-    }
-    '/orcamento/budget': {
-      id: '/orcamento/budget'
-      path: '/budget'
-      fullPath: '/orcamento/budget'
-      preLoaderRoute: typeof OrcamentoBudgetRouteImport
-      parentRoute: typeof OrcamentoRoute
-    }
-    '/modelagem-simplificada/valuation': {
-      id: '/modelagem-simplificada/valuation'
-      path: '/valuation'
-      fullPath: '/modelagem-simplificada/valuation'
-      preLoaderRoute: typeof ModelagemSimplificadaValuationRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/receitas': {
-      id: '/modelagem-simplificada/receitas'
-      path: '/receitas'
-      fullPath: '/modelagem-simplificada/receitas'
-      preLoaderRoute: typeof ModelagemSimplificadaReceitasRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/premissas': {
-      id: '/modelagem-simplificada/premissas'
-      path: '/premissas'
-      fullPath: '/modelagem-simplificada/premissas'
-      preLoaderRoute: typeof ModelagemSimplificadaPremissasRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/pessoal': {
-      id: '/modelagem-simplificada/pessoal'
-      path: '/pessoal'
-      fullPath: '/modelagem-simplificada/pessoal'
-      preLoaderRoute: typeof ModelagemSimplificadaPessoalRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/opex': {
-      id: '/modelagem-simplificada/opex'
-      path: '/opex'
-      fullPath: '/modelagem-simplificada/opex'
-      preLoaderRoute: typeof ModelagemSimplificadaOpexRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/investimentos': {
-      id: '/modelagem-simplificada/investimentos'
-      path: '/investimentos'
-      fullPath: '/modelagem-simplificada/investimentos'
-      preLoaderRoute: typeof ModelagemSimplificadaInvestimentosRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/importar': {
-      id: '/modelagem-simplificada/importar'
-      path: '/importar'
-      fullPath: '/modelagem-simplificada/importar'
-      preLoaderRoute: typeof ModelagemSimplificadaImportarRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/funding': {
-      id: '/modelagem-simplificada/funding'
-      path: '/funding'
-      fullPath: '/modelagem-simplificada/funding'
-      preLoaderRoute: typeof ModelagemSimplificadaFundingRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/empresas': {
-      id: '/modelagem-simplificada/empresas'
-      path: '/empresas'
-      fullPath: '/modelagem-simplificada/empresas'
-      preLoaderRoute: typeof ModelagemSimplificadaEmpresasRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/demonstrativos': {
-      id: '/modelagem-simplificada/demonstrativos'
-      path: '/demonstrativos'
-      fullPath: '/modelagem-simplificada/demonstrativos'
-      preLoaderRoute: typeof ModelagemSimplificadaDemonstrativosRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-simplificada/capital-giro': {
-      id: '/modelagem-simplificada/capital-giro'
-      path: '/capital-giro'
-      fullPath: '/modelagem-simplificada/capital-giro'
-      preLoaderRoute: typeof ModelagemSimplificadaCapitalGiroRouteImport
-      parentRoute: typeof ModelagemSimplificadaRoute
-    }
-    '/modelagem-financeira-2/novo': {
-      id: '/modelagem-financeira-2/novo'
-      path: '/novo'
-      fullPath: '/modelagem-financeira-2/novo'
-      preLoaderRoute: typeof ModelagemFinanceira2NovoRouteImport
-      parentRoute: typeof ModelagemFinanceira2Route
-    }
-    '/modelagem-financeira-2/importar': {
-      id: '/modelagem-financeira-2/importar'
-      path: '/importar'
-      fullPath: '/modelagem-financeira-2/importar'
-      preLoaderRoute: typeof ModelagemFinanceira2ImportarRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
     '/modelagem-financeira-2/$modeloId': {
@@ -1092,11 +924,179 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemFinanceira2ModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
-    '/modelagem-financeira-2/projecao/$modeloId': {
-      id: '/modelagem-financeira-2/projecao/$modeloId'
-      path: '/projecao/$modeloId'
-      fullPath: '/modelagem-financeira-2/projecao/$modeloId'
-      preLoaderRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRouteImport
+    '/modelagem-financeira-2/importar': {
+      id: '/modelagem-financeira-2/importar'
+      path: '/importar'
+      fullPath: '/modelagem-financeira-2/importar'
+      preLoaderRoute: typeof ModelagemFinanceira2ImportarRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
+    '/modelagem-financeira-2/novo': {
+      id: '/modelagem-financeira-2/novo'
+      path: '/novo'
+      fullPath: '/modelagem-financeira-2/novo'
+      preLoaderRoute: typeof ModelagemFinanceira2NovoRouteImport
+      parentRoute: typeof ModelagemFinanceira2Route
+    }
+    '/modelagem-simplificada/': {
+      id: '/modelagem-simplificada/'
+      path: '/'
+      fullPath: '/modelagem-simplificada/'
+      preLoaderRoute: typeof ModelagemSimplificadaIndexRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/capital-giro': {
+      id: '/modelagem-simplificada/capital-giro'
+      path: '/capital-giro'
+      fullPath: '/modelagem-simplificada/capital-giro'
+      preLoaderRoute: typeof ModelagemSimplificadaCapitalGiroRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/demonstrativos': {
+      id: '/modelagem-simplificada/demonstrativos'
+      path: '/demonstrativos'
+      fullPath: '/modelagem-simplificada/demonstrativos'
+      preLoaderRoute: typeof ModelagemSimplificadaDemonstrativosRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/empresas': {
+      id: '/modelagem-simplificada/empresas'
+      path: '/empresas'
+      fullPath: '/modelagem-simplificada/empresas'
+      preLoaderRoute: typeof ModelagemSimplificadaEmpresasRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/funding': {
+      id: '/modelagem-simplificada/funding'
+      path: '/funding'
+      fullPath: '/modelagem-simplificada/funding'
+      preLoaderRoute: typeof ModelagemSimplificadaFundingRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/importar': {
+      id: '/modelagem-simplificada/importar'
+      path: '/importar'
+      fullPath: '/modelagem-simplificada/importar'
+      preLoaderRoute: typeof ModelagemSimplificadaImportarRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/investimentos': {
+      id: '/modelagem-simplificada/investimentos'
+      path: '/investimentos'
+      fullPath: '/modelagem-simplificada/investimentos'
+      preLoaderRoute: typeof ModelagemSimplificadaInvestimentosRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/opex': {
+      id: '/modelagem-simplificada/opex'
+      path: '/opex'
+      fullPath: '/modelagem-simplificada/opex'
+      preLoaderRoute: typeof ModelagemSimplificadaOpexRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/pessoal': {
+      id: '/modelagem-simplificada/pessoal'
+      path: '/pessoal'
+      fullPath: '/modelagem-simplificada/pessoal'
+      preLoaderRoute: typeof ModelagemSimplificadaPessoalRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/premissas': {
+      id: '/modelagem-simplificada/premissas'
+      path: '/premissas'
+      fullPath: '/modelagem-simplificada/premissas'
+      preLoaderRoute: typeof ModelagemSimplificadaPremissasRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/receitas': {
+      id: '/modelagem-simplificada/receitas'
+      path: '/receitas'
+      fullPath: '/modelagem-simplificada/receitas'
+      preLoaderRoute: typeof ModelagemSimplificadaReceitasRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/modelagem-simplificada/valuation': {
+      id: '/modelagem-simplificada/valuation'
+      path: '/valuation'
+      fullPath: '/modelagem-simplificada/valuation'
+      preLoaderRoute: typeof ModelagemSimplificadaValuationRouteImport
+      parentRoute: typeof ModelagemSimplificadaRoute
+    }
+    '/orcamento/': {
+      id: '/orcamento/'
+      path: '/'
+      fullPath: '/orcamento/'
+      preLoaderRoute: typeof OrcamentoIndexRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
+    '/orcamento/budget': {
+      id: '/orcamento/budget'
+      path: '/budget'
+      fullPath: '/orcamento/budget'
+      preLoaderRoute: typeof OrcamentoBudgetRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
+    '/orcamento/dados': {
+      id: '/orcamento/dados'
+      path: '/dados'
+      fullPath: '/orcamento/dados'
+      preLoaderRoute: typeof OrcamentoDadosRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
+    '/orcamento/rolling': {
+      id: '/orcamento/rolling'
+      path: '/rolling'
+      fullPath: '/orcamento/rolling'
+      preLoaderRoute: typeof OrcamentoRollingRouteImport
+      parentRoute: typeof OrcamentoRoute
+    }
+    '/planejamento/': {
+      id: '/planejamento/'
+      path: '/'
+      fullPath: '/planejamento/'
+      preLoaderRoute: typeof PlanejamentoIndexRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/custos': {
+      id: '/planejamento/custos'
+      path: '/custos'
+      fullPath: '/planejamento/custos'
+      preLoaderRoute: typeof PlanejamentoCustosRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/dashboard': {
+      id: '/planejamento/dashboard'
+      path: '/dashboard'
+      fullPath: '/planejamento/dashboard'
+      preLoaderRoute: typeof PlanejamentoDashboardRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/premissas': {
+      id: '/planejamento/premissas'
+      path: '/premissas'
+      fullPath: '/planejamento/premissas'
+      preLoaderRoute: typeof PlanejamentoPremissasRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/projecao': {
+      id: '/planejamento/projecao'
+      path: '/projecao'
+      fullPath: '/planejamento/projecao'
+      preLoaderRoute: typeof PlanejamentoProjecaoRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/planejamento/variacao': {
+      id: '/planejamento/variacao'
+      path: '/variacao'
+      fullPath: '/planejamento/variacao'
+      preLoaderRoute: typeof PlanejamentoVariacaoRouteImport
+      parentRoute: typeof PlanejamentoRoute
+    }
+    '/modelagem-financeira-2/dashboard/$modeloId': {
+      id: '/modelagem-financeira-2/dashboard/$modeloId'
+      path: '/dashboard/$modeloId'
+      fullPath: '/modelagem-financeira-2/dashboard/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2DashboardModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
     '/modelagem-financeira-2/indicadores/$modeloId': {
@@ -1106,18 +1106,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemFinanceira2IndicadoresModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
-    '/modelagem-financeira-2/dashboard/$modeloId': {
-      id: '/modelagem-financeira-2/dashboard/$modeloId'
-      path: '/dashboard/$modeloId'
-      fullPath: '/modelagem-financeira-2/dashboard/$modeloId'
-      preLoaderRoute: typeof ModelagemFinanceira2DashboardModeloIdRouteImport
+    '/modelagem-financeira-2/projecao/$modeloId': {
+      id: '/modelagem-financeira-2/projecao/$modeloId'
+      path: '/projecao/$modeloId'
+      fullPath: '/modelagem-financeira-2/projecao/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2ProjecaoModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
-    '/modelagem-financeira-2/relatorios/fluxo/$modeloId': {
-      id: '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
-      path: '/relatorios/fluxo/$modeloId'
-      fullPath: '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
-      preLoaderRoute: typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport
+    '/modelagem-financeira-2/relatorios/balanco/$modeloId': {
+      id: '/modelagem-financeira-2/relatorios/balanco/$modeloId'
+      path: '/relatorios/balanco/$modeloId'
+      fullPath: '/modelagem-financeira-2/relatorios/balanco/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
     '/modelagem-financeira-2/relatorios/dre/$modeloId': {
@@ -1127,11 +1127,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelagemFinanceira2RelatoriosDreModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
-    '/modelagem-financeira-2/relatorios/balanco/$modeloId': {
-      id: '/modelagem-financeira-2/relatorios/balanco/$modeloId'
-      path: '/relatorios/balanco/$modeloId'
-      fullPath: '/modelagem-financeira-2/relatorios/balanco/$modeloId'
-      preLoaderRoute: typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRouteImport
+    '/modelagem-financeira-2/relatorios/fluxo/$modeloId': {
+      id: '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
+      path: '/relatorios/fluxo/$modeloId'
+      fullPath: '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
+      preLoaderRoute: typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRouteImport
       parentRoute: typeof ModelagemFinanceira2Route
     }
   }
