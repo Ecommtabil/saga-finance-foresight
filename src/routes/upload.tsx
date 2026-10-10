@@ -19,6 +19,22 @@ import { lerPlanilha, PlanilhaError } from "@/lib/saga/parser";
 import { PdfPreviewDialog } from "@/components/saga/PdfPreviewDialog";
 import { PreviewImportacao } from "@/components/saga/PreviewImportacao";
 import { importarFonteBruta } from "@/lib/saga/etl-client";
+import { toast } from "sonner";
+import { salvarAtual } from "@/lib/workspaces";
+
+function oferecerSalvar() {
+  // espera o autosave gravar os novos dados antes de salvar o projeto
+  toast.success("Dados importados.", {
+    duration: 10000,
+    action: {
+      label: "Salvar projeto",
+      onClick: () =>
+        void salvarAtual()
+          .then(() => toast.success("Projeto salvo."))
+          .catch(() => toast.error("Não foi possível salvar o projeto.")),
+    },
+  });
+}
 
 export const Route = createFileRoute("/upload")({
   head: () => ({
@@ -50,6 +66,7 @@ function UploadPage() {
     try {
       const d = await lerPlanilha(file, modo);
       setDados(d);
+      oferecerSalvar();
     } catch (e) {
       if (e instanceof PlanilhaError) setErro(e.message);
       else setErro(`Erro ao ler planilha: ${(e as Error).message}`);
@@ -67,6 +84,7 @@ function UploadPage() {
       const r = await importarFonteBruta(file, modo, { useGliner });
       setDados(r.dados);
       setAvisosEtl(r.avisos ?? []);
+      oferecerSalvar();
     } catch (e) {
       setErro(`ETL: ${(e as Error).message}`);
     } finally {
