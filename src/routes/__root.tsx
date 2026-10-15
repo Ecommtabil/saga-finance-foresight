@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -17,6 +17,7 @@ import { SagaProvider } from "../lib/saga/context";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/saga/AppSidebar";
 import { ProjectActions } from "../components/saga/ProjectActions";
+import { CHAVE_SELECAO, SelecaoProjeto } from "../components/saga/SelecaoProjeto";
 import { Toaster } from "../components/ui/sonner";
 
 initSentry();
@@ -131,6 +132,17 @@ function RootComponent() {
   const isSimpl = pathname.startsWith("/modelagem-simplificada");
   const isOrcamento = pathname.startsWith("/orcamento");
   const isolado = isSimpl || isOrcamento;
+  const [montado, setMontado] = useState(false);
+  useEffect(() => setMontado(true), []);
+  // Tela de seleção de projeto: exibida antes do menu principal a cada sessão.
+  if (montado && sessionStorage.getItem(CHAVE_SELECAO) !== "1") {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <SelecaoProjeto />
+        <Toaster richColors />
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
