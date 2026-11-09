@@ -19,7 +19,8 @@ export function criarExcelNCG(empresa: string, cnpj: string, p: PremissasNCG) {
     ["Diagnóstico", d.diagnostico],
   ];
   const wb = XLSX.utils.book_new();
-  for (const [nome, linhas] of [["Premissas", [["Campo", "Valor"], ...d.premissas]], ["NCG", ncg]] as const) {
+  const abas: [string, (string | number)[][]][] = [["Premissas", [["Campo", "Valor"], ...d.premissas]], ["NCG", ncg]];
+  for (const [nome, linhas] of abas) {
     const ws = XLSX.utils.aoa_to_sheet(linhas);
     linhas.forEach((linha, ri) => linha.forEach((v, ci) => {
       if (typeof v !== "number") return;

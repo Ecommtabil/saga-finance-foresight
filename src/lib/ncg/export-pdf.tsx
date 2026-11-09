@@ -56,7 +56,7 @@ export async function gerarPdfNCG(empresa: string, cnpj: string, p: PremissasNCG
       didDrawPage: () => header(),
       didParseCell: data => {
         if (data.section !== "body") return;
-        const label = String(data.row.raw[0]);
+        const label = Array.isArray(data.row.raw) ? String(data.row.raw[0]) : "";
         if (["NCG operacional", "Capital de giro total necessário", "Sobra/(falta)"].includes(label)) data.cell.styles.fontStyle = "bold";
         if (data.column.index === 1 && data.cell.text.join("").includes("R$")) data.cell.styles.textColor = data.cell.text.join("").startsWith("-") ? [180, 40, 40] : [30, 90, 160];
       },
