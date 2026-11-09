@@ -127,9 +127,9 @@ function NcgPage() {
                 aria-selected={ativa}
                 aria-label={rotulo}
                 onClick={() => setAba(id)}
-                className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex h-auto min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   ativa
-                    ? "bg-ncg-ink text-ncg-on-ink shadow-sm"
+                    ? "bg-ncg-ink text-ncg-on-ink shadow-sm hover:bg-ncg-ink hover:text-ncg-on-ink"
                     : "text-ncg-ink/70 hover:bg-ncg-ink/5 hover:text-ncg-ink"
                 }`}
               >

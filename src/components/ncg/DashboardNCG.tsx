@@ -22,7 +22,7 @@ export function DashboardNCG({ premissas: p, resultado: r }: NcgResultadoProps) 
   ];
   return <div className="min-w-0 space-y-8 text-ncg-ink">
     <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-semibold">Dashboard de capital de giro</h2><StatusNCG coberto={r.giroCoberto}/></div>
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4">
       {[
         { nome: "NCG operacional", valor: formatarMoeda(r.ncg.total), detalhe: "Sem reserva de segurança", classe: "text-ncg-ink" },
         { nome: "Capital de giro total necessário", valor: formatarMoeda(r.capitalGiroTotal), detalhe: "NCG + reserva de segurança", classe: "text-ncg-ink" },
