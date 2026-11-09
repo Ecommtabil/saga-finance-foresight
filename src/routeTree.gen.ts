@@ -25,6 +25,7 @@ import { Route as IndicesRouteImport } from './routes/indices'
 import { Route as ModelagemFinanceira2RouteImport } from './routes/modelagem-financeira-2'
 import { Route as ModelagemSimplificadaRouteImport } from './routes/modelagem-simplificada'
 import { Route as ModelagemSimplificada3RouteImport } from './routes/modelagem-simplificada-3'
+import { Route as NcgRouteImport } from './routes/ncg'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -144,6 +145,11 @@ const ModelagemSimplificadaRoute = ModelagemSimplificadaRouteImport.update({
 const ModelagemSimplificada3Route = ModelagemSimplificada3RouteImport.update({
   id: '/modelagem-simplificada-3',
   path: '/modelagem-simplificada-3',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NcgRoute = NcgRouteImport.update({
+  id: '/ncg',
+  path: '/ncg',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrcamentoRoute = OrcamentoRouteImport.update({
@@ -386,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/modelagem-simplificada-3': typeof ModelagemSimplificada3Route
+  '/ncg': typeof NcgRoute
   '/orcamento': typeof OrcamentoRouteWithChildren
   '/planejamento': typeof PlanejamentoRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
@@ -442,6 +449,7 @@ export interface FileRoutesByTo {
   '/indicadores': typeof IndicadoresRoute
   '/indices': typeof IndicesRoute
   '/modelagem-simplificada-3': typeof ModelagemSimplificada3Route
+  '/ncg': typeof NcgRoute
   '/privacidade': typeof PrivacidadeRoute
   '/projetos': typeof ProjetosRoute
   '/simuladores': typeof SimuladoresRoute
@@ -499,6 +507,7 @@ export interface FileRoutesById {
   '/modelagem-financeira-2': typeof ModelagemFinanceira2RouteWithChildren
   '/modelagem-simplificada': typeof ModelagemSimplificadaRouteWithChildren
   '/modelagem-simplificada-3': typeof ModelagemSimplificada3Route
+  '/ncg': typeof NcgRoute
   '/orcamento': typeof OrcamentoRouteWithChildren
   '/planejamento': typeof PlanejamentoRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
@@ -559,6 +568,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/modelagem-simplificada-3'
+    | '/ncg'
     | '/orcamento'
     | '/planejamento'
     | '/privacidade'
@@ -615,6 +625,7 @@ export interface FileRouteTypes {
     | '/indicadores'
     | '/indices'
     | '/modelagem-simplificada-3'
+    | '/ncg'
     | '/privacidade'
     | '/projetos'
     | '/simuladores'
@@ -671,6 +682,7 @@ export interface FileRouteTypes {
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/modelagem-simplificada-3'
+    | '/ncg'
     | '/orcamento'
     | '/planejamento'
     | '/privacidade'
@@ -730,6 +742,7 @@ export interface RootRouteChildren {
   ModelagemFinanceira2Route: typeof ModelagemFinanceira2RouteWithChildren
   ModelagemSimplificadaRoute: typeof ModelagemSimplificadaRouteWithChildren
   ModelagemSimplificada3Route: typeof ModelagemSimplificada3Route
+  NcgRoute: typeof NcgRoute
   OrcamentoRoute: typeof OrcamentoRouteWithChildren
   PlanejamentoRoute: typeof PlanejamentoRouteWithChildren
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -852,6 +865,13 @@ declare module '@tanstack/react-router' {
       path: '/modelagem-simplificada-3'
       fullPath: '/modelagem-simplificada-3'
       preLoaderRoute: typeof ModelagemSimplificada3RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ncg': {
+      id: '/ncg'
+      path: '/ncg'
+      fullPath: '/ncg'
+      preLoaderRoute: typeof NcgRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orcamento': {
@@ -1266,6 +1286,7 @@ const rootRouteChildren: RootRouteChildren = {
   ModelagemFinanceira2Route: ModelagemFinanceira2RouteWithChildren,
   ModelagemSimplificadaRoute: ModelagemSimplificadaRouteWithChildren,
   ModelagemSimplificada3Route: ModelagemSimplificada3Route,
+  NcgRoute: NcgRoute,
   OrcamentoRoute: OrcamentoRouteWithChildren,
   PlanejamentoRoute: PlanejamentoRouteWithChildren,
   PrivacidadeRoute: PrivacidadeRoute,
