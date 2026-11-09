@@ -2,6 +2,7 @@ import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ReferenceLine, Respo
 import { cascataNCG, diasTexto, faixaCobertura, percentualTexto } from "@/lib/ncg/apresentacao";
 import { formatarMoeda } from "@/lib/ncg/premissas";
 import { SecaoNCG, StatusNCG, type NcgResultadoProps } from "./MemorialNCG";
+import { diagnosticoNCG } from "@/lib/ncg/relatorio-dados";
 
 const cores: Record<string, string> = {
   positivo: "var(--ncg-positive)", negativo: "var(--ncg-negative)",
@@ -81,8 +82,7 @@ export function DashboardNCG({ premissas: p, resultado: r }: NcgResultadoProps) 
       </SecaoNCG>
     </div>
     <section className="border-l-4 border-ncg-gold bg-ncg-gold/10 p-5"><h2 className="mb-2 font-semibold">Diagnóstico para a empresa</h2><p className="text-base leading-relaxed">
-      {r.prazos.cicloFinanceiro >= 0 ? `A empresa financia ${diasTexto(r.prazos.cicloFinanceiro)} da operação.` : `Os fornecedores oferecem ${diasTexto(-r.prazos.cicloFinanceiro)} de folga após o recebimento das vendas.`}
-      {r.capitalGiroTotal > 0 ? ` Hoje o caixa cobre ${percentualTexto(r.coberturaCaixa)} da necessidade total, ${r.giroCoberto ? "com sobra de" : "faltando"} ${formatarMoeda(Math.abs(r.sobraFalta))} de capital de giro.` : ` Não há necessidade líquida positiva de capital de giro. A posição entre caixa e necessidade é de ${formatarMoeda(r.sobraFalta)}.`}
+      {diagnosticoNCG(r)}
     </p></section>
   </div>;
 }
