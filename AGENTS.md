@@ -18,3 +18,6 @@
 5. Preferir soluções simples; GLiNER é fallback, não caminho feliz.
 6. O Dashboard do Planejamento é compartilhado entre `/planejamento` e `/planejamento/dashboard`, mantendo a entrada do módulo e o link legado consistentes.
 7. A entrada do app passa pela tela de seleção de projeto (`SelecaoProjeto`), controlada pela flag de sessão `saga.selecao.ok` (`CHAVE_SELECAO`) verificada em `src/routes/__root.tsx`; não remover essa barreira.
+
+## NCG presentation
+- Keep NCG premise mapping and chart data in a browser-safe presentation module and reuse the existing pure engine for both report and dashboard, so calculations cannot drift between views.

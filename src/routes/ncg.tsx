@@ -5,6 +5,11 @@ import { Input } from "@/components/ui/input";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { PremissasForm } from "@/components/ncg/PremissasForm";
 import { PREMISSAS_VAZIAS, type PremissasNCG } from "@/lib/ncg/premissas";
+import { Button } from "@/components/ui/button";
+import { MemorialNCG } from "@/components/ncg/MemorialNCG";
+import { DashboardNCG } from "@/components/ncg/DashboardNCG";
+import { resultadoDasPremissas } from "@/lib/ncg/apresentacao";
+import { diasDoPeriodo } from "@/lib/ncg/premissas";
 
 export const Route = createFileRoute("/ncg")({
   head: () => ({
@@ -38,10 +43,10 @@ const ABAS: { id: Aba; rotulo: string; icone: typeof ClipboardList }[] = [
 
 function PlaceholderAba({ titulo, descricao }: { titulo: string; descricao: string }) {
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-[0_2px_12px_rgba(31,58,95,0.08)]">
-      <h2 className="text-lg font-semibold text-[#1F3A5F]">{titulo}</h2>
-      <p className="mt-2 text-sm text-[#1F3A5F]/70">{descricao}</p>
-      <div className="mt-6 flex h-40 items-center justify-center rounded-xl border-2 border-dashed border-[#1F3A5F]/15 text-sm text-[#1F3A5F]/50">
+    <div className="rounded-2xl bg-ncg-surface p-8 shadow-[var(--ncg-shadow)]">
+      <h2 className="text-lg font-semibold text-ncg-ink">{titulo}</h2>
+      <p className="mt-2 text-sm text-ncg-ink/70">{descricao}</p>
+      <div className="mt-6 flex h-40 items-center justify-center rounded-xl border-2 border-dashed border-ncg-ink/15 text-sm text-ncg-ink/50">
         Os campos e cálculos desta etapa serão adicionados nos próximos passos.
       </div>
     </div>
@@ -56,23 +61,25 @@ function NcgPage() {
     "saga.ncg.premissas",
     PREMISSAS_VAZIAS
   );
+  const resultado = resultadoDasPremissas(premissas);
+  const periodoValido = diasDoPeriodo(premissas) > 0;
 
   return (
-    <div className="min-h-full bg-[#F5F7FA] p-4 font-[Inter,system-ui,sans-serif] md:p-8">
+    <div className="ncg-tool min-h-full min-w-0 bg-ncg-paper p-4 font-[Inter,system-ui,sans-serif] md:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
         {/* Header */}
-        <header className="rounded-2xl bg-[#1F3A5F] p-6 shadow-[0_4px_20px_rgba(31,58,95,0.25)] md:p-8">
+        <header className="rounded-2xl bg-ncg-ink p-6 shadow-[var(--ncg-shadow)] md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#C9A227]">
-                  <Calculator className="h-6 w-6 text-[#1F3A5F]" />
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-ncg-gold">
+                  <Calculator className="h-6 w-6 text-ncg-ink" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-white md:text-2xl">
-                    Calculadora de NCG <span className="text-[#C9A227]">– Simplificada</span>
+                  <h1 className="text-xl font-bold text-ncg-on-ink md:text-2xl">
+                    Calculadora de NCG <span className="text-ncg-gold">– Simplificada</span>
                   </h1>
-                  <p className="text-sm text-white/70">
+                  <p className="text-sm text-ncg-on-ink/70">
                     Necessidade de Capital de Giro para empresas clientes
                   </p>
                 </div>
@@ -80,28 +87,28 @@ function NcgPage() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <div className="min-w-[220px]">
-                <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-white/60">
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-ncg-on-ink/60">
                   Empresa analisada
                 </label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1F3A5F]/50" />
+                  <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ncg-ink/50" />
                   <Input
                     value={empresa}
                     onChange={(e) => setEmpresa(e.target.value)}
                     placeholder="Nome da empresa"
-                    className="border-white/20 bg-white pl-9 text-[#1F3A5F] placeholder:text-[#1F3A5F]/40 focus-visible:ring-[#C9A227]"
+                    className="border-ncg-on-ink/20 bg-ncg-surface pl-9 text-ncg-ink placeholder:text-ncg-ink/40 focus-visible:ring-ncg-gold"
                   />
                 </div>
               </div>
               <div className="min-w-[180px]">
-                <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-white/60">
+                <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-ncg-on-ink/60">
                   CNPJ (opcional)
                 </label>
                 <Input
                   value={cnpj}
                   onChange={(e) => setCnpj(e.target.value)}
                   placeholder="00.000.000/0000-00"
-                  className="border-white/20 bg-white text-[#1F3A5F] placeholder:text-[#1F3A5F]/40 focus-visible:ring-[#C9A227]"
+                  className="border-ncg-on-ink/20 bg-ncg-surface text-ncg-ink placeholder:text-ncg-ink/40 focus-visible:ring-ncg-gold"
                 />
               </div>
             </div>
@@ -109,23 +116,27 @@ function NcgPage() {
         </header>
 
         {/* Navegação em abas */}
-        <nav className="flex gap-2 overflow-x-auto rounded-2xl bg-white p-2 shadow-[0_2px_12px_rgba(31,58,95,0.08)]">
+        <nav role="tablist" aria-label="Etapas da NCG" className="flex gap-2 overflow-x-auto rounded-2xl bg-ncg-surface p-2 shadow-[var(--ncg-shadow)]">
           {ABAS.map(({ id, rotulo, icone: Icone }) => {
             const ativa = aba === id;
             return (
-              <button
+              <Button
                 key={id}
+                variant="ghost"
+                role="tab"
+                aria-selected={ativa}
+                aria-label={rotulo}
                 onClick={() => setAba(id)}
-                className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex h-auto min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   ativa
-                    ? "bg-[#1F3A5F] text-white shadow-[0_2px_8px_rgba(31,58,95,0.3)]"
-                    : "text-[#1F3A5F]/70 hover:bg-[#1F3A5F]/5 hover:text-[#1F3A5F]"
+                    ? "bg-ncg-ink text-ncg-on-ink shadow-sm hover:bg-ncg-ink hover:text-ncg-on-ink"
+                    : "text-ncg-ink/70 hover:bg-ncg-ink/5 hover:text-ncg-ink"
                 }`}
               >
-                <Icone className={`h-4 w-4 ${ativa ? "text-[#C9A227]" : ""}`} />
+                <Icone className={`h-4 w-4 ${ativa ? "text-ncg-gold" : ""}`} />
                 <span className="hidden sm:inline">{rotulo}</span>
                 <span className="sm:hidden">{rotulo.split(". ")[0]}</span>
-              </button>
+              </Button>
             );
           })}
         </nav>
@@ -134,18 +145,9 @@ function NcgPage() {
         {aba === "premissas" && (
           <PremissasForm premissas={premissas} onChange={setPremissas} />
         )}
-        {aba === "calculo" && (
-          <PlaceholderAba
-            titulo="Cálculo da NCG"
-            descricao="Ciclo financeiro, ciclo operacional e o cálculo da Necessidade de Capital de Giro a partir das premissas."
-          />
-        )}
-        {aba === "dashboard" && (
-          <PlaceholderAba
-            titulo="Dashboard"
-            descricao="Visão executiva com os principais indicadores e gráficos da NCG para apresentação ao cliente."
-          />
-        )}
+        {(aba === "calculo" || aba === "dashboard") && !periodoValido && <div className="border-l-4 border-ncg-gold bg-ncg-gold/10 p-5 text-ncg-ink"><p>Informe um período válido nas Premissas para visualizar os resultados.</p><Button variant="outline" className="mt-3" onClick={() => setAba("premissas")}>1. Premissas</Button></div>}
+        {aba === "calculo" && periodoValido && <MemorialNCG premissas={premissas} resultado={resultado}/>}
+        {aba === "dashboard" && periodoValido && <DashboardNCG premissas={premissas} resultado={resultado}/>}
         {aba === "simulacoes" && (
           <PlaceholderAba
             titulo="Simulações"
