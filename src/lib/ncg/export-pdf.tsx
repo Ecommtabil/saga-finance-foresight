@@ -27,6 +27,11 @@ export async function gerarPdfNCG(empresa: string, cnpj: string, p: PremissasNCG
     if (nodes.length !== 3) throw new Error("Não foi possível preparar todos os gráficos.");
     for (const [i, node] of nodes.entries()) {
       const canvas = await html2canvas(node, { scale: 2, backgroundColor: null, logging: false });
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Não foi possível preparar a imagem do gráfico.");
+      ctx.globalCompositeOperation = "destination-over";
+      ctx.fillStyle = getComputedStyle(host).getPropertyValue("--ncg-surface").trim();
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       images.push({ titulo: titulos[i], url: canvas.toDataURL("image/jpeg", 0.92), ratio: canvas.height / canvas.width });
     }
   } finally { root.unmount(); host.remove(); }
