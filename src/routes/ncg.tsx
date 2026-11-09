@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Building2, ClipboardList, Calculator, LayoutDashboard, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { usePersistedState } from "@/hooks/use-persisted-state";
+import { PremissasForm } from "@/components/ncg/PremissasForm";
+import { PREMISSAS_VAZIAS, type PremissasNCG } from "@/lib/ncg/premissas";
 
 export const Route = createFileRoute("/ncg")({
   head: () => ({
@@ -50,6 +52,10 @@ function NcgPage() {
   const [aba, setAba] = useState<Aba>("premissas");
   const [empresa, setEmpresa] = usePersistedState<string>("saga.ncg.empresa", "");
   const [cnpj, setCnpj] = usePersistedState<string>("saga.ncg.cnpj", "");
+  const [premissas, setPremissas] = usePersistedState<PremissasNCG>(
+    "saga.ncg.premissas",
+    PREMISSAS_VAZIAS
+  );
 
   return (
     <div className="min-h-full bg-[#F5F7FA] p-4 font-[Inter,system-ui,sans-serif] md:p-8">
@@ -126,10 +132,7 @@ function NcgPage() {
 
         {/* Conteúdo das abas */}
         {aba === "premissas" && (
-          <PlaceholderAba
-            titulo="Premissas"
-            descricao="Prazos médios de recebimento, pagamento e estoque, além das demais premissas operacionais da empresa."
-          />
+          <PremissasForm premissas={premissas} onChange={setPremissas} />
         )}
         {aba === "calculo" && (
           <PlaceholderAba
