@@ -5,6 +5,11 @@ import { Input } from "@/components/ui/input";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { PremissasForm } from "@/components/ncg/PremissasForm";
 import { PREMISSAS_VAZIAS, type PremissasNCG } from "@/lib/ncg/premissas";
+import { Button } from "@/components/ui/button";
+import { MemorialNCG } from "@/components/ncg/MemorialNCG";
+import { DashboardNCG } from "@/components/ncg/DashboardNCG";
+import { resultadoDasPremissas } from "@/lib/ncg/apresentacao";
+import { diasDoPeriodo } from "@/lib/ncg/premissas";
 
 export const Route = createFileRoute("/ncg")({
   head: () => ({
@@ -56,9 +61,11 @@ function NcgPage() {
     "saga.ncg.premissas",
     PREMISSAS_VAZIAS
   );
+  const resultado = resultadoDasPremissas(premissas);
+  const periodoValido = diasDoPeriodo(premissas) > 0;
 
   return (
-    <div className="min-h-full bg-[#F5F7FA] p-4 font-[Inter,system-ui,sans-serif] md:p-8">
+    <div className="ncg-tool min-h-full min-w-0 bg-ncg-paper p-4 font-[Inter,system-ui,sans-serif] md:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
         {/* Header */}
         <header className="rounded-2xl bg-[#1F3A5F] p-6 shadow-[0_4px_20px_rgba(31,58,95,0.25)] md:p-8">
@@ -113,8 +120,12 @@ function NcgPage() {
           {ABAS.map(({ id, rotulo, icone: Icone }) => {
             const ativa = aba === id;
             return (
-              <button
+              <Button
                 key={id}
+                variant="ghost"
+                role="tab"
+                aria-selected={ativa}
+                aria-label={rotulo}
                 onClick={() => setAba(id)}
                 className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                   ativa
@@ -125,7 +136,7 @@ function NcgPage() {
                 <Icone className={`h-4 w-4 ${ativa ? "text-[#C9A227]" : ""}`} />
                 <span className="hidden sm:inline">{rotulo}</span>
                 <span className="sm:hidden">{rotulo.split(". ")[0]}</span>
-              </button>
+              </Button>
             );
           })}
         </nav>
@@ -134,18 +145,9 @@ function NcgPage() {
         {aba === "premissas" && (
           <PremissasForm premissas={premissas} onChange={setPremissas} />
         )}
-        {aba === "calculo" && (
-          <PlaceholderAba
-            titulo="Cálculo da NCG"
-            descricao="Ciclo financeiro, ciclo operacional e o cálculo da Necessidade de Capital de Giro a partir das premissas."
-          />
-        )}
-        {aba === "dashboard" && (
-          <PlaceholderAba
-            titulo="Dashboard"
-            descricao="Visão executiva com os principais indicadores e gráficos da NCG para apresentação ao cliente."
-          />
-        )}
+        {(aba === "calculo" || aba === "dashboard") && !periodoValido && <div className="border-l-4 border-ncg-gold bg-ncg-gold/10 p-5 text-ncg-ink"><p>Informe um período válido nas Premissas para visualizar os resultados.</p><Button variant="outline" className="mt-3" onClick={() => setAba("premissas")}>1. Premissas</Button></div>}
+        {aba === "calculo" && periodoValido && <MemorialNCG premissas={premissas} resultado={resultado}/>}
+        {aba === "dashboard" && periodoValido && <DashboardNCG premissas={premissas} resultado={resultado}/>}
         {aba === "simulacoes" && (
           <PlaceholderAba
             titulo="Simulações"
