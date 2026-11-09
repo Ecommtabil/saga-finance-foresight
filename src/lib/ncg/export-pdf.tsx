@@ -23,7 +23,7 @@ export async function gerarPdfNCG(empresa: string, cnpj: string, p: PremissasNCG
     await document.fonts.ready;
     await new Promise(resolve => setTimeout(resolve, 250));
     const titulos = ["Linha do tempo do ciclo", "Composição da NCG — cascata", "Cobertura do caixa"];
-    const nodes = Array.from(host.querySelectorAll<HTMLElement>('[role="img"]'));
+    const nodes = Array.from(host.querySelectorAll<HTMLElement>('div[role="img"]'));
     if (nodes.length !== 3) throw new Error("Não foi possível preparar todos os gráficos.");
     for (const [i, node] of nodes.entries()) {
       const canvas = await html2canvas(node, { scale: 2, backgroundColor: null, logging: false });
