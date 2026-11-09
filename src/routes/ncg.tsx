@@ -10,6 +10,8 @@ import { MemorialNCG } from "@/components/ncg/MemorialNCG";
 import { DashboardNCG } from "@/components/ncg/DashboardNCG";
 import { resultadoDasPremissas } from "@/lib/ncg/apresentacao";
 import { diasDoPeriodo } from "@/lib/ncg/premissas";
+import { SimulacoesNCG } from "@/components/ncg/SimulacoesNCG";
+import { SIMULACAO_NEUTRA, type AlavancasNCG } from "@/lib/ncg/simulacao";
 
 export const Route = createFileRoute("/ncg")({
   head: () => ({
@@ -41,20 +43,9 @@ const ABAS: { id: Aba; rotulo: string; icone: typeof ClipboardList }[] = [
   { id: "simulacoes", rotulo: "4. Simulações", icone: SlidersHorizontal },
 ];
 
-function PlaceholderAba({ titulo, descricao }: { titulo: string; descricao: string }) {
-  return (
-    <div className="rounded-2xl bg-ncg-surface p-8 shadow-[var(--ncg-shadow)]">
-      <h2 className="text-lg font-semibold text-ncg-ink">{titulo}</h2>
-      <p className="mt-2 text-sm text-ncg-ink/70">{descricao}</p>
-      <div className="mt-6 flex h-40 items-center justify-center rounded-xl border-2 border-dashed border-ncg-ink/15 text-sm text-ncg-ink/50">
-        Os campos e cálculos desta etapa serão adicionados nos próximos passos.
-      </div>
-    </div>
-  );
-}
-
 function NcgPage() {
   const [aba, setAba] = useState<Aba>("premissas");
+  const [alavancas, setAlavancas] = useState<AlavancasNCG>({ ...SIMULACAO_NEUTRA });
   const [empresa, setEmpresa] = usePersistedState<string>("saga.ncg.empresa", "");
   const [cnpj, setCnpj] = usePersistedState<string>("saga.ncg.cnpj", "");
   const [premissas, setPremissas] = usePersistedState<PremissasNCG>(
@@ -145,15 +136,10 @@ function NcgPage() {
         {aba === "premissas" && (
           <PremissasForm premissas={premissas} onChange={setPremissas} />
         )}
-        {(aba === "calculo" || aba === "dashboard") && !periodoValido && <div className="border-l-4 border-ncg-gold bg-ncg-gold/10 p-5 text-ncg-ink"><p>Informe um período válido nas Premissas para visualizar os resultados.</p><Button variant="outline" className="mt-3" onClick={() => setAba("premissas")}>1. Premissas</Button></div>}
+        {aba !== "premissas" && !periodoValido && <div className="border-l-4 border-ncg-gold bg-ncg-gold/10 p-5 text-ncg-ink"><p>Informe um período válido nas Premissas para visualizar os resultados.</p><Button variant="outline" className="mt-3" onClick={() => setAba("premissas")}>1. Premissas</Button></div>}
         {aba === "calculo" && periodoValido && <MemorialNCG premissas={premissas} resultado={resultado}/>}
         {aba === "dashboard" && periodoValido && <DashboardNCG premissas={premissas} resultado={resultado}/>}
-        {aba === "simulacoes" && (
-          <PlaceholderAba
-            titulo="Simulações"
-            descricao="Cenários what-if: ajuste prazos e premissas para ver o impacto na Necessidade de Capital de Giro."
-          />
-        )}
+        {aba === "simulacoes" && periodoValido && <SimulacoesNCG premissas={premissas} alavancas={alavancas} onChange={setAlavancas}/>}
       </div>
     </div>
   );
