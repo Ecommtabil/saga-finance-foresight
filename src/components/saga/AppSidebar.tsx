@@ -20,6 +20,7 @@ import {
   Zap,
   Wallet,
   ClipboardList,
+  Landmark,
 
 } from "lucide-react";
 import {
@@ -84,6 +85,7 @@ const ANALISE_DADOS: SubItem[] = [
   { title: "Estatísticas", url: "/estatisticas", icon: BarChart3, apenasCompleta: false },
   { title: "DRE - Vendas", url: "/dre-vendas", icon: Receipt, apenasCompleta: false },
   { title: "Fluxo de Caixa Reverso", url: "/fluxo-reverso", icon: ArrowDownUp, apenasCompleta: false },
+  { title: "Calculadora de NCG", url: "/ncg", icon: Landmark, apenasCompleta: false },
 ];
 
 
