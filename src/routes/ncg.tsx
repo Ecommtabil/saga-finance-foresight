@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, ClipboardList, Calculator, LayoutDashboard, SlidersHorizontal } from "lucide-react";
+import { Building2, ClipboardList, Calculator, LayoutDashboard, SlidersHorizontal, Save, FolderOpen, FileText, FileSpreadsheet, Loader2, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { PremissasForm } from "@/components/ncg/PremissasForm";
@@ -12,6 +13,9 @@ import { resultadoDasPremissas } from "@/lib/ncg/apresentacao";
 import { diasDoPeriodo } from "@/lib/ncg/premissas";
 import { SimulacoesNCG } from "@/components/ncg/SimulacoesNCG";
 import { SIMULACAO_NEUTRA, type AlavancasNCG } from "@/lib/ncg/simulacao";
+import { CHAVE_ANALISES, criarAnalise, duplicarAnalise, salvarNaLista, type AnaliseNCG } from "@/lib/ncg/analises";
+import { MinhasAnalisesNCG } from "@/components/ncg/MinhasAnalisesNCG";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/ncg")({
   head: () => ({
@@ -54,6 +58,32 @@ function NcgPage() {
   );
   const resultado = resultadoDasPremissas(premissas);
   const periodoValido = diasDoPeriodo(premissas) > 0;
+  const [analises, setAnalises] = usePersistedState<AnaliseNCG[]>(CHAVE_ANALISES, []);
+  const [analiseId, setAnaliseId] = usePersistedState<string | null>("saga.ncg.analise-ativa", null);
+  const [listaAberta, setListaAberta] = useState(false);
+  const [pdf, setPdf] = useState<{ blob: Blob; empresa: string } | null>(null);
+  const [exportando, setExportando] = useState(false);
+  const gravar = (lista: AnaliseNCG[]) => {
+    try { localStorage.setItem(CHAVE_ANALISES, JSON.stringify(lista)); setAnalises(lista); return true; }
+    catch { toast.error("Não foi possível salvar. O armazenamento deste navegador pode estar cheio."); return false; }
+  };
+  const salvar = () => {
+    try {
+      const anterior = analises.find(a => a.id === analiseId);
+      const a = criarAnalise(empresa, cnpj, premissas, anterior?.id ?? crypto.randomUUID(), new Date().toISOString(), anterior);
+      if (gravar(salvarNaLista(analises, a))) { setAnaliseId(a.id); toast.success("Análise salva neste projeto."); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível salvar a análise."); }
+  };
+  const abrir = (a: AnaliseNCG) => {
+    setEmpresa(a.empresa); setCnpj(a.cnpj); setPremissas(structuredClone(a.premissas)); setAnaliseId(a.id);
+    setAlavancas({ ...SIMULACAO_NEUTRA }); setListaAberta(false); setAba("dashboard"); toast.success("Análise aberta.");
+  };
+  const gerarPdf = async () => {
+    setExportando(true);
+    try { const { gerarPdfNCG } = await import("@/lib/ncg/export-pdf"); setPdf({ blob: await gerarPdfNCG(empresa, cnpj, structuredClone(premissas)), empresa }); }
+    catch { toast.error("Não foi possível gerar o PDF. Tente novamente."); }
+    finally { setExportando(false); }
+  };
 
   return (
     <div className="ncg-tool min-h-full min-w-0 bg-ncg-paper p-4 font-[Inter,system-ui,sans-serif] md:p-8">
@@ -106,6 +136,14 @@ function NcgPage() {
           </div>
         </header>
 
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={salvar}><Save/>Salvar análise</Button>
+          <Button variant="outline" onClick={() => setListaAberta(true)}><FolderOpen/>Minhas análises</Button>
+          <Button variant="outline" disabled={!periodoValido || exportando} onClick={() => void gerarPdf()}>{exportando ? <Loader2 className="animate-spin"/> : <FileText/>}{exportando ? "Gerando PDF…" : "Exportar PDF"}</Button>
+          <Button variant="outline" disabled={!periodoValido} onClick={async () => { try { const { exportarExcelNCG } = await import("@/lib/ncg/export-excel"); exportarExcelNCG(empresa, cnpj, premissas); } catch { toast.error("Não foi possível exportar o Excel."); } }}><FileSpreadsheet/>Exportar Excel</Button>
+          {analiseId && <Button variant="ghost" onClick={() => { setAnaliseId(null); setAba("premissas"); toast.success("Nova análise: ajuste o período e salve uma nova cópia."); }}><Plus/>Nova análise</Button>}
+        </div>
+
         {/* Navegação em abas */}
         <nav role="tablist" aria-label="Etapas da NCG" className="flex gap-2 overflow-x-auto rounded-2xl bg-ncg-surface p-2 shadow-[var(--ncg-shadow)]">
           {ABAS.map(({ id, rotulo, icone: Icone }) => {
@@ -140,6 +178,8 @@ function NcgPage() {
         {aba === "calculo" && periodoValido && <MemorialNCG premissas={premissas} resultado={resultado}/>}
         {aba === "dashboard" && periodoValido && <DashboardNCG premissas={premissas} resultado={resultado}/>}
         {aba === "simulacoes" && periodoValido && <SimulacoesNCG premissas={premissas} alavancas={alavancas} onChange={setAlavancas}/>}
+        <MinhasAnalisesNCG open={listaAberta} onOpenChange={setListaAberta} analises={analises} onAbrir={abrir} onDuplicar={a => { const copia = duplicarAnalise(a, crypto.randomUUID(), new Date().toISOString()); if (gravar(salvarNaLista(analises, copia))) toast.success("Análise duplicada."); }} onExcluir={id => { if (gravar(analises.filter(a => a.id !== id))) { if (analiseId === id) setAnaliseId(null); toast.success("Análise excluída."); } }}/>
+        <Dialog open={pdf !== null} onOpenChange={v => { if (!v) setPdf(null); }}><DialogContent><DialogHeader><DialogTitle>Relatório PDF pronto</DialogTitle></DialogHeader><p className="text-sm text-muted-foreground">Ecommtabil · {pdf?.empresa || "Empresa"} · Relatório A4 com gráficos e memorial de cálculo.</p><DialogFooter><Button onClick={async () => { if (!pdf) return; const { baixarPdfNCG } = await import("@/lib/ncg/export-pdf"); baixarPdfNCG(pdf.blob, pdf.empresa); }}><FileText/>Baixar PDF</Button></DialogFooter></DialogContent></Dialog>
       </div>
     </div>
   );
