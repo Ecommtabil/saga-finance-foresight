@@ -27,11 +27,12 @@ export async function gerarPdfNCG(empresa: string, cnpj: string, p: PremissasNCG
     if (nodes.length !== 3) throw new Error("Não foi possível preparar todos os gráficos.");
     for (const [i, node] of nodes.entries()) {
       const canvas = await html2canvas(node, { scale: 2, backgroundColor: null, logging: false });
-      images.push({ titulo: titulos[i], url: canvas.toDataURL("image/png"), ratio: canvas.height / canvas.width });
+      images.push({ titulo: titulos[i], url: canvas.toDataURL("image/jpeg", 0.92), ratio: canvas.height / canvas.width });
     }
   } finally { root.unmount(); host.remove(); }
 
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const doc = new jsPDF({ unit: "mm", format: "a4", compress: true });
+  const textoPdf = (s: string) => s.replace(/\u00a0/g, " ").replace(/−/g, "-");
   const navy: [number, number, number] = [31, 58, 95];
   const gold: [number, number, number] = [201, 162, 39];
   let y = 46;
@@ -45,12 +46,12 @@ export async function gerarPdfNCG(empresa: string, cnpj: string, p: PremissasNCG
   const novaPagina = () => { doc.addPage(); header(); y = 46; };
   const titulo = (texto: string) => { if (y > 250) novaPagina(); doc.setTextColor(...navy); doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.text(texto, 14, y); doc.setFont("helvetica", "normal"); y += 7; };
   const paragrafo = (texto: string) => {
-    doc.setFontSize(9); const linhas = doc.splitTextToSize(texto.replace(/\u00a0/g, " "), 180) as string[];
+    doc.setFontSize(9); const linhas = doc.splitTextToSize(textoPdf(texto), 180) as string[];
     if (y + linhas.length * 4.5 > 270) novaPagina();
     doc.text(linhas, 14, y); y += linhas.length * 4.5 + 5;
   };
   const tabela = (cabecalho: string[], body: string[][]) => {
-    autoTable(doc, { startY: y, head: [cabecalho], body, margin: { top: 42, bottom: 22, left: 14, right: 14 },
+    autoTable(doc, { startY: y, head: [cabecalho], body: body.map(l => l.map(textoPdf)), margin: { top: 42, bottom: 22, left: 14, right: 14 },
       styles: { fontSize: 8, cellPadding: 2.4, overflow: "linebreak", textColor: navy }, headStyles: { fillColor: navy, textColor: 255 },
       columnStyles: { 1: { halign: "right" } },
       didDrawPage: () => header(),
@@ -80,7 +81,7 @@ export async function gerarPdfNCG(empresa: string, cnpj: string, p: PremissasNCG
     const width = image.titulo === "Cobertura do caixa" ? 100 : 180;
     const height = width * image.ratio;
     if (y + height + 20 > 270) novaPagina();
-    titulo(image.titulo); doc.addImage(image.url, "PNG", 14, y, width, height); y += height + 9;
+    titulo(image.titulo); doc.addImage(image.url, "JPEG", 14, y, width, height); y += height + 9;
     if (image.titulo.includes("tempo")) paragrafo(`PME: ${diasTexto(d.r.prazos.pme)} | PMR: ${diasTexto(d.r.prazos.pmr)} | PMP: ${diasTexto(d.r.prazos.pmp)} | Ciclo financeiro: ${diasTexto(d.r.prazos.cicloFinanceiro)}`);
     if (image.titulo.includes("cascata")) paragrafo("Azul: ativos; vermelho: passivos/falta; dourado: reserva. NCG e total necessário são subtotais. Caixa é separado. Sobra/(falta) = caixa − total necessário.");
     if (image.titulo.includes("Cobertura")) paragrafo("Vermelho: abaixo de 70%; amarelo: de 70% até menos de 100%; verde: a partir de 100%. Escala visual até 150%.");
