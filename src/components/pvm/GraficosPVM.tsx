@@ -10,14 +10,14 @@ const compacto = (v: number) => brlCompacto(v).replace("R$ ", "");
 type PropsRotulo = { x?: number | string; y?: number | string; width?: number | string; height?: number | string; value?: number | string };
 const num = (v: number | string | undefined) => Number(v ?? 0);
 /** Rótulo sem quebra de linha acima da barra (vertical). */
-const RotuloTopo = (p: PropsRotulo) => (
-  <text x={num(p.x) + num(p.width) / 2} y={num(p.y) - 6} textAnchor="middle" fill="var(--vol-text)" fontSize={12} fontWeight={600}>{brlCompacto(num(p.value))}</text>
-);
+const RotuloTopo = (p: PropsRotulo) => {
+  const estreito = num(p.width) < 60;
+  return <text x={num(p.x) + num(p.width) / 2} y={num(p.y) - 6} textAnchor="middle" fill="var(--vol-text)" fontSize={estreito ? 9.5 : 12} fontWeight={600}>{estreito ? compacto(num(p.value)) : brlCompacto(num(p.value))}</text>;
+};
 /** Rótulo sem quebra na ponta da barra horizontal (à direita se positivo, à esquerda se negativo). */
 const RotuloPonta = (p: PropsRotulo) => {
   const v = num(p.value), x = num(p.x), w = num(p.width), y = num(p.y) + num(p.height) / 2;
-  const fim = v >= 0 ? Math.max(x, x + w) + 4 : Math.min(x, x + w) - 4;
-  return <text x={fim} y={y} dy={4} textAnchor={v >= 0 ? "start" : "end"} fill="var(--vol-text)" fontSize={11}>{brlCompacto(v)}</text>;
+  return <text x={Math.max(x, x + w) + 4} y={y} dy={4} textAnchor="start" fill="var(--vol-text)" fontSize={11}>{brlCompacto(v)}</text>;
 };
 
 /** Cascata da receita: barra empilhada com série invisível de base. */
@@ -88,10 +88,10 @@ export function Ranking({ r, limite = 25 }: { r: ResultadoPVM; limite?: number }
   return (
     <div className="vol-chart" style={{ height: Math.max(220, dados.length * 30 + 40) }} role="img" aria-label="Ranking dos itens pelo efeito total">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={dados} layout="vertical" margin={{ top: 4, right: 16, left: 4, bottom: 4 }}>
+        <BarChart data={dados} layout="vertical" margin={{ top: 4, right: 84, left: 4, bottom: 4 }}>
           <CartesianGrid horizontal={false} stroke="var(--vol-border)" strokeDasharray="3 3" />
-          <XAxis type="number" tick={eixoTick} tickFormatter={compacto} domain={[(min: number) => Math.min(0, min * 1.45), (max: number) => Math.max(0, max * 1.45)]} />
-          <YAxis type="category" dataKey="item" width={150} tick={{ ...eixoTick, fill: "var(--vol-text)" }} interval={0} />
+          <XAxis type="number" tick={eixoTick} tickFormatter={compacto} domain={[(min: number) => Math.min(0, min * 1.05), (max: number) => Math.max(0, max * 1.05)]} />
+          <YAxis type="category" dataKey="item" width={130} tick={{ ...eixoTick, fill: "var(--vol-text)" }} interval={0} />
           <ReferenceLine x={0} stroke="var(--vol-muted)" />
           <Tooltip formatter={(v: number) => [brl(v), "Efeito total"]} contentStyle={estiloTooltip} />
           <Bar dataKey="total" isAnimationActive={false} radius={3}>

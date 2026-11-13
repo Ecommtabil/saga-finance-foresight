@@ -22,9 +22,9 @@
 - [x] Validar no navegador e com testes (20 testes do estudo; PDF 6 páginas A4 e Excel conferidos).
 
 # Análise PVM (Preço, Volume e Mix)
-- [ ] Importação Excel/CSV com cabeçalho automático, validações, modelo para download e base persistida.
-- [ ] Motor puro PVM com testes (valores da planilha por unidade, conciliação, novos/descontinuados).
-- [ ] Dashboard: controles, KPIs, cascata, comparativo dos 3 níveis, tabela detalhada, ranking.
-- [ ] Leitura automática, glossário, cliente no topo, exportações Excel e PDF.
-- [ ] Modos Mês a mês e Acumulado com conciliação.
-- [ ] Validar no navegador.
+- [x] Importação Excel/CSV com cabeçalho automático, validações, modelo para download e base persistida.
+- [x] Motor puro PVM com testes (valores da planilha por unidade, conciliação, novos/descontinuados).
+- [x] Dashboard: controles, KPIs, cascata, comparativo dos 3 níveis, tabela detalhada, ranking.
+- [x] Leitura automática, glossário, cliente no topo, exportações Excel e PDF.
+- [x] Modos Mês a mês e Acumulado com conciliação.
+- [x] Validar no navegador.

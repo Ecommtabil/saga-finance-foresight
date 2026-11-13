@@ -27,3 +27,7 @@
 ## Estudo de Volatilidade
 - Keep volatility statistics in the pure `src/lib/volatilidade/stats.ts` module with unit tests; screens, PDF, Excel and diagnosis all read from it so numbers never drift between views.
 - Volatility state lives in a Zustand store persisted under a `saga.*` browser key (rehydrated after mount) so studies follow the active local project; PDF captures the Relatório tab's live charts (`data-vol-chart`) and Excel writes native formulas with cached values.
+
+## Análise PVM
+- PVM math lives only in the pure `src/lib/pvm.ts` (tested, including reconciliation Volume + Preço + Mix = R1 − R0); dashboard, insights and exports consume its results. Import/format/export helpers live in `src/lib/analise-pvm/`, and the screen reuses the Ecommtabil UI tokens from `src/components/volatilidade/ui.tsx` via `.vol-tool.pvm-tool`.
+- PVM base, client name and controls persist in a Zustand store under a `saga.*` key (rehydrated after mount); styled Excel exports use `xlsx-js-style` because plain SheetJS drops cell styles.

@@ -42,7 +42,7 @@ function Kpi({ titulo, valor, detalhe, tom }: { titulo: string; valor: string; d
   return (
     <article className="min-w-0 rounded-2xl border border-vol-border bg-vol-surface p-4 shadow-[var(--vol-shadow)]">
       <p className="text-xs text-vol-muted">{titulo}</p>
-      <p className="mt-1 break-words text-base font-semibold tabular-nums text-vol-text md:text-lg">{valor}</p>
+      <p className="mt-1 text-sm font-semibold tabular-nums text-vol-text sm:text-base md:text-lg">{valor.split(" → ").map((v, i) => <span key={i}>{i > 0 && " → "}<span className="whitespace-nowrap">{v}</span></span>)}</p>
       {detalhe && <p className={`mt-1 text-xs font-medium tabular-nums ${tom === "bom" ? "text-vol-good" : tom === "ruim" ? "text-vol-bad" : "text-vol-muted"}`}>{detalhe}</p>}
     </article>
   );
