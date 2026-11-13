@@ -34,6 +34,7 @@ import { Route as SimuladoresRouteImport } from './routes/simuladores'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as ValuationRouteImport } from './routes/valuation'
+import { Route as VolatilidadeRouteImport } from './routes/volatilidade'
 import { Route as ModelagemFinanceira2IndexRouteImport } from './routes/modelagem-financeira-2.index'
 import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
 import { Route as ModelagemFinanceira2ImportarRouteImport } from './routes/modelagem-financeira-2.importar'
@@ -190,6 +191,11 @@ const UploadRoute = UploadRouteImport.update({
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
   path: '/valuation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VolatilidadeRoute = VolatilidadeRouteImport.update({
+  id: '/volatilidade',
+  path: '/volatilidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ModelagemFinanceira2IndexRoute =
@@ -401,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/volatilidade': typeof VolatilidadeRoute
   '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
   '/modelagem-financeira-2/importar': typeof ModelagemFinanceira2ImportarRoute
   '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
@@ -456,6 +463,7 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/volatilidade': typeof VolatilidadeRoute
   '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
   '/modelagem-financeira-2/importar': typeof ModelagemFinanceira2ImportarRoute
   '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
@@ -516,6 +524,7 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/volatilidade': typeof VolatilidadeRoute
   '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
   '/modelagem-financeira-2/importar': typeof ModelagemFinanceira2ImportarRoute
   '/modelagem-financeira-2/novo': typeof ModelagemFinanceira2NovoRoute
@@ -577,6 +586,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/upload'
     | '/valuation'
+    | '/volatilidade'
     | '/modelagem-financeira-2/$modeloId'
     | '/modelagem-financeira-2/importar'
     | '/modelagem-financeira-2/novo'
@@ -632,6 +642,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/upload'
     | '/valuation'
+    | '/volatilidade'
     | '/modelagem-financeira-2/$modeloId'
     | '/modelagem-financeira-2/importar'
     | '/modelagem-financeira-2/novo'
@@ -691,6 +702,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/upload'
     | '/valuation'
+    | '/volatilidade'
     | '/modelagem-financeira-2/$modeloId'
     | '/modelagem-financeira-2/importar'
     | '/modelagem-financeira-2/novo'
@@ -751,6 +763,7 @@ export interface RootRouteChildren {
   TermosRoute: typeof TermosRoute
   UploadRoute: typeof UploadRoute
   ValuationRoute: typeof ValuationRoute
+  VolatilidadeRoute: typeof VolatilidadeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -928,6 +941,13 @@ declare module '@tanstack/react-router' {
       path: '/valuation'
       fullPath: '/valuation'
       preLoaderRoute: typeof ValuationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/volatilidade': {
+      id: '/volatilidade'
+      path: '/volatilidade'
+      fullPath: '/volatilidade'
+      preLoaderRoute: typeof VolatilidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/modelagem-financeira-2/': {
@@ -1295,6 +1315,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermosRoute: TermosRoute,
   UploadRoute: UploadRoute,
   ValuationRoute: ValuationRoute,
+  VolatilidadeRoute: VolatilidadeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

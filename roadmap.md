@@ -13,3 +13,10 @@
 - [x] Comparar períodos da mesma empresa com PMR, PME, PMP e NCG.
 - [x] Exportar PDF A4 Ecommtabil e Excel com Premissas e NCG.
 - [x] Testar operações, recarga e arquivos baixados (24 testes aprovados).
+# Estudo de Volatilidade Financeira
+- [ ] Módulo estatístico puro com testes (critérios de aceite do exemplo).
+- [ ] Tela Dados: cabeçalho, upload Excel/CSV, colar, tabela editável, séries dinâmicas, ajustes, filtro, validações, exemplo.
+- [ ] Estatísticas, faixas de probabilidade, gráficos (curvas, série temporal, histograma, gap).
+- [ ] Calculadora de probabilidade, diagnóstico editável, configurações, modo escuro e apresentação.
+- [ ] Estudos salvos/duplicar; exportar PDF A4 e Excel com fórmulas nativas.
+- [ ] Validar no navegador e com testes.

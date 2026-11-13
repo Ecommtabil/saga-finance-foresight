@@ -70,6 +70,17 @@
   --color-ncg-muted: var(--ncg-muted);
   --color-ncg-border: var(--ncg-border);
   --color-ncg-on-ink: var(--ncg-on-ink);
+  --color-vol-ink: var(--vol-ink);
+  --color-vol-gold: var(--vol-gold);
+  --color-vol-text: var(--vol-text);
+  --color-vol-paper: var(--vol-paper);
+  --color-vol-surface: var(--vol-surface);
+  --color-vol-muted: var(--vol-muted);
+  --color-vol-border: var(--vol-border);
+  --color-vol-on-ink: var(--vol-on-ink);
+  --color-vol-good: var(--vol-good);
+  --color-vol-warn: var(--vol-warn);
+  --color-vol-bad: var(--vol-bad);
 }
 
 .ncg-tool {
@@ -93,6 +104,48 @@
 .ncg-table th:nth-child(2), .ncg-table td:nth-child(2) { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .ncg-chart { width: 100%; min-width: 0; height: 290px; }
 .ncg-chart svg { overflow: visible; }
+
+/* Estudo de Volatilidade Financeira — paleta Ecommtabil (#0B1F3A / #C9A227) */
+.vol-tool {
+  --vol-ink: oklch(0.235 0.06 258);
+  --vol-gold: oklch(0.727 0.139 89);
+  --vol-text: oklch(0.235 0.06 258);
+  --vol-paper: oklch(0.975 0.005 255);
+  --vol-surface: oklch(1 0 0);
+  --vol-muted: oklch(0.53 0.03 258);
+  --vol-border: oklch(0.9 0.012 258);
+  --vol-on-ink: oklch(0.99 0 0);
+  --vol-good: oklch(0.55 0.14 150);
+  --vol-warn: oklch(0.72 0.15 75);
+  --vol-bad: oklch(0.55 0.2 25);
+  --vol-shadow: 0 2px 14px oklch(0.235 0.06 258 / 0.08);
+}
+.vol-tool.vol-dark {
+  --vol-ink: oklch(0.3 0.07 258);
+  --vol-text: oklch(0.94 0.01 258);
+  --vol-paper: oklch(0.17 0.035 258);
+  --vol-surface: oklch(0.225 0.04 258);
+  --vol-muted: oklch(0.72 0.03 258);
+  --vol-border: oklch(0.34 0.04 258);
+  --vol-good: oklch(0.7 0.15 150);
+  --vol-warn: oklch(0.8 0.15 80);
+  --vol-bad: oklch(0.68 0.19 25);
+  --vol-shadow: 0 2px 14px oklch(0 0 0 / 0.35);
+  --background: var(--vol-surface);
+  --foreground: var(--vol-text);
+  --border: var(--vol-border);
+  --input: var(--vol-border);
+  --accent: oklch(0.3 0.045 258);
+  --accent-foreground: var(--vol-text);
+  --muted-foreground: var(--vol-muted);
+}
+.vol-chart { width: 100%; min-width: 0; height: 300px; }
+.vol-chart svg { overflow: visible; }
+.vol-table { width: 100%; font-size: 0.8125rem; border-collapse: collapse; }
+.vol-table th { color: var(--vol-muted); font-weight: 500; text-align: left; background: var(--vol-paper); }
+.vol-table th, .vol-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--vol-border); white-space: nowrap; }
+.vol-table td.num, .vol-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.vol-report:fullscreen { overflow: auto; background: var(--vol-paper); padding: 2rem; }
 
 :root {
   --radius: 0.625rem;
