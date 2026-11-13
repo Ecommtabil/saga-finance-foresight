@@ -23,3 +23,7 @@
 - Keep NCG premise mapping and chart data in a browser-safe presentation module and reuse the existing pure engine for both report and dashboard, so calculations cannot drift between views.
 - Adapt NCG simulations through target average balances and call the existing engine; keep simulation controls separate from saved premises so experiments never overwrite source inputs.
 - Store NCG analysis snapshots under project-scoped browser keys and recalculate from saved premises on opening/comparison; generate Excel and PDF locally from shared report data and capture the actual dashboard charts for PDF fidelity.
+
+## Estudo de Volatilidade
+- Keep volatility statistics in the pure `src/lib/volatilidade/stats.ts` module with unit tests; screens, PDF, Excel and diagnosis all read from it so numbers never drift between views.
+- Volatility state lives in a Zustand store persisted under a `saga.*` browser key (rehydrated after mount) so studies follow the active local project; PDF captures the Relatório tab's live charts (`data-vol-chart`) and Excel writes native formulas with cached values.
