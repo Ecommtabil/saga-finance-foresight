@@ -22,6 +22,7 @@ import {
   ClipboardList,
   Landmark,
   Activity,
+  TrendingUp,
 
 } from "lucide-react";
 import {
@@ -88,6 +89,7 @@ const ANALISE_DADOS: SubItem[] = [
   { title: "Fluxo de Caixa Reverso", url: "/fluxo-reverso", icon: ArrowDownUp, apenasCompleta: false },
   { title: "Calculadora de NCG", url: "/ncg", icon: Landmark, apenasCompleta: false },
   { title: "Estudo de Volatilidade", url: "/volatilidade", icon: Activity, apenasCompleta: false },
+  { title: "Análise PVM", url: "/pvm", icon: TrendingUp, apenasCompleta: false },
 ];
 
 

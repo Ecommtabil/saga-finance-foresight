@@ -30,6 +30,7 @@ import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProjetosRouteImport } from './routes/projetos'
+import { Route as PvmRouteImport } from './routes/pvm'
 import { Route as SimuladoresRouteImport } from './routes/simuladores'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as UploadRouteImport } from './routes/upload'
@@ -171,6 +172,11 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
 const ProjetosRoute = ProjetosRouteImport.update({
   id: '/projetos',
   path: '/projetos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PvmRoute = PvmRouteImport.update({
+  id: '/pvm',
+  path: '/pvm',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SimuladoresRoute = SimuladoresRouteImport.update({
@@ -403,6 +409,7 @@ export interface FileRoutesByFullPath {
   '/planejamento': typeof PlanejamentoRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/projetos': typeof ProjetosRoute
+  '/pvm': typeof PvmRoute
   '/simuladores': typeof SimuladoresRoute
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
@@ -459,6 +466,7 @@ export interface FileRoutesByTo {
   '/ncg': typeof NcgRoute
   '/privacidade': typeof PrivacidadeRoute
   '/projetos': typeof ProjetosRoute
+  '/pvm': typeof PvmRoute
   '/simuladores': typeof SimuladoresRoute
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
@@ -520,6 +528,7 @@ export interface FileRoutesById {
   '/planejamento': typeof PlanejamentoRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/projetos': typeof ProjetosRoute
+  '/pvm': typeof PvmRoute
   '/simuladores': typeof SimuladoresRoute
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
@@ -582,6 +591,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/privacidade'
     | '/projetos'
+    | '/pvm'
     | '/simuladores'
     | '/termos'
     | '/upload'
@@ -638,6 +648,7 @@ export interface FileRouteTypes {
     | '/ncg'
     | '/privacidade'
     | '/projetos'
+    | '/pvm'
     | '/simuladores'
     | '/termos'
     | '/upload'
@@ -698,6 +709,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/privacidade'
     | '/projetos'
+    | '/pvm'
     | '/simuladores'
     | '/termos'
     | '/upload'
@@ -759,6 +771,7 @@ export interface RootRouteChildren {
   PlanejamentoRoute: typeof PlanejamentoRouteWithChildren
   PrivacidadeRoute: typeof PrivacidadeRoute
   ProjetosRoute: typeof ProjetosRoute
+  PvmRoute: typeof PvmRoute
   SimuladoresRoute: typeof SimuladoresRoute
   TermosRoute: typeof TermosRoute
   UploadRoute: typeof UploadRoute
@@ -913,6 +926,13 @@ declare module '@tanstack/react-router' {
       path: '/projetos'
       fullPath: '/projetos'
       preLoaderRoute: typeof ProjetosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pvm': {
+      id: '/pvm'
+      path: '/pvm'
+      fullPath: '/pvm'
+      preLoaderRoute: typeof PvmRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/simuladores': {
@@ -1311,6 +1331,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanejamentoRoute: PlanejamentoRouteWithChildren,
   PrivacidadeRoute: PrivacidadeRoute,
   ProjetosRoute: ProjetosRoute,
+  PvmRoute: PvmRoute,
   SimuladoresRoute: SimuladoresRoute,
   TermosRoute: TermosRoute,
   UploadRoute: UploadRoute,
