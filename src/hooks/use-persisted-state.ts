@@ -10,6 +10,7 @@ export function usePersistedState<T>(key: string, inicial: T | (() => T)): [T, D
   const inicialRef = useRef(inicial);
   const chaveCarregada = useRef<string | null>(null);
   const valorCarregado = useRef<unknown>(undefined);
+  const aguardando = useRef(false);
 
   useEffect(() => {
     let v: T | undefined;
@@ -23,11 +24,17 @@ export function usePersistedState<T>(key: string, inicial: T | (() => T)): [T, D
     const novo = v !== undefined ? v : typeof ini === "function" ? (ini as () => T)() : ini;
     chaveCarregada.current = key;
     valorCarregado.current = novo;
+    aguardando.current = true;
     setValor(novo);
   }, [key]);
 
   useEffect(() => {
     if (chaveCarregada.current !== key) return;
+    // Até o valor lido aparecer no estado, não grava (evita sobrescrever o salvo com o valor inicial).
+    if (aguardando.current) {
+      if (Object.is(valor, valorCarregado.current)) aguardando.current = false;
+      return;
+    }
     if (Object.is(valor, valorCarregado.current)) return;
     try {
       localStorage.setItem(key, JSON.stringify(valor));

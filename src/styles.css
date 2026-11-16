@@ -81,6 +81,21 @@
   --color-vol-good: var(--vol-good);
   --color-vol-warn: var(--vol-warn);
   --color-vol-bad: var(--vol-bad);
+  --color-via-ink: var(--via-ink);
+  --color-via-gold: var(--via-gold);
+  --color-via-text: var(--via-text);
+  --color-via-paper: var(--via-paper);
+  --color-via-surface: var(--via-surface);
+  --color-via-muted: var(--via-muted);
+  --color-via-border: var(--via-border);
+  --color-via-on-ink: var(--via-on-ink);
+  --color-via-input: var(--via-input);
+  --color-via-calc: var(--via-calc);
+  --color-via-sub: var(--via-sub);
+  --color-via-good: var(--via-good);
+  --color-via-warn: var(--via-warn);
+  --color-via-bad: var(--via-bad);
+  --color-via-blue: var(--via-blue);
 }
 
 .ncg-tool {
@@ -150,6 +165,41 @@
   --vol-bad: oklch(0.577 0.215 27);
 }
 .vol-report:fullscreen { overflow: auto; background: var(--vol-paper); padding: 2rem; }
+
+/* Estudos de Viabilidade — paleta Ecommtabil (#0F2A44 / #C9A227 / #F7F8FA) */
+.via-tool {
+  --via-ink: #0f2a44;
+  --via-gold: #c9a227;
+  --via-text: #0f2a44;
+  --via-paper: #f7f8fa;
+  --via-surface: #ffffff;
+  --via-muted: #5b6b7f;
+  --via-border: #e2e6ec;
+  --via-on-ink: #ffffff;
+  --via-input: #eaf2fb;
+  --via-calc: #eaf7ee;
+  --via-sub: #f0f1f3;
+  --via-good: #15803d;
+  --via-warn: #b7791f;
+  --via-bad: #c0352b;
+  --via-blue: #5a7fb0;
+  --via-shadow: 0 1px 3px rgb(15 42 68 / 0.06), 0 6px 20px rgb(15 42 68 / 0.05);
+}
+.via-chart { width: 100%; min-width: 0; height: 300px; }
+.via-chart svg { overflow: visible; }
+.via-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.8125rem; }
+.via-table th, .via-table td { padding: 0.5rem 0.75rem; white-space: nowrap; border-bottom: 1px solid var(--via-border); text-align: right; font-variant-numeric: tabular-nums; }
+.via-table th:first-child, .via-table td:first-child { position: sticky; left: 0; z-index: 1; text-align: left; min-width: 9.5rem; max-width: 12rem; white-space: normal; background: var(--via-surface); box-shadow: 1px 0 0 var(--via-border); }
+@media (min-width: 768px) { .via-table th:first-child, .via-table td:first-child { min-width: 15rem; max-width: none; white-space: nowrap; } }
+.via-table thead th { background: var(--via-paper); color: var(--via-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.via-table thead th:first-child { background: var(--via-paper); }
+.via-table tr.via-secao td { background: var(--via-surface); color: var(--via-ink); font-weight: 700; padding-top: 1rem; border-bottom: 2px solid var(--via-gold); }
+.via-table tr.via-calc td:not(:first-child) { background: var(--via-calc); }
+.via-table tr.via-subtotal td { background: var(--via-sub); font-weight: 600; }
+.via-table tr.via-total td { background: var(--via-ink); color: var(--via-on-ink); font-weight: 700; }
+.via-table tr.via-acumulado td { color: var(--via-muted); font-style: italic; }
+.via-table td.via-neg { color: var(--via-bad); }
+.via-table tr.via-total td.via-neg { color: #ffb4ab; }
 
 :root {
   --radius: 0.625rem;

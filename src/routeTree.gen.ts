@@ -35,6 +35,7 @@ import { Route as SimuladoresRouteImport } from './routes/simuladores'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as ValuationRouteImport } from './routes/valuation'
+import { Route as ViabilidadeRouteImport } from './routes/viabilidade'
 import { Route as VolatilidadeRouteImport } from './routes/volatilidade'
 import { Route as ModelagemFinanceira2IndexRouteImport } from './routes/modelagem-financeira-2.index'
 import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
@@ -62,6 +63,13 @@ import { Route as PlanejamentoDashboardRouteImport } from './routes/planejamento
 import { Route as PlanejamentoPremissasRouteImport } from './routes/planejamento.premissas'
 import { Route as PlanejamentoProjecaoRouteImport } from './routes/planejamento.projecao'
 import { Route as PlanejamentoVariacaoRouteImport } from './routes/planejamento.variacao'
+import { Route as ViabilidadeIndexRouteImport } from './routes/viabilidade.index'
+import { Route as ViabilidadeCenariosRouteImport } from './routes/viabilidade.cenarios'
+import { Route as ViabilidadeComprarAlugarRouteImport } from './routes/viabilidade.comprar-alugar'
+import { Route as ViabilidadeDebugRouteImport } from './routes/viabilidade.debug'
+import { Route as ViabilidadeEquipeTerceirizarRouteImport } from './routes/viabilidade.equipe-terceirizar'
+import { Route as ViabilidadeMaquinaLeasingRouteImport } from './routes/viabilidade.maquina-leasing'
+import { Route as ViabilidadeNovaLinhaRouteImport } from './routes/viabilidade.nova-linha'
 import { Route as ModelagemFinanceira2DashboardModeloIdRouteImport } from './routes/modelagem-financeira-2.dashboard.$modeloId'
 import { Route as ModelagemFinanceira2IndicadoresModeloIdRouteImport } from './routes/modelagem-financeira-2.indicadores.$modeloId'
 import { Route as ModelagemFinanceira2ProjecaoModeloIdRouteImport } from './routes/modelagem-financeira-2.projecao.$modeloId'
@@ -197,6 +205,11 @@ const UploadRoute = UploadRouteImport.update({
 const ValuationRoute = ValuationRouteImport.update({
   id: '/valuation',
   path: '/valuation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ViabilidadeRoute = ViabilidadeRouteImport.update({
+  id: '/viabilidade',
+  path: '/viabilidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VolatilidadeRoute = VolatilidadeRouteImport.update({
@@ -350,6 +363,44 @@ const PlanejamentoVariacaoRoute = PlanejamentoVariacaoRouteImport.update({
   path: '/variacao',
   getParentRoute: () => PlanejamentoRoute,
 } as any)
+const ViabilidadeIndexRoute = ViabilidadeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ViabilidadeRoute,
+} as any)
+const ViabilidadeCenariosRoute = ViabilidadeCenariosRouteImport.update({
+  id: '/cenarios',
+  path: '/cenarios',
+  getParentRoute: () => ViabilidadeRoute,
+} as any)
+const ViabilidadeComprarAlugarRoute =
+  ViabilidadeComprarAlugarRouteImport.update({
+    id: '/comprar-alugar',
+    path: '/comprar-alugar',
+    getParentRoute: () => ViabilidadeRoute,
+  } as any)
+const ViabilidadeDebugRoute = ViabilidadeDebugRouteImport.update({
+  id: '/debug',
+  path: '/debug',
+  getParentRoute: () => ViabilidadeRoute,
+} as any)
+const ViabilidadeEquipeTerceirizarRoute =
+  ViabilidadeEquipeTerceirizarRouteImport.update({
+    id: '/equipe-terceirizar',
+    path: '/equipe-terceirizar',
+    getParentRoute: () => ViabilidadeRoute,
+  } as any)
+const ViabilidadeMaquinaLeasingRoute =
+  ViabilidadeMaquinaLeasingRouteImport.update({
+    id: '/maquina-leasing',
+    path: '/maquina-leasing',
+    getParentRoute: () => ViabilidadeRoute,
+  } as any)
+const ViabilidadeNovaLinhaRoute = ViabilidadeNovaLinhaRouteImport.update({
+  id: '/nova-linha',
+  path: '/nova-linha',
+  getParentRoute: () => ViabilidadeRoute,
+} as any)
 const ModelagemFinanceira2DashboardModeloIdRoute =
   ModelagemFinanceira2DashboardModeloIdRouteImport.update({
     id: '/dashboard/$modeloId',
@@ -414,6 +465,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/viabilidade': typeof ViabilidadeRouteWithChildren
   '/volatilidade': typeof VolatilidadeRoute
   '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
   '/modelagem-financeira-2/importar': typeof ModelagemFinanceira2ImportarRoute
@@ -437,10 +489,17 @@ export interface FileRoutesByFullPath {
   '/planejamento/premissas': typeof PlanejamentoPremissasRoute
   '/planejamento/projecao': typeof PlanejamentoProjecaoRoute
   '/planejamento/variacao': typeof PlanejamentoVariacaoRoute
+  '/viabilidade/cenarios': typeof ViabilidadeCenariosRoute
+  '/viabilidade/comprar-alugar': typeof ViabilidadeComprarAlugarRoute
+  '/viabilidade/debug': typeof ViabilidadeDebugRoute
+  '/viabilidade/equipe-terceirizar': typeof ViabilidadeEquipeTerceirizarRoute
+  '/viabilidade/maquina-leasing': typeof ViabilidadeMaquinaLeasingRoute
+  '/viabilidade/nova-linha': typeof ViabilidadeNovaLinhaRoute
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
   '/planejamento/': typeof PlanejamentoIndexRoute
+  '/viabilidade/': typeof ViabilidadeIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -494,10 +553,17 @@ export interface FileRoutesByTo {
   '/planejamento/premissas': typeof PlanejamentoPremissasRoute
   '/planejamento/projecao': typeof PlanejamentoProjecaoRoute
   '/planejamento/variacao': typeof PlanejamentoVariacaoRoute
+  '/viabilidade/cenarios': typeof ViabilidadeCenariosRoute
+  '/viabilidade/comprar-alugar': typeof ViabilidadeComprarAlugarRoute
+  '/viabilidade/debug': typeof ViabilidadeDebugRoute
+  '/viabilidade/equipe-terceirizar': typeof ViabilidadeEquipeTerceirizarRoute
+  '/viabilidade/maquina-leasing': typeof ViabilidadeMaquinaLeasingRoute
+  '/viabilidade/nova-linha': typeof ViabilidadeNovaLinhaRoute
   '/modelagem-financeira-2': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
   '/planejamento': typeof PlanejamentoIndexRoute
+  '/viabilidade': typeof ViabilidadeIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -533,6 +599,7 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/upload': typeof UploadRoute
   '/valuation': typeof ValuationRoute
+  '/viabilidade': typeof ViabilidadeRouteWithChildren
   '/volatilidade': typeof VolatilidadeRoute
   '/modelagem-financeira-2/$modeloId': typeof ModelagemFinanceira2ModeloIdRoute
   '/modelagem-financeira-2/importar': typeof ModelagemFinanceira2ImportarRoute
@@ -556,10 +623,17 @@ export interface FileRoutesById {
   '/planejamento/premissas': typeof PlanejamentoPremissasRoute
   '/planejamento/projecao': typeof PlanejamentoProjecaoRoute
   '/planejamento/variacao': typeof PlanejamentoVariacaoRoute
+  '/viabilidade/cenarios': typeof ViabilidadeCenariosRoute
+  '/viabilidade/comprar-alugar': typeof ViabilidadeComprarAlugarRoute
+  '/viabilidade/debug': typeof ViabilidadeDebugRoute
+  '/viabilidade/equipe-terceirizar': typeof ViabilidadeEquipeTerceirizarRoute
+  '/viabilidade/maquina-leasing': typeof ViabilidadeMaquinaLeasingRoute
+  '/viabilidade/nova-linha': typeof ViabilidadeNovaLinhaRoute
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
   '/planejamento/': typeof PlanejamentoIndexRoute
+  '/viabilidade/': typeof ViabilidadeIndexRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
@@ -596,6 +670,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/upload'
     | '/valuation'
+    | '/viabilidade'
     | '/volatilidade'
     | '/modelagem-financeira-2/$modeloId'
     | '/modelagem-financeira-2/importar'
@@ -619,10 +694,17 @@ export interface FileRouteTypes {
     | '/planejamento/premissas'
     | '/planejamento/projecao'
     | '/planejamento/variacao'
+    | '/viabilidade/cenarios'
+    | '/viabilidade/comprar-alugar'
+    | '/viabilidade/debug'
+    | '/viabilidade/equipe-terceirizar'
+    | '/viabilidade/maquina-leasing'
+    | '/viabilidade/nova-linha'
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
     | '/planejamento/'
+    | '/viabilidade/'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -676,10 +758,17 @@ export interface FileRouteTypes {
     | '/planejamento/premissas'
     | '/planejamento/projecao'
     | '/planejamento/variacao'
+    | '/viabilidade/cenarios'
+    | '/viabilidade/comprar-alugar'
+    | '/viabilidade/debug'
+    | '/viabilidade/equipe-terceirizar'
+    | '/viabilidade/maquina-leasing'
+    | '/viabilidade/nova-linha'
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
     | '/planejamento'
+    | '/viabilidade'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -714,6 +803,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/upload'
     | '/valuation'
+    | '/viabilidade'
     | '/volatilidade'
     | '/modelagem-financeira-2/$modeloId'
     | '/modelagem-financeira-2/importar'
@@ -737,10 +827,17 @@ export interface FileRouteTypes {
     | '/planejamento/premissas'
     | '/planejamento/projecao'
     | '/planejamento/variacao'
+    | '/viabilidade/cenarios'
+    | '/viabilidade/comprar-alugar'
+    | '/viabilidade/debug'
+    | '/viabilidade/equipe-terceirizar'
+    | '/viabilidade/maquina-leasing'
+    | '/viabilidade/nova-linha'
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
     | '/planejamento/'
+    | '/viabilidade/'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
@@ -776,6 +873,7 @@ export interface RootRouteChildren {
   TermosRoute: typeof TermosRoute
   UploadRoute: typeof UploadRoute
   ValuationRoute: typeof ValuationRoute
+  ViabilidadeRoute: typeof ViabilidadeRouteWithChildren
   VolatilidadeRoute: typeof VolatilidadeRoute
 }
 
@@ -961,6 +1059,13 @@ declare module '@tanstack/react-router' {
       path: '/valuation'
       fullPath: '/valuation'
       preLoaderRoute: typeof ValuationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/viabilidade': {
+      id: '/viabilidade'
+      path: '/viabilidade'
+      fullPath: '/viabilidade'
+      preLoaderRoute: typeof ViabilidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/volatilidade': {
@@ -1152,6 +1257,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlanejamentoVariacaoRouteImport
       parentRoute: typeof PlanejamentoRoute
     }
+    '/viabilidade/': {
+      id: '/viabilidade/'
+      path: '/'
+      fullPath: '/viabilidade/'
+      preLoaderRoute: typeof ViabilidadeIndexRouteImport
+      parentRoute: typeof ViabilidadeRoute
+    }
+    '/viabilidade/cenarios': {
+      id: '/viabilidade/cenarios'
+      path: '/cenarios'
+      fullPath: '/viabilidade/cenarios'
+      preLoaderRoute: typeof ViabilidadeCenariosRouteImport
+      parentRoute: typeof ViabilidadeRoute
+    }
+    '/viabilidade/comprar-alugar': {
+      id: '/viabilidade/comprar-alugar'
+      path: '/comprar-alugar'
+      fullPath: '/viabilidade/comprar-alugar'
+      preLoaderRoute: typeof ViabilidadeComprarAlugarRouteImport
+      parentRoute: typeof ViabilidadeRoute
+    }
+    '/viabilidade/debug': {
+      id: '/viabilidade/debug'
+      path: '/debug'
+      fullPath: '/viabilidade/debug'
+      preLoaderRoute: typeof ViabilidadeDebugRouteImport
+      parentRoute: typeof ViabilidadeRoute
+    }
+    '/viabilidade/equipe-terceirizar': {
+      id: '/viabilidade/equipe-terceirizar'
+      path: '/equipe-terceirizar'
+      fullPath: '/viabilidade/equipe-terceirizar'
+      preLoaderRoute: typeof ViabilidadeEquipeTerceirizarRouteImport
+      parentRoute: typeof ViabilidadeRoute
+    }
+    '/viabilidade/maquina-leasing': {
+      id: '/viabilidade/maquina-leasing'
+      path: '/maquina-leasing'
+      fullPath: '/viabilidade/maquina-leasing'
+      preLoaderRoute: typeof ViabilidadeMaquinaLeasingRouteImport
+      parentRoute: typeof ViabilidadeRoute
+    }
+    '/viabilidade/nova-linha': {
+      id: '/viabilidade/nova-linha'
+      path: '/nova-linha'
+      fullPath: '/viabilidade/nova-linha'
+      preLoaderRoute: typeof ViabilidadeNovaLinhaRouteImport
+      parentRoute: typeof ViabilidadeRoute
+    }
     '/modelagem-financeira-2/dashboard/$modeloId': {
       id: '/modelagem-financeira-2/dashboard/$modeloId'
       path: '/dashboard/$modeloId'
@@ -1309,6 +1463,30 @@ const PlanejamentoRouteWithChildren = PlanejamentoRoute._addFileChildren(
   PlanejamentoRouteChildren,
 )
 
+interface ViabilidadeRouteChildren {
+  ViabilidadeCenariosRoute: typeof ViabilidadeCenariosRoute
+  ViabilidadeComprarAlugarRoute: typeof ViabilidadeComprarAlugarRoute
+  ViabilidadeDebugRoute: typeof ViabilidadeDebugRoute
+  ViabilidadeEquipeTerceirizarRoute: typeof ViabilidadeEquipeTerceirizarRoute
+  ViabilidadeMaquinaLeasingRoute: typeof ViabilidadeMaquinaLeasingRoute
+  ViabilidadeNovaLinhaRoute: typeof ViabilidadeNovaLinhaRoute
+  ViabilidadeIndexRoute: typeof ViabilidadeIndexRoute
+}
+
+const ViabilidadeRouteChildren: ViabilidadeRouteChildren = {
+  ViabilidadeCenariosRoute: ViabilidadeCenariosRoute,
+  ViabilidadeComprarAlugarRoute: ViabilidadeComprarAlugarRoute,
+  ViabilidadeDebugRoute: ViabilidadeDebugRoute,
+  ViabilidadeEquipeTerceirizarRoute: ViabilidadeEquipeTerceirizarRoute,
+  ViabilidadeMaquinaLeasingRoute: ViabilidadeMaquinaLeasingRoute,
+  ViabilidadeNovaLinhaRoute: ViabilidadeNovaLinhaRoute,
+  ViabilidadeIndexRoute: ViabilidadeIndexRoute,
+}
+
+const ViabilidadeRouteWithChildren = ViabilidadeRoute._addFileChildren(
+  ViabilidadeRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
@@ -1336,6 +1514,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermosRoute: TermosRoute,
   UploadRoute: UploadRoute,
   ValuationRoute: ValuationRoute,
+  ViabilidadeRoute: ViabilidadeRouteWithChildren,
   VolatilidadeRoute: VolatilidadeRoute,
 }
 export const routeTree = rootRouteImport

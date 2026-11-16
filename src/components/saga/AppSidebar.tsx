@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useSaga } from "@/lib/saga/context";
+import { NAV_VIABILIDADE } from "@/components/viabilidade/nav";
 
 type SubItem = { title: string; url: string; icon: React.ElementType; apenasCompleta?: boolean };
 type MenuItem = SubItem & { children?: SubItem[] };
@@ -228,6 +229,18 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {analiseDadosItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <MenuLink item={item} active={isActive(item.url)} />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Análise de Viabilidade</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {NAV_VIABILIDADE.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <MenuLink item={item} active={isActive(item.url)} />
                 </SidebarMenuItem>

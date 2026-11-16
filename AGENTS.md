@@ -31,3 +31,7 @@
 ## Análise PVM
 - PVM math lives only in the pure `src/lib/pvm.ts` (tested, including reconciliation Volume + Preço + Mix = R1 − R0); dashboard, insights and exports consume its results. Import/format/export helpers live in `src/lib/analise-pvm/`, and the screen reuses the Ecommtabil UI tokens from `src/components/volatilidade/ui.tsx` via `.vol-tool.pvm-tool`.
 - PVM base, client name and controls persist in a Zustand store under a `saga.*` key (rehydrated after mount); styled Excel exports use `xlsx-js-style` because plain SheetJS drops cell styles.
+
+## Análise de Viabilidade
+- Financial math (VPL/TIR/payback/CAUE/bisection/pt-BR formatting) lives only in the pure `src/lib/finance.ts`; each study is a pure module in `src/lib/viabilidade/` that returns a generic `RelatorioEstudo` (blocks, KPIs, parecer) so the page, comparator, PDF, Excel and summary text never recompute differently. Reference values are locked in `validacao.test.ts` — fix formulas, never the expected values.
+- Study screens share `EstudoPagina` and persist premises, client header and saved scenarios under `saga.viabilidade.*` keys (follow the active local project); opening a scenario writes it to the study key before navigating.

@@ -28,3 +28,14 @@
 - [x] Leitura automática, glossário, cliente no topo, exportações Excel e PDF.
 - [x] Modos Mês a mês e Acumulado com conciliação.
 - [x] Validar no navegador.
+
+# Análise de Viabilidade (Estudos de Viabilidade)
+- [x] Motor financeiro puro (VPL, TIR, paybacks, IR, CAUE) com testes.
+- [x] Estrutura, visual Ecommtabil, menu e página Início com 4 cards.
+- [x] Nova Linha de Produtos: DRE, FCL, indicadores, parecer, gráficos FCL e tornado.
+- [x] Comprar ou Alugar: fluxos, incremental, CAUE, revenda de empate, gráficos.
+- [x] Máquina Compra vs Leasing: fluxos, CAUE, mensalidade de equilíbrio, gráficos.
+- [x] Equipe Interna vs Terceirizar: fluxos, ponto de inflexão, tabela 1–15, riscos qualitativos.
+- [x] Cabeçalho do cliente, cenários salvos, comparador, PDF, Excel e copiar resumo.
+- [x] Testes de validação com os valores do arquivo e página oculta /viabilidade/debug.
+- [x] Validar no navegador (computador e celular).
