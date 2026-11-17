@@ -130,7 +130,7 @@ function Conteudo({ empresa }: { empresa: EmpresaSimples }) {
           )}
         </div>
       )}
-      {abaValida === "resumo" && <div role="tabpanel"><ResumoConsolidado anexos={empresa.anexos} r={r} /></div>}
+      {abaValida === "resumo" && <div role="tabpanel"><ResumoConsolidado anexos={empresa.anexos} r={r} ano={empresa.ano} conferencias={empresa.conferenciaRbt12} /></div>}
       {abaValida === "tabelas" && <div role="tabpanel"><TabelasEditor anoEmpresa={empresa.ano} anexosEmpresa={empresa.anexos} /></div>}
 
       <Bloco titulo="Histórico de importações" acao={hist[0]?.antes ? (

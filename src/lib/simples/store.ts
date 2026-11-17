@@ -3,7 +3,12 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { DadosCalculo, MesReceita } from "./calculo";
 import { ANO_TABELA_PADRAO, tabelasPadrao, type AnexoId, type TabelasSimples } from "./tabelas";
 
-export interface ConferenciaRbt12 { valor: number; arquivo: string }
+export interface ConferenciaRbt12 {
+  valor: number;
+  arquivo: string;
+  /** DAS total declarado no PGDAS-D do mês, para conferir com o DAS calculado. */
+  das?: number;
+}
 
 export interface EmpresaSimples extends DadosCalculo {
   id: string;

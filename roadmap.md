@@ -46,4 +46,4 @@
 - [x] Exportações Excel e PDF.
 - [x] Telas: empresas, abas por anexo, resumo consolidado, tabelas do Simples.
 - [x] Menu "Calculadoras" e validação no navegador.
-- [ ] Conferir a leitura do PDF do PGDAS-D com um extrato real (aguarda arquivo do usuário).
+- [x] Conferir a leitura do PDF do PGDAS-D com um extrato real (out/2026: DAS 3.739,34 confere).

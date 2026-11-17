@@ -6,6 +6,28 @@ import { COR_ANEXO, COR_TRIBUTO } from "@/lib/simples/cores";
 import { brl, num2, pct2, pct4 } from "@/lib/simples/formato";
 import { FaixaBadge, Th } from "./ui";
 import { faixaPorRbt12 } from "@/lib/simples/calculo";
+import type { ConferenciaRbt12 } from "@/lib/simples/store";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Tooltip as Dica, TooltipContent as DicaConteudo, TooltipTrigger as DicaGatilho } from "@/components/ui/tooltip";
+
+/** Compara o DAS calculado com o DAS declarado no PGDAS-D importado (tolerância de R$ 0,05 por arredondamento). */
+function ConferenciaDas({ conf, calculado }: { conf?: ConferenciaRbt12; calculado: number }) {
+  if (!conf || conf.das === undefined) return null;
+  const dif = calculado - conf.das;
+  const ok = Math.abs(dif) <= 0.05;
+  return (
+    <Dica>
+      <DicaGatilho asChild>
+        <button type="button" aria-label={ok ? "DAS confere com o PGDAS-D" : "DAS diferente do PGDAS-D"} className={`mr-1 inline-flex align-[-2px] ${ok ? "text-via-good" : "text-[var(--sn-amarelo)]"}`}>
+          {ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+        </button>
+      </DicaGatilho>
+      <DicaConteudo className="max-w-xs text-xs">
+        DAS declarado no PGDAS-D ({conf.arquivo}): {brl(conf.das)}.{ok ? " Confere com o cálculo." : ` Diferença de ${brl(dif)}.`}
+      </DicaConteudo>
+    </Dica>
+  );
+}
 
 const eixoR = (v: number) => (v >= 1e6 ? `${(v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi` : v >= 1e3 ? `${(v / 1e3).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil` : String(v));
 const tip = { contentStyle: { borderRadius: 8, border: "1px solid var(--via-border)", fontSize: 12 }, labelStyle: { color: "var(--via-ink)", fontWeight: 600 } };
@@ -21,7 +43,7 @@ function Kpi({ titulo, valor, sub }: { titulo: string; valor: string; sub: strin
   );
 }
 
-export function ResumoConsolidado({ anexos, r }: { anexos: AnexoId[]; r: ResultadoEmpresa }) {
+export function ResumoConsolidado({ anexos, r, ano, conferencias = {} }: { anexos: AnexoId[]; r: ResultadoEmpresa; ano?: number; conferencias?: Record<string, ConferenciaRbt12> }) {
   const k = r.consolidado;
   const barras = k.dasMensal.map((m) => ({ ...m, nome: MES_CURTO[m.mes] }));
   const linha = r.rbt12.map((x, mes) => {
@@ -116,7 +138,7 @@ export function ResumoConsolidado({ anexos, r }: { anexos: AnexoId[]; r: Resulta
                     <td>{num2(r.rbt12[m.mes].valor)}</td>
                     <td className="!text-center"><FaixaBadge faixa={faixaPorRbt12(r.rbt12[m.mes].valor)} /></td>
                     {anexos.map((a) => <td key={a}>{num2(m[a] ?? 0)}</td>)}
-                    <td className="sn-das">{num2(m.total)}</td>
+                    <td className="sn-das"><ConferenciaDas conf={ano ? conferencias[`${ano}-${String(m.mes + 1).padStart(2, "0")}`] : undefined} calculado={m.total} />{num2(m.total)}</td>
                   </tr>
                 ))}
                 <tr className="sn-total">

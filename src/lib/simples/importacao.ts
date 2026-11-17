@@ -87,7 +87,15 @@ export function lerAnexo(v: unknown): AnexoId | null {
 
 // ---------------- PGDAS-D ----------------
 
-export interface AtividadePgdas { anexo: AnexoId; coluna: ColunaReceita; valor: number; descricao: string }
+export interface AtividadePgdas {
+  anexo: AnexoId;
+  coluna: ColunaReceita;
+  valor: number;
+  descricao: string;
+  /** Débito por tributo declarado para a atividade (IRPJ, CSLL, COFINS, PIS, CPP, ICMS, IPI, ISS, Total). */
+  tributos?: TributosPgdas;
+}
+export interface TributosPgdas { irpj: number; csll: number; cofins: number; pis: number; cpp: number; icms: number; ipi: number; iss: number; total: number }
 export interface ExtratoPgdas {
   arquivo: string;
   pa: string | null;
@@ -96,6 +104,8 @@ export interface ExtratoPgdas {
   rbt12: number | null;
   rba: number | null;
   rbaa: number | null;
+  /** Valor total do débito declarado (DAS) no PA. */
+  das: number | null;
   anteriores: Record<string, number>;
   folha: Record<string, number>;
   atividades: AtividadePgdas[];
@@ -134,8 +144,8 @@ function valorRotulo(t: string, rotulo: string): number | null {
 }
 
 /** Classifica a descrição da atividade do PGDAS-D em anexo + coluna do app. */
-export function classificarAtividade(descricao: string): { anexo: AnexoId; coluna: ColunaReceita } | null {
-  const d = norm(descricao).replace(/\(o substituido tributario do icms[^)]*\)/g, " ");
+export function classificarAtividade(descricao: string, tributos?: TributosPgdas): { anexo: AnexoId; coluna: ColunaReceita } | null {
+  const d = norm(descricao).replace(/\(o substitu(?:ido|to) tributario do icms[^)]*\)/g, " ");
   let anexo: AnexoId | null = null;
   if (/revenda de mercadorias/.test(d)) anexo = "I";
   else if (/venda de mercadorias industrializadas/.test(d)) anexo = "II";
@@ -146,8 +156,14 @@ export function classificarAtividade(descricao: string): { anexo: AnexoId; colun
   if (!anexo) return null;
   if (anexo === "I" || anexo === "II") {
     if (/sem substituicao tributaria/.test(d)) return { anexo, coluna: "integral" };
-    const icms = /icms/.test(d);
-    const mono = /(cofins|pis)/.test(d);
+    let icms = /icms/.test(d);
+    let mono = /(cofins|pis)/.test(d);
+    // Descrição genérica ("Com substituição tributária/tributação monofásica…") sem detalhe: deduz pelos tributos zerados.
+    if (!icms && !mono && tributos && tributos.total > 0) {
+      icms = tributos.icms === 0;
+      mono = tributos.cofins === 0 && tributos.pis === 0;
+      if (!icms && !mono) icms = true;
+    }
     if (icms && mono) return { anexo, coluna: "stMono" };
     if (mono) return { anexo, coluna: "mono" };
     return { anexo, coluna: "st" };
@@ -155,6 +171,15 @@ export function classificarAtividade(descricao: string): { anexo: AnexoId; colun
   if (/sem retencao/.test(d)) return { anexo, coluna: "semRet" };
   if (/com retencao|iss retido|substituicao tributaria de:?\s*iss/.test(d)) return { anexo, coluna: "comRet" };
   return { anexo, coluna: "semRet" };
+}
+
+/** Primeira tabela "IRPJ CSLL COFINS PIS/Pasep INSS/CPP ICMS IPI ISS Total" seguida de 9 valores. */
+function lerTabelaTributos(t: string): TributosPgdas | null {
+  const re = new RegExp(`IRPJ\\s+CSLL\\s+COFINS\\s+PIS(?:\\/Pasep)?\\s+INSS\\/CPP\\s+ICMS\\s+IPI\\s+ISS\\s+Total\\s+((?:${RE_VALOR}\\s*){9})`, "i");
+  const m = re.exec(t);
+  if (!m) return null;
+  const v = m[1].trim().split(/\s+/).map(valorBR);
+  return { irpj: v[0], csll: v[1], cofins: v[2], pis: v[3], cpp: v[4], icms: v[5], ipi: v[6], iss: v[7], total: v[8] };
 }
 
 export function interpretarPgdas(textoOriginal: string, arquivo: string): ExtratoPgdas {
@@ -167,9 +192,10 @@ export function interpretarPgdas(textoOriginal: string, arquivo: string): Extrat
   const mCnpj = /CNPJ(?:\s+(?:Matriz|B[aá]sico|Estabelecimento))?\s*:?\s*(\d{2}\.?\d{3}\.?\d{3}(?:\/?\d{4}-?\d{2})?)/i.exec(texto);
   const cnpj = mCnpj ? mCnpj[1] : null;
 
-  const sec21 = trecho(texto, /2\.1\)/, /2\.2\)/) || texto;
+  // "(?<![\d.])" evita confundir "2.1" com o fim de "2.2.1)".
+  const sec21 = trecho(texto, /(?<![\d.])2\.1\)?\s*Discriminativo|(?<![\d.])2\.1\)/i, /(?<![\d.])2\.2\)?\s*Receitas Brutas Anteriores|(?<![\d.])2\.2\)/i) || texto;
   const sec221 = trecho(texto, /2\.2\.1\)/, /2\.2\.2\)|2\.3\)/) || trecho(texto, /2\.2\)/, /2\.2\.2\)|2\.3\)/);
-  const sec23 = trecho(texto, /2\.3\)/, /2\.3\.2\)|2\.4\)|\b3\)/);
+  const sec23 = trecho(texto, /(?<![\d.])2\.3\)/, /2\.3\.2\)|2\.4\)|\b3\)/);
 
   const atividades: AtividadePgdas[] = [];
   const iEstab = texto.search(/Informa[cç][oõ]es da Declara[cç][aã]o por Estabelecimento|2\.[89]\)/i);
@@ -183,15 +209,28 @@ export function interpretarPgdas(textoOriginal: string, arquivo: string): Extrat
     const mv = new RegExp(`(?:Receita Bruta Informada|Valor (?:da receita|informado))\\s*:?\\s*(?:R\\$)?\\s*${RE_VALOR}`, "i").exec(bloco);
     if (!mv) continue;
     const descricao = bloco.slice(0, mv.index).trim();
-    const c = classificarAtividade(descricao);
+    // Depois do valor vêm a tabela de tributos e detalhes como "Substituição tributária de: ICMS." / "Tributação monofásica de: COFINS, PIS".
+    let resto = bloco.slice(mv.index + mv[0].length);
+    const fimResto = resto.search(/Totais do Estabelecimento|Valor do D[eé]bito por Tributo|Total Geral da Empresa/i);
+    if (fimResto >= 0) resto = resto.slice(0, fimResto);
+    const tributos = lerTabelaTributos(resto);
+    const detalhes = [...resto.matchAll(/(Substitui[cç][aã]o tribut[aá]ria de|monof[aá]sica de|Reten[cç][aã]o (?:de|do)|ISS retido)\s*:?\s*([^.]*)/gi)].map((m) => `${m[1]} ${m[2]}`).join(" ");
+    const c = classificarAtividade(`${descricao} ${detalhes}`, tributos ?? undefined);
     if (!c) { erros.push(`Atividade não reconhecida: "${descricao.slice(0, 80)}…"`); continue; }
-    atividades.push({ ...c, valor: valorBR(mv[1]), descricao });
+    atividades.push({ ...c, valor: valorBR(mv[1]), descricao, ...(tributos ? { tributos } : {}) });
+  }
+  const mDas = new RegExp(`Valor Total do D[eé]bito Declarado\\s*\\(R\\$\\)\\s*${RE_VALOR}\\s+${RE_VALOR}`, "i").exec(texto);
+  let das: number | null = mDas ? valorBR(mDas[2]) : null;
+  if (das === null) {
+    const iGeral = texto.search(/Total Geral da Empresa/i);
+    const t = iGeral >= 0 ? lerTabelaTributos(texto.slice(iGeral)) : null;
+    das = t ? t.total : null;
   }
   const anteriores = paresMesValor(sec221);
   if (!Object.keys(anteriores).length) erros.push("Seção 2.2.1 (receitas brutas anteriores) não encontrada.");
   return {
     arquivo, pa, cnpj,
-    rpa: valorRotulo(sec21, "RPA"), rbt12: valorRotulo(sec21, "RBT12"), rba: valorRotulo(sec21, "RBA"), rbaa: valorRotulo(sec21, "RBAA"),
+    rpa: valorRotulo(sec21, "RPA"), rbt12: valorRotulo(sec21, "RBT12"), rba: valorRotulo(sec21, "RBA"), rbaa: valorRotulo(sec21, "RBAA"), das,
     anteriores, folha: sec23 ? paresMesValor(sec23) : {}, atividades, erros,
   };
 }
@@ -236,7 +275,7 @@ export function consolidarPgdas(extratos: ExtratoPgdas[], ano: number, cnpjEmpre
       } else if (x.rpa !== null) {
         totais.set(x.pa, { valor: x.rpa, ref: x.arquivo });
       }
-      if (x.rbt12 !== null && Number(x.pa.slice(0, 4)) === ano) conferencias[x.pa] = { valor: x.rbt12, arquivo: x.arquivo };
+      if (x.rbt12 !== null && Number(x.pa.slice(0, 4)) === ano) conferencias[x.pa] = { valor: x.rbt12, arquivo: x.arquivo, ...(x.das !== null ? { das: x.das } : {}) };
     }
   }
   const linhas: LinhaImport[] = [];

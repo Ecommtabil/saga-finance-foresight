@@ -54,23 +54,24 @@ export function ImportarReceitas({ empresa, aberto, onFechar }: { empresa: Empre
   useEffect(() => { setSelecao(new Set(previa.filter((p) => p.status !== "erro" && p.status !== "igual").map((p) => p.id))); }, [previa]);
   const precisaDestino = linhas.some((l) => (l.total || !l.anexo) && l.mes && Number(l.mes.slice(0, 4)) === empresa.ano);
 
-  const lerPdfs = async (files: FileList | null) => {
-    if (!files?.length) return;
+  // Recebe uma cópia em array: o FileList do input é esvaziado quando o campo é limpo logo após a escolha.
+  const lerPdfs = async (files: File[]) => {
+    if (!files.length) return;
     setCarregando(true);
     try {
       const { extrairTextoPdf } = await import("@/lib/simples/pdf-texto");
       const extratos = [];
-      for (const f of Array.from(files)) extratos.push(interpretarPgdas(await extrairTextoPdf(f), f.name));
+      for (const f of files) extratos.push(interpretarPgdas(await extrairTextoPdf(f), f.name));
       const c = consolidarPgdas(extratos, empresa.ano, empresa.cnpj);
       if (!c.linhas.length) { toast.error("Não encontrei receitas nesses PDFs. Confira se é o extrato do PGDAS-D."); setPgdas(c); return; }
-      setPgdas(c); setLinhas(c.linhas); setArquivo(Array.from(files).map((f) => f.name).join(", ")); setEtapa("previa");
+      setPgdas(c); setLinhas(c.linhas); setArquivo(files.map((f) => f.name).join(", ")); setEtapa("previa");
     } catch (e) {
       toast.error(`Não foi possível ler o PDF: ${e instanceof Error ? e.message : "erro desconhecido"}`);
     } finally { setCarregando(false); }
   };
 
-  const lerPlanilha = async (files: FileList | null) => {
-    const f = files?.[0];
+  const lerPlanilha = async (files: File[]) => {
+    const f = files[0];
     if (!f) return;
     setCarregando(true);
     try {
@@ -141,7 +142,7 @@ export function ImportarReceitas({ empresa, aberto, onFechar }: { empresa: Empre
                   <p className="text-sm text-via-muted">Selecione um ou mais PDFs do extrato/declaração do PGDAS-D. Se o mesmo mês aparecer em mais de um, vale o PDF do período mais recente. A leitura é feita aqui no navegador.</p>
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-via-ink px-4 py-2 text-sm font-medium text-via-on-ink hover:bg-via-ink/90">
                     {carregando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 text-via-gold" />}Escolher PDFs
-                    <input type="file" accept="application/pdf,.pdf" multiple className="sr-only" disabled={carregando} onChange={(e) => { void lerPdfs(e.target.files); e.target.value = ""; }} />
+                    <input type="file" accept="application/pdf,.pdf" multiple className="sr-only" disabled={carregando} onChange={(e) => { const lista = Array.from(e.target.files ?? []); e.target.value = ""; void lerPdfs(lista); }} />
                   </label>
                   {pgdas && !pgdas.linhas.length && pgdas.avisos.map((a) => <CaixaAlerta key={a} nivel="aviso">{a}</CaixaAlerta>)}
                 </div>
@@ -150,7 +151,7 @@ export function ImportarReceitas({ empresa, aberto, onFechar }: { empresa: Empre
                 <div className="flex flex-wrap items-center gap-3">
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-via-ink px-4 py-2 text-sm font-medium text-via-on-ink hover:bg-via-ink/90">
                     {carregando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 text-via-gold" />}Escolher planilha
-                    <input type="file" accept=".xlsx,.xls,.csv" className="sr-only" disabled={carregando} onChange={(e) => { void lerPlanilha(e.target.files); e.target.value = ""; }} />
+                    <input type="file" accept=".xlsx,.xls,.csv" className="sr-only" disabled={carregando} onChange={(e) => { const lista = Array.from(e.target.files ?? []); e.target.value = ""; void lerPlanilha(lista); }} />
                   </label>
                   <Button variant="outline" onClick={() => void baixarModeloImportacao(empresa.ano)}><Download className="h-4 w-4" />Baixar modelo</Button>
                   <p className="w-full text-xs text-via-muted">Aceita meses como 01/2025, jan/25, janeiro 2025 ou data do Excel, e valores em formato BR (1.234,56) ou US.</p>
@@ -200,7 +201,7 @@ export function ImportarReceitas({ empresa, aberto, onFechar }: { empresa: Empre
           <div className="space-y-4">
             {pgdas && origem === "pgdas" && pgdas.avisos.map((a) => <CaixaAlerta key={a} nivel="aviso">{a}</CaixaAlerta>)}
             {pgdas && origem === "pgdas" && Object.keys(pgdas.conferencias).length > 0 && (
-              <CaixaAlerta nivel="info">RBT12 lido do PGDAS-D para {Object.keys(pgdas.conferencias).map(nomeMes).join(", ")}: será usado para conferir o RBT12 calculado (alerta se a diferença passar de R$ 1,00).{Object.keys(pgdas.folha).length ? ` Folha de salários de ${Object.keys(pgdas.folha).length} meses guardada para o Fator R.` : ""}</CaixaAlerta>
+              <CaixaAlerta nivel="info">RBT12 lido do PGDAS-D para {Object.keys(pgdas.conferencias).map(nomeMes).join(", ")}: será usado para conferir o RBT12 calculado (alerta se a diferença passar de R$ 1,00). O DAS declarado também fica guardado e aparece conferido no Resumo consolidado.{Object.keys(pgdas.folha).length ? ` Folha de salários de ${Object.keys(pgdas.folha).length} meses guardada para o Fator R.` : ""}</CaixaAlerta>
             )}
             <div className="flex flex-wrap items-end gap-4 rounded-lg border border-via-border bg-via-paper p-3">
               {precisaDestino && (
