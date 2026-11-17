@@ -65,7 +65,7 @@ export function receitaEmpresaMes(d: DadosCalculo, mes: number): number {
 }
 
 /** Receita pelo índice absoluto de mês (ano*12 + mês). Fora da janela conhecida = 0. */
-function receitaAbsoluta(d: DadosCalculo, abs: number): number {
+export function receitaAbsoluta(d: DadosCalculo, abs: number): number {
   const ano = Math.floor(abs / 12);
   const mes = abs - ano * 12;
   if (ano === d.ano - 1) return num(d.anoAnterior[mes]);
@@ -81,28 +81,35 @@ export function parseMesAno(s: string | null | undefined): { ano: number; mes: n
   return { ano: Number(m[1]), mes };
 }
 
-/** RBT12 de cada mês: soma dos 12 meses anteriores (empresa toda), com início de atividade (art. 18, §2º) e valor manual. */
-export function calcularRbt12(d: DadosCalculo): Rbt12Mes[] {
+/**
+ * RBT12 de um mês pelo índice absoluto (ano*12 + mês): soma dos 12 meses anteriores (empresa toda),
+ * com início de atividade (art. 18, §2º) e RBT12 manual (só dentro do ano da empresa).
+ * `receita` permite trocar a fonte de receita (ex.: prévia do mês corrente na projeção).
+ */
+export function rbt12ParaMes(d: DadosCalculo, abs: number, receita: (abs: number) => number = (a) => receitaAbsoluta(d, a)): Rbt12Mes {
+  if (Math.floor(abs / 12) === d.ano) {
+    const manual = d.rbt12Manual[abs - d.ano * 12];
+    if (typeof manual === "number" && Number.isFinite(manual)) return { valor: manual, origem: "manual" };
+  }
   const inicio = d.inicioAtividade ? parseMesAno(d.mesInicio) ?? { ano: d.ano, mes: 0 } : null;
-  const absInicio = inicio ? inicio.ano * 12 + inicio.mes : null;
-  return Array.from({ length: 12 }, (_, mes) => {
-    const manual = d.rbt12Manual[mes];
-    if (typeof manual === "number" && Number.isFinite(manual)) return { valor: manual, origem: "manual" as const };
-    const abs = d.ano * 12 + mes;
-    if (absInicio !== null) {
-      const n = abs - absInicio; // meses de atividade antes do PA
-      if (n < 0) return { valor: 0, origem: "sem-atividade" as const, mesesAtividade: 0 };
-      if (n === 0) return { valor: receitaEmpresaMes(d, mes) * 12, origem: "primeiro-mes" as const, mesesAtividade: 0 };
-      if (n < 12) {
-        let soma = 0;
-        for (let k = 1; k <= n; k++) soma += receitaAbsoluta(d, abs - k);
-        return { valor: (soma / n) * 12, origem: "proporcional" as const, mesesAtividade: n };
-      }
+  if (inicio) {
+    const n = abs - (inicio.ano * 12 + inicio.mes); // meses de atividade antes do PA
+    if (n < 0) return { valor: 0, origem: "sem-atividade", mesesAtividade: 0 };
+    if (n === 0) return { valor: receita(abs) * 12, origem: "primeiro-mes", mesesAtividade: 0 };
+    if (n < 12) {
+      let soma = 0;
+      for (let k = 1; k <= n; k++) soma += receita(abs - k);
+      return { valor: (soma / n) * 12, origem: "proporcional", mesesAtividade: n };
     }
-    let soma = 0;
-    for (let k = 1; k <= 12; k++) soma += receitaAbsoluta(d, abs - k);
-    return { valor: soma, origem: "calculado" as const };
-  });
+  }
+  let soma = 0;
+  for (let k = 1; k <= 12; k++) soma += receita(abs - k);
+  return { valor: soma, origem: "calculado" };
+}
+
+/** RBT12 de cada mês do ano da empresa. */
+export function calcularRbt12(d: DadosCalculo): Rbt12Mes[] {
+  return Array.from({ length: 12 }, (_, mes) => rbt12ParaMes(d, d.ano * 12 + mes));
 }
 
 /** Faixa pelo RBT12: 1..6; 7 acima do teto; 0 sem RBT12. */

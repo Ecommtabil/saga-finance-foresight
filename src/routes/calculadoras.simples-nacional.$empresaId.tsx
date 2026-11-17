@@ -10,6 +10,7 @@ import { BlocoAnoAnterior, GradeAnexo } from "@/components/simples/Entradas";
 import { ResultadoAnexo } from "@/components/simples/ResultadoAnexo";
 import { ResumoConsolidado } from "@/components/simples/Resumo";
 import { TabelasEditor } from "@/components/simples/TabelasEditor";
+import { ProjecaoAliquota } from "@/components/simples/ProjecaoAliquota";
 import { ImportarReceitas } from "@/components/simples/ImportarReceitas";
 import { CaixaAlerta } from "@/components/simples/ui";
 import { NOME_ORIGEM, useSimples, type EmpresaSimples } from "@/lib/simples/store";
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/calculadoras/simples-nacional/$empresaId"
   component: EmpresaPagina,
 });
 
-type Aba = AnexoId | "resumo" | "tabelas";
+type Aba = AnexoId | "resumo" | "projecao" | "tabelas";
 
 function EmpresaPagina() {
   const { empresaId } = Route.useParams();
@@ -61,10 +62,11 @@ function Conteudo({ empresa }: { empresa: EmpresaSimples }) {
   const r = useMemo(() => calcularEmpresa(empresa, tabela.tabelas), [empresa, tabela.tabelas]);
   const atualizar = (f: (e: EmpresaSimples) => EmpresaSimples) => atualizarEmpresa(empresa.id, f);
   const hist = historico.filter((h) => h.empresaId === empresa.id);
-  const abaValida: Aba = aba === "resumo" || aba === "tabelas" || empresa.anexos.includes(aba) ? aba : empresa.anexos[0];
+  const abaValida: Aba = aba === "resumo" || aba === "projecao" || aba === "tabelas" || empresa.anexos.includes(aba) ? aba : empresa.anexos[0];
   const abas: Array<{ id: Aba; nome: string }> = [
     ...empresa.anexos.map((a) => ({ id: a as Aba, nome: `Anexo ${a}` })),
     { id: "resumo", nome: "Resumo consolidado" },
+    { id: "projecao", nome: "Projeção da alíquota" },
     { id: "tabelas", nome: "Tabelas do Simples" },
   ];
 
@@ -115,7 +117,7 @@ function Conteudo({ empresa }: { empresa: EmpresaSimples }) {
         </div>
       </div>
 
-      {abaValida !== "resumo" && abaValida !== "tabelas" && (
+      {abaValida !== "resumo" && abaValida !== "projecao" && abaValida !== "tabelas" && (
         <div className="space-y-6" role="tabpanel">
           <p className="text-sm text-via-muted">{NOME_ANEXO[abaValida]} · tabela versão {tabela.ano}</p>
           {abaValida === "IV" && <CaixaAlerta nivel="info">No Anexo IV a CPP (INSS patronal) não está no DAS: é recolhida à parte, via GPS/DCTFWeb.</CaixaAlerta>}
@@ -131,6 +133,7 @@ function Conteudo({ empresa }: { empresa: EmpresaSimples }) {
         </div>
       )}
       {abaValida === "resumo" && <div role="tabpanel"><ResumoConsolidado anexos={empresa.anexos} r={r} ano={empresa.ano} conferencias={empresa.conferenciaRbt12} /></div>}
+      {abaValida === "projecao" && <div role="tabpanel"><ProjecaoAliquota empresa={empresa} tabelasPorAno={tabelasPorAno} atualizar={atualizar} /></div>}
       {abaValida === "tabelas" && <div role="tabpanel"><TabelasEditor anoEmpresa={empresa.ano} anexosEmpresa={empresa.anexos} /></div>}
 
       <Bloco titulo="Histórico de importações" acao={hist[0]?.antes ? (

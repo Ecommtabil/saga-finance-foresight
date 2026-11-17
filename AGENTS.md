@@ -38,4 +38,5 @@
 
 ## Cálculo do Simples Nacional
 - Simples Nacional math lives only in the pure `src/lib/simples/calculo.ts` (tested, including the 2.825,71 reference case); screens, PDF and Excel read its `ResultadoEmpresa`. Tax tables are versioned by year (`tabelaParaAno` picks the latest version ≤ company year) and stay user-editable, so law changes never require code changes.
+- Next-month rate projection (`src/lib/simples/projecao.ts`, tested) only feeds the current-month preview into the shared engine (`rbt12ParaMes`/`calcularMesAnexo`), so projected and calculated rates never diverge; the preview is stored on the company record.
 - Companies, table versions and import history persist in a Zustand store under a `saga.*` key (rehydrated in the `/calculadoras` layout); imports always go through `montarPrevia` → `aplicarPrevia` and snapshot the previous data so the last import can be undone.

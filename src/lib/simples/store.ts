@@ -10,6 +10,16 @@ export interface ConferenciaRbt12 {
   das?: number;
 }
 
+export interface PreviaProjecao {
+  /** Mês corrente pelo índice absoluto (ano*12 + mês 0..11). */
+  mesCorrente: number;
+  /** Valor digitado por anexo (parcial, se `parcial`). */
+  valores: Partial<Record<AnexoId, number>>;
+  parcial: boolean;
+  /** Dia até o qual o valor parcial foi apurado. */
+  dia: number;
+}
+
 export interface EmpresaSimples extends DadosCalculo {
   id: string;
   razaoSocial: string;
@@ -18,6 +28,8 @@ export interface EmpresaSimples extends DadosCalculo {
   folha: Record<string, number>;
   /** RBT12 lido do PGDAS-D por mês do ano ("AAAA-MM"), para conferência. */
   conferenciaRbt12: Record<string, ConferenciaRbt12>;
+  /** Prévia do mês corrente para projetar a alíquota do próximo mês. */
+  projecao?: PreviaProjecao;
   criadoEm: string;
   atualizadoEm: string;
 }
