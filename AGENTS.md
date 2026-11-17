@@ -35,3 +35,7 @@
 ## Análise de Viabilidade
 - Financial math (VPL/TIR/payback/CAUE/bisection/pt-BR formatting) lives only in the pure `src/lib/finance.ts`; each study is a pure module in `src/lib/viabilidade/` that returns a generic `RelatorioEstudo` (blocks, KPIs, parecer) so the page, comparator, PDF, Excel and summary text never recompute differently. Reference values are locked in `validacao.test.ts` — fix formulas, never the expected values.
 - Study screens share `EstudoPagina` and persist premises, client header and saved scenarios under `saga.viabilidade.*` keys (follow the active local project); opening a scenario writes it to the study key before navigating.
+
+## Cálculo do Simples Nacional
+- Simples Nacional math lives only in the pure `src/lib/simples/calculo.ts` (tested, including the 2.825,71 reference case); screens, PDF and Excel read its `ResultadoEmpresa`. Tax tables are versioned by year (`tabelaParaAno` picks the latest version ≤ company year) and stay user-editable, so law changes never require code changes.
+- Companies, table versions and import history persist in a Zustand store under a `saga.*` key (rehydrated in the `/calculadoras` layout); imports always go through `montarPrevia` → `aplicarPrevia` and snapshot the previous data so the last import can be undone.

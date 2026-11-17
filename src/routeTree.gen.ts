@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BalancoRouteImport } from './routes/balanco'
+import { Route as CalculadorasRouteImport } from './routes/calculadoras'
 import { Route as DcfExplicadoRouteImport } from './routes/dcf-explicado'
 import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DreRouteImport } from './routes/dre'
@@ -37,6 +38,7 @@ import { Route as UploadRouteImport } from './routes/upload'
 import { Route as ValuationRouteImport } from './routes/valuation'
 import { Route as ViabilidadeRouteImport } from './routes/viabilidade'
 import { Route as VolatilidadeRouteImport } from './routes/volatilidade'
+import { Route as CalculadorasIndexRouteImport } from './routes/calculadoras.index'
 import { Route as ModelagemFinanceira2IndexRouteImport } from './routes/modelagem-financeira-2.index'
 import { Route as ModelagemFinanceira2ModeloIdRouteImport } from './routes/modelagem-financeira-2.$modeloId'
 import { Route as ModelagemFinanceira2ImportarRouteImport } from './routes/modelagem-financeira-2.importar'
@@ -70,6 +72,8 @@ import { Route as ViabilidadeDebugRouteImport } from './routes/viabilidade.debug
 import { Route as ViabilidadeEquipeTerceirizarRouteImport } from './routes/viabilidade.equipe-terceirizar'
 import { Route as ViabilidadeMaquinaLeasingRouteImport } from './routes/viabilidade.maquina-leasing'
 import { Route as ViabilidadeNovaLinhaRouteImport } from './routes/viabilidade.nova-linha'
+import { Route as CalculadorasSimplesNacionalIndexRouteImport } from './routes/calculadoras.simples-nacional.index'
+import { Route as CalculadorasSimplesNacionalEmpresaIdRouteImport } from './routes/calculadoras.simples-nacional.$empresaId'
 import { Route as ModelagemFinanceira2DashboardModeloIdRouteImport } from './routes/modelagem-financeira-2.dashboard.$modeloId'
 import { Route as ModelagemFinanceira2IndicadoresModeloIdRouteImport } from './routes/modelagem-financeira-2.indicadores.$modeloId'
 import { Route as ModelagemFinanceira2ProjecaoModeloIdRouteImport } from './routes/modelagem-financeira-2.projecao.$modeloId'
@@ -90,6 +94,11 @@ const AuthRoute = AuthRouteImport.update({
 const BalancoRoute = BalancoRouteImport.update({
   id: '/balanco',
   path: '/balanco',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalculadorasRoute = CalculadorasRouteImport.update({
+  id: '/calculadoras',
+  path: '/calculadoras',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DcfExplicadoRoute = DcfExplicadoRouteImport.update({
@@ -216,6 +225,11 @@ const VolatilidadeRoute = VolatilidadeRouteImport.update({
   id: '/volatilidade',
   path: '/volatilidade',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CalculadorasIndexRoute = CalculadorasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CalculadorasRoute,
 } as any)
 const ModelagemFinanceira2IndexRoute =
   ModelagemFinanceira2IndexRouteImport.update({
@@ -401,6 +415,18 @@ const ViabilidadeNovaLinhaRoute = ViabilidadeNovaLinhaRouteImport.update({
   path: '/nova-linha',
   getParentRoute: () => ViabilidadeRoute,
 } as any)
+const CalculadorasSimplesNacionalIndexRoute =
+  CalculadorasSimplesNacionalIndexRouteImport.update({
+    id: '/simples-nacional/',
+    path: '/simples-nacional/',
+    getParentRoute: () => CalculadorasRoute,
+  } as any)
+const CalculadorasSimplesNacionalEmpresaIdRoute =
+  CalculadorasSimplesNacionalEmpresaIdRouteImport.update({
+    id: '/simples-nacional/$empresaId',
+    path: '/simples-nacional/$empresaId',
+    getParentRoute: () => CalculadorasRoute,
+  } as any)
 const ModelagemFinanceira2DashboardModeloIdRoute =
   ModelagemFinanceira2DashboardModeloIdRouteImport.update({
     id: '/dashboard/$modeloId',
@@ -442,6 +468,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/balanco': typeof BalancoRoute
+  '/calculadoras': typeof CalculadorasRouteWithChildren
   '/dcf-explicado': typeof DcfExplicadoRoute
   '/diagnostico': typeof DiagnosticoRoute
   '/dre': typeof DreRoute
@@ -495,14 +522,17 @@ export interface FileRoutesByFullPath {
   '/viabilidade/equipe-terceirizar': typeof ViabilidadeEquipeTerceirizarRoute
   '/viabilidade/maquina-leasing': typeof ViabilidadeMaquinaLeasingRoute
   '/viabilidade/nova-linha': typeof ViabilidadeNovaLinhaRoute
+  '/calculadoras/': typeof CalculadorasIndexRoute
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
   '/planejamento/': typeof PlanejamentoIndexRoute
   '/viabilidade/': typeof ViabilidadeIndexRoute
+  '/calculadoras/simples-nacional/$empresaId': typeof CalculadorasSimplesNacionalEmpresaIdRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
+  '/calculadoras/simples-nacional/': typeof CalculadorasSimplesNacionalIndexRoute
   '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
   '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
   '/modelagem-financeira-2/relatorios/fluxo/$modeloId': typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRoute
@@ -559,14 +589,17 @@ export interface FileRoutesByTo {
   '/viabilidade/equipe-terceirizar': typeof ViabilidadeEquipeTerceirizarRoute
   '/viabilidade/maquina-leasing': typeof ViabilidadeMaquinaLeasingRoute
   '/viabilidade/nova-linha': typeof ViabilidadeNovaLinhaRoute
+  '/calculadoras': typeof CalculadorasIndexRoute
   '/modelagem-financeira-2': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada': typeof ModelagemSimplificadaIndexRoute
   '/orcamento': typeof OrcamentoIndexRoute
   '/planejamento': typeof PlanejamentoIndexRoute
   '/viabilidade': typeof ViabilidadeIndexRoute
+  '/calculadoras/simples-nacional/$empresaId': typeof CalculadorasSimplesNacionalEmpresaIdRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
+  '/calculadoras/simples-nacional': typeof CalculadorasSimplesNacionalIndexRoute
   '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
   '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
   '/modelagem-financeira-2/relatorios/fluxo/$modeloId': typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRoute
@@ -576,6 +609,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/balanco': typeof BalancoRoute
+  '/calculadoras': typeof CalculadorasRouteWithChildren
   '/dcf-explicado': typeof DcfExplicadoRoute
   '/diagnostico': typeof DiagnosticoRoute
   '/dre': typeof DreRoute
@@ -629,14 +663,17 @@ export interface FileRoutesById {
   '/viabilidade/equipe-terceirizar': typeof ViabilidadeEquipeTerceirizarRoute
   '/viabilidade/maquina-leasing': typeof ViabilidadeMaquinaLeasingRoute
   '/viabilidade/nova-linha': typeof ViabilidadeNovaLinhaRoute
+  '/calculadoras/': typeof CalculadorasIndexRoute
   '/modelagem-financeira-2/': typeof ModelagemFinanceira2IndexRoute
   '/modelagem-simplificada/': typeof ModelagemSimplificadaIndexRoute
   '/orcamento/': typeof OrcamentoIndexRoute
   '/planejamento/': typeof PlanejamentoIndexRoute
   '/viabilidade/': typeof ViabilidadeIndexRoute
+  '/calculadoras/simples-nacional/$empresaId': typeof CalculadorasSimplesNacionalEmpresaIdRoute
   '/modelagem-financeira-2/dashboard/$modeloId': typeof ModelagemFinanceira2DashboardModeloIdRoute
   '/modelagem-financeira-2/indicadores/$modeloId': typeof ModelagemFinanceira2IndicadoresModeloIdRoute
   '/modelagem-financeira-2/projecao/$modeloId': typeof ModelagemFinanceira2ProjecaoModeloIdRoute
+  '/calculadoras/simples-nacional/': typeof CalculadorasSimplesNacionalIndexRoute
   '/modelagem-financeira-2/relatorios/balanco/$modeloId': typeof ModelagemFinanceira2RelatoriosBalancoModeloIdRoute
   '/modelagem-financeira-2/relatorios/dre/$modeloId': typeof ModelagemFinanceira2RelatoriosDreModeloIdRoute
   '/modelagem-financeira-2/relatorios/fluxo/$modeloId': typeof ModelagemFinanceira2RelatoriosFluxoModeloIdRoute
@@ -647,6 +684,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/balanco'
+    | '/calculadoras'
     | '/dcf-explicado'
     | '/diagnostico'
     | '/dre'
@@ -700,14 +738,17 @@ export interface FileRouteTypes {
     | '/viabilidade/equipe-terceirizar'
     | '/viabilidade/maquina-leasing'
     | '/viabilidade/nova-linha'
+    | '/calculadoras/'
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
     | '/planejamento/'
     | '/viabilidade/'
+    | '/calculadoras/simples-nacional/$empresaId'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
+    | '/calculadoras/simples-nacional/'
     | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
     | '/modelagem-financeira-2/relatorios/dre/$modeloId'
     | '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
@@ -764,14 +805,17 @@ export interface FileRouteTypes {
     | '/viabilidade/equipe-terceirizar'
     | '/viabilidade/maquina-leasing'
     | '/viabilidade/nova-linha'
+    | '/calculadoras'
     | '/modelagem-financeira-2'
     | '/modelagem-simplificada'
     | '/orcamento'
     | '/planejamento'
     | '/viabilidade'
+    | '/calculadoras/simples-nacional/$empresaId'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
+    | '/calculadoras/simples-nacional'
     | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
     | '/modelagem-financeira-2/relatorios/dre/$modeloId'
     | '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
@@ -780,6 +824,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/balanco'
+    | '/calculadoras'
     | '/dcf-explicado'
     | '/diagnostico'
     | '/dre'
@@ -833,14 +878,17 @@ export interface FileRouteTypes {
     | '/viabilidade/equipe-terceirizar'
     | '/viabilidade/maquina-leasing'
     | '/viabilidade/nova-linha'
+    | '/calculadoras/'
     | '/modelagem-financeira-2/'
     | '/modelagem-simplificada/'
     | '/orcamento/'
     | '/planejamento/'
     | '/viabilidade/'
+    | '/calculadoras/simples-nacional/$empresaId'
     | '/modelagem-financeira-2/dashboard/$modeloId'
     | '/modelagem-financeira-2/indicadores/$modeloId'
     | '/modelagem-financeira-2/projecao/$modeloId'
+    | '/calculadoras/simples-nacional/'
     | '/modelagem-financeira-2/relatorios/balanco/$modeloId'
     | '/modelagem-financeira-2/relatorios/dre/$modeloId'
     | '/modelagem-financeira-2/relatorios/fluxo/$modeloId'
@@ -850,6 +898,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   BalancoRoute: typeof BalancoRoute
+  CalculadorasRoute: typeof CalculadorasRouteWithChildren
   DcfExplicadoRoute: typeof DcfExplicadoRoute
   DiagnosticoRoute: typeof DiagnosticoRoute
   DreRoute: typeof DreRoute
@@ -898,6 +947,13 @@ declare module '@tanstack/react-router' {
       path: '/balanco'
       fullPath: '/balanco'
       preLoaderRoute: typeof BalancoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calculadoras': {
+      id: '/calculadoras'
+      path: '/calculadoras'
+      fullPath: '/calculadoras'
+      preLoaderRoute: typeof CalculadorasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dcf-explicado': {
@@ -1074,6 +1130,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/volatilidade'
       preLoaderRoute: typeof VolatilidadeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/calculadoras/': {
+      id: '/calculadoras/'
+      path: '/'
+      fullPath: '/calculadoras/'
+      preLoaderRoute: typeof CalculadorasIndexRouteImport
+      parentRoute: typeof CalculadorasRoute
     }
     '/modelagem-financeira-2/': {
       id: '/modelagem-financeira-2/'
@@ -1306,6 +1369,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ViabilidadeNovaLinhaRouteImport
       parentRoute: typeof ViabilidadeRoute
     }
+    '/calculadoras/simples-nacional/': {
+      id: '/calculadoras/simples-nacional/'
+      path: '/simples-nacional'
+      fullPath: '/calculadoras/simples-nacional/'
+      preLoaderRoute: typeof CalculadorasSimplesNacionalIndexRouteImport
+      parentRoute: typeof CalculadorasRoute
+    }
+    '/calculadoras/simples-nacional/$empresaId': {
+      id: '/calculadoras/simples-nacional/$empresaId'
+      path: '/simples-nacional/$empresaId'
+      fullPath: '/calculadoras/simples-nacional/$empresaId'
+      preLoaderRoute: typeof CalculadorasSimplesNacionalEmpresaIdRouteImport
+      parentRoute: typeof CalculadorasRoute
+    }
     '/modelagem-financeira-2/dashboard/$modeloId': {
       id: '/modelagem-financeira-2/dashboard/$modeloId'
       path: '/dashboard/$modeloId'
@@ -1350,6 +1427,23 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface CalculadorasRouteChildren {
+  CalculadorasIndexRoute: typeof CalculadorasIndexRoute
+  CalculadorasSimplesNacionalEmpresaIdRoute: typeof CalculadorasSimplesNacionalEmpresaIdRoute
+  CalculadorasSimplesNacionalIndexRoute: typeof CalculadorasSimplesNacionalIndexRoute
+}
+
+const CalculadorasRouteChildren: CalculadorasRouteChildren = {
+  CalculadorasIndexRoute: CalculadorasIndexRoute,
+  CalculadorasSimplesNacionalEmpresaIdRoute:
+    CalculadorasSimplesNacionalEmpresaIdRoute,
+  CalculadorasSimplesNacionalIndexRoute: CalculadorasSimplesNacionalIndexRoute,
+}
+
+const CalculadorasRouteWithChildren = CalculadorasRoute._addFileChildren(
+  CalculadorasRouteChildren,
+)
 
 interface ModelagemFinanceira2RouteChildren {
   ModelagemFinanceira2ModeloIdRoute: typeof ModelagemFinanceira2ModeloIdRoute
@@ -1491,6 +1585,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   BalancoRoute: BalancoRoute,
+  CalculadorasRoute: CalculadorasRouteWithChildren,
   DcfExplicadoRoute: DcfExplicadoRoute,
   DiagnosticoRoute: DiagnosticoRoute,
   DreRoute: DreRoute,

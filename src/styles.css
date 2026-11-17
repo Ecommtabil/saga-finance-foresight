@@ -287,3 +287,24 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
+
+/* Cálculo do Simples Nacional (usa os tokens .via-tool) */
+.via-tool {
+  --sn-verde: #15803d; --sn-verde-bg: #e8f5ec;
+  --sn-amarelo: #a16207; --sn-amarelo-bg: #fdf3d7;
+  --sn-laranja: #c2410c; --sn-laranja-bg: #fde9dc;
+  --sn-vermelho: #b91c1c; --sn-vermelho-bg: #fbe5e3;
+}
+.sn-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+.sn-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.78rem; }
+.sn-table th, .sn-table td { padding: 0.4rem 0.55rem; white-space: nowrap; border-bottom: 1px solid var(--via-border); text-align: right; font-variant-numeric: tabular-nums; }
+.sn-table th:first-child, .sn-table td:first-child { position: sticky; left: 0; z-index: 1; text-align: left; background: var(--via-surface); box-shadow: 1px 0 0 var(--via-border); font-weight: 600; color: var(--via-ink); }
+.sn-table thead th { background: var(--via-paper); color: var(--via-muted); font-weight: 600; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; white-space: normal; min-width: 6.5rem; vertical-align: bottom; }
+.sn-table thead th:first-child { background: var(--via-paper); min-width: 4.5rem; }
+.sn-table thead tr.sn-grupo th { text-align: center; color: var(--via-ink); border-bottom: 2px solid var(--via-gold); }
+.sn-table tbody tr:hover td { background: #fafbfc; }
+.sn-table tbody tr:hover td:first-child { background: #fafbfc; }
+.sn-table tr.sn-total td { background: var(--via-ink); color: var(--via-on-ink); font-weight: 700; }
+.sn-table td.sn-das { font-weight: 700; color: var(--via-ink); background: #fbf6e6; }
+.sn-table tr.sn-total td.sn-das { background: var(--via-gold); color: var(--via-ink); }
+.sn-chart { width: 100%; min-width: 0; height: 280px; }

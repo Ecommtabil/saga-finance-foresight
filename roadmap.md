@@ -39,3 +39,11 @@
 - [x] Cabeçalho do cliente, cenários salvos, comparador, PDF, Excel e copiar resumo.
 - [x] Testes de validação com os valores do arquivo e página oculta /viabilidade/debug.
 - [x] Validar no navegador (computador e celular).
+
+# Calculadoras — Cálculo do Simples Nacional
+- [x] Motor puro (RBT12, faixa, AE, partilha, teto ISS, faixa 6, Anexo IV) com teste do caso 2.825,71.
+- [x] Importação: PGDAS-D (PDF), planilha com mapeamento, colagem, prévia, histórico e desfazer.
+- [x] Exportações Excel e PDF.
+- [x] Telas: empresas, abas por anexo, resumo consolidado, tabelas do Simples.
+- [x] Menu "Calculadoras" e validação no navegador.
+- [ ] Conferir a leitura do PDF do PGDAS-D com um extrato real (aguarda arquivo do usuário).
