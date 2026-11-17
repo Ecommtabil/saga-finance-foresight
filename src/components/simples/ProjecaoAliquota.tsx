@@ -1,10 +1,11 @@
-import { useMemo, type ReactNode } from "react";
-import { ArrowDownRight, ArrowRight, ArrowUpRight, CalendarClock, Minus } from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, CalendarClock, FileText, Minus } from "lucide-react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Bloco } from "@/components/viabilidade/ui";
 import { Button } from "@/components/ui/button";
 import { CaixaAlerta, CampoMoeda, FaixaBadge } from "./ui";
-import { receitaAnexoMes, type ResultadoMes } from "@/lib/simples/calculo";
+import { calcularEmpresa, receitaAnexoMes, type ResultadoMes } from "@/lib/simples/calculo";
+import { RelatorioProjecaoDialog } from "./RelatorioProjecaoDialog";
 import { diasNoMes, extrapolarMes, mesCorrentePadrao, projetarAliquota, rotuloMes } from "@/lib/simples/projecao";
 import { COR_ANEXO } from "@/lib/simples/cores";
 import { brl, pct4 } from "@/lib/simples/formato";
@@ -81,6 +82,9 @@ export function ProjecaoAliquota({ empresa, tabelasPorAno, atualizar }: {
     () => projetarAliquota(empresa, (ano) => tabelaParaAno(tabelasPorAno, ano).tabelas, { mesCorrente, faturamento }),
     [empresa, tabelasPorAno, mesCorrente, faturamento],
   );
+  const [relatorio, setRelatorio] = useState(false);
+  const anual = useMemo(() => calcularEmpresa(empresa, tabelaParaAno(tabelasPorAno, empresa.ano).tabelas), [empresa, tabelasPorAno]);
+  const digitado = empresa.anexos.reduce((s, a) => s + (Number(previa.valores[a]) || 0), 0);
 
   const nomeC = rotuloMes(p.mesCorrente);
   const nomeP = rotuloMes(p.mesProximo);
@@ -103,6 +107,19 @@ export function ProjecaoAliquota({ empresa, tabelasPorAno, atualizar }: {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col gap-3 rounded-xl border border-via-border bg-via-surface p-4 shadow-[var(--via-shadow)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-via-ink">Relatório para o cliente</p>
+          <p className="text-xs text-via-muted">PDF em A4 com a alíquota projetada de {nomeP}, comparativo, gráfico, histórico e observações.</p>
+        </div>
+        <Button onClick={() => setRelatorio(true)} disabled={p.faturamentoCorrente <= 0} title={p.faturamentoCorrente <= 0 ? "Informe a prévia do faturamento primeiro" : undefined}
+          className="shrink-0 bg-via-ink text-via-on-ink hover:bg-via-ink/90">
+          <FileText className="h-4 w-4 text-via-gold" />Gerar relatório A4
+        </Button>
+      </div>
+      <RelatorioProjecaoDialog aberto={relatorio} onFechar={() => setRelatorio(false)}
+        dados={{ empresa, projecao: p, anual, previa: { parcial: previa.parcial, dia, dias, digitado } }} />
+
       <Bloco numero={1} titulo="Prévia do faturamento do mês corrente">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
           <label className="block text-sm">
