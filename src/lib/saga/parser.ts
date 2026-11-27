@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import type { Balanco, DRE, DadosImportados, Modo, Premissas } from "./types";
+import type { Balanco, ContaExtraDRE, DRE, DadosImportados, Modo, Premissas } from "./types";
 
 export class PlanilhaError extends Error {
   constructor(public aba: string, public detalhe: string) {
@@ -35,6 +35,7 @@ function lerPorPosicao(
   aba: string,
   prefixo: string,
   rotulos: Record<string, string>,
+  contasExtrasDre?: ContaExtraDRE[],
 ): Record<string, number[]> {
   const dados = rows.filter(
     (r) => Array.isArray(r) && r.some((c) => c != null && String(c).trim() !== ""),
@@ -94,6 +95,12 @@ function lerPorPosicao(
     const delta = valores(r).map((v) => (negativo ? -Math.abs(v) : Math.abs(v)));
     out[pk] = base.map((v, i) => v + delta[i]!);
     (extras[pk] ??= []).push(nome || "conta extra");
+    contasExtrasDre?.push({
+      id: `dre-extra-${contasExtrasDre.length}`,
+      nome: nome || "Conta extra",
+      contaPai: pk as keyof DRE,
+      valores: delta,
+    });
     pendentes.push({ pk, delta });
   });
   // subtotais que dependem da conta recebem o mesmo valor (lidos depois de todas as linhas)
@@ -179,10 +186,22 @@ export const CAMPOS_BP: { key: keyof Balanco; label: string }[] = [
   { key: "passivoTotal", label: "Passivo + PL Total" },
 ];
 
-function parseDRE(wb: XLSX.WorkBook, rotulos: Record<string, string>): DRE {
+function parseDRE(
+  wb: XLSX.WorkBook,
+  rotulos: Record<string, string>,
+): { dre: DRE; contasExtras: ContaExtraDRE[] } {
   const ws = getSheet(wb, "DRE", 1);
   const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1 });
-  return lerPorPosicao(rows, CAMPOS_DRE, "DRE", "dre", rotulos) as unknown as DRE;
+  const contasExtras: ContaExtraDRE[] = [];
+  const dre = lerPorPosicao(
+    rows,
+    CAMPOS_DRE,
+    "DRE",
+    "dre",
+    rotulos,
+    contasExtras,
+  ) as unknown as DRE;
+  return { dre, contasExtras };
 }
 
 function parseBalanco(
@@ -268,10 +287,10 @@ export async function lerPlanilha(file: File, modo: Modo): Promise<DadosImportad
   const wb = XLSX.read(buf, { type: "array" });
   const { premissas, empresa, anoBase } = parsePremissas(wb);
   const rotulos: Record<string, string> = {};
-  const dre = parseDRE(wb, rotulos);
+  const { dre, contasExtras } = parseDRE(wb, rotulos);
   const balanco = parseBalanco(wb, modo, rotulos);
   const anos = Array.from({ length: 5 }, (_, i) => anoBase - 4 + i);
-  return { modo, empresaPlanilha: empresa, anos, dre, balanco, premissas, rotulos };
+  return { modo, empresaPlanilha: empresa, anos, dre, balanco, premissas, rotulos, contasExtrasDre: contasExtras };
 }
 
 /** Nome exibido para a conta: personalizado pelo usuário ou o padrão. */

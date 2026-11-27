@@ -54,6 +54,16 @@ export interface Premissas {
   crescimentoProj: number;
 }
 
+export interface ContaExtraDRE {
+  /** Identidade estável para persistência e personalização do nome. */
+  id: string;
+  nome: string;
+  /** Conta do modelo sob a qual a linha extra foi adicionada. */
+  contaPai: keyof DRE;
+  /** Valores com o mesmo sinal usado na conta pai. */
+  valores: number[];
+}
+
 export interface DadosImportados {
   modo: Modo;
   empresaPlanilha: string;
@@ -63,4 +73,6 @@ export interface DadosImportados {
   premissas: Premissas;
   /** Nomes de contas personalizados (chave "dre.campo" / "bp.campo"). */
   rotulos?: Record<string, string>;
+  /** Linhas adicionadas pelo usuário, preservadas para o DRE analítico. */
+  contasExtrasDre?: ContaExtraDRE[];
 }

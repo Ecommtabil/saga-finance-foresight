@@ -66,6 +66,24 @@ export function EditarNomesContas({ grupos = ["dre", "bp"] }: { grupos?: Grupo[]
             ))}
           </div>
         ))}
+        {grupos.includes("dre") && (dados.contasExtrasDre?.length ?? 0) > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Contas adicionadas na importação</h3>
+            {dados.contasExtrasDre!.map((conta) => {
+              const chave = `dre.extra.${conta.id}`;
+              return (
+                <div key={conta.id} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-center gap-3">
+                  <span className="text-xs text-muted-foreground">{conta.nome}</span>
+                  <Input
+                    value={rascunho[chave] ?? ""}
+                    placeholder={conta.nome}
+                    onChange={(e) => setRascunho((r) => ({ ...r, [chave]: e.target.value }))}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
         <DialogFooter className="gap-2">
           <Button variant="ghost" onClick={() => setRascunho({})}>
             <RotateCcw className="mr-2 h-4 w-4" /> Restaurar nomes padrão

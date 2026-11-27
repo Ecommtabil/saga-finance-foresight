@@ -1,3 +1,8 @@
+# DRE analítico
+- [x] Preservar contas extras da importação, como Aluguel, sem alterar os resultados já calculados.
+- [x] Adicionar visões Gerencial e Analítico, com totais reconciliados e renomeação das contas extras.
+- [x] Testar importação, exibição e persistência no navegador (4 testes aprovados; fluxo completo sem erros).
+
 # NCG — relatório e Dashboard
 - [x] Conectar premissas ao motor existente e apresentar memorial técnico.
 - [x] Criar KPIs, ciclo financeiro, cascata, cobertura e diagnóstico.

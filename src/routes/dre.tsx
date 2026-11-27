@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/saga/PageHeader";
 import { EmptyState } from "@/components/saga/EmptyState";
 import { FinancialTable } from "@/components/saga/FinancialTable";
-import { useSaga } from "@/lib/saga/context";
-import { rotulo } from "@/lib/saga/parser";
 import { EditarNomesContas } from "@/components/saga/EditarNomesContas";
+import { Button } from "@/components/ui/button";
+import { useSaga } from "@/lib/saga/context";
+import { montarLinhasDRE, type VisaoDRE } from "@/lib/saga/dre-view";
 
 export const Route = createFileRoute("/dre")({
   head: () => ({
@@ -20,33 +22,49 @@ export const Route = createFileRoute("/dre")({
 
 function DrePage() {
   const { dados, empresa } = useSaga();
+  const [visao, setVisao] = useState<VisaoDRE>("gerencial");
   if (!dados) return <><PageHeader titulo="DRE" /><EmptyState titulo="DRE indisponível" /></>;
   const moeda = empresa?.moeda ?? "R$";
+  const quantidadeExtras = dados.contasExtrasDre?.length ?? 0;
+
   return (
     <div className="space-y-6">
       <PageHeader titulo="Demonstração do Resultado (DRE)" subtitulo="Valores anuais nas 5 últimas competências." />
-      <div className="flex justify-end"><EditarNomesContas grupos={["dre"]} /></div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2" aria-label="Formato da DRE">
+          <Button
+            type="button"
+            size="sm"
+            variant={visao === "gerencial" ? "default" : "outline"}
+            onClick={() => setVisao("gerencial")}
+          >
+            DRE Gerencial
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={visao === "analitico" ? "default" : "outline"}
+            onClick={() => setVisao("analitico")}
+          >
+            DRE Analítico
+          </Button>
+        </div>
+        <EditarNomesContas grupos={["dre"]} />
+      </div>
+      {visao === "analitico" && (
+        <p className="rounded-lg border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+          {quantidadeExtras > 0
+            ? `${quantidadeExtras} ${quantidadeExtras === 1 ? "conta adicionada aparece" : "contas adicionadas aparecem"} separadamente. A linha de total já inclui essas contas; não some os valores novamente.`
+            : "Nenhuma conta extra foi identificada na última importação. Para detalhar uma conta como Aluguel, adicione-a à planilha e importe o arquivo novamente."}
+        </p>
+      )}
       <FinancialTable
         anos={dados.anos}
         moeda={moeda}
         analises
         baseAV={dados.dre.receitaLiquida}
         baseAVLabel="a Receita Líquida"
-        rows={[
-          { label: rotulo(dados, "dre.receitaBruta", "Receita Bruta"), values: dados.dre.receitaBruta },
-          { label: "(-) " + rotulo(dados, "dre.deducoes", "Deduções"), values: dados.dre.deducoes, indent: true },
-          { label: "= " + rotulo(dados, "dre.receitaLiquida", "Receita Líquida"), values: dados.dre.receitaLiquida, bold: true },
-          { label: "(-) " + rotulo(dados, "dre.cmv", "CMV"), values: dados.dre.cmv, indent: true },
-          { label: "= " + rotulo(dados, "dre.lucroBruto", "Lucro Bruto"), values: dados.dre.lucroBruto, bold: true },
-          { label: "(-) " + rotulo(dados, "dre.despOperacionais", "Despesas Operacionais"), values: dados.dre.despOperacionais, indent: true },
-          { label: "= " + rotulo(dados, "dre.ebitda", "EBITDA"), values: dados.dre.ebitda, bold: true },
-          { label: "(-) " + rotulo(dados, "dre.depreciacao", "Depreciação"), values: dados.dre.depreciacao, indent: true },
-          { label: "= " + rotulo(dados, "dre.ebit", "EBIT"), values: dados.dre.ebit, bold: true },
-          { label: "(+/-) " + rotulo(dados, "dre.resultadoFinanceiro", "Resultado Financeiro"), values: dados.dre.resultadoFinanceiro, indent: true },
-          { label: "= " + rotulo(dados, "dre.lair", "LAIR"), values: dados.dre.lair, bold: true },
-          { label: "(-) " + rotulo(dados, "dre.impostos", "Impostos"), values: dados.dre.impostos, indent: true },
-          { label: "= " + rotulo(dados, "dre.lucroLiquido", "Lucro Líquido"), values: dados.dre.lucroLiquido, bold: true },
-        ]}
+        rows={montarLinhasDRE(dados, visao)}
       />
     </div>
   );

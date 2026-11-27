@@ -17,4 +17,12 @@ test("linha extra Aluguel soma nas despesas e nos resultados", async () => {
   expect(d.dre.lucroLiquido[4]).toBe(base.dre.lucroLiquido[4] - 10);
   expect(d.dre.receitaBruta[0]).toBe(1000);
   expect(d.rotulos!["dre.despOperacionais"]).toContain("Aluguel");
+  expect(d.contasExtrasDre).toEqual([
+    {
+      id: "dre-extra-0",
+      nome: "Aluguel",
+      contaPai: "despOperacionais",
+      valores: [-10, -10, -10, -10, -10],
+    },
+  ]);
 });
