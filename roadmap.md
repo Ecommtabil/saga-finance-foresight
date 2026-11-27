@@ -53,3 +53,7 @@
 - [x] Telas: empresas, abas por anexo, resumo consolidado, tabelas do Simples.
 - [x] Menu "Calculadoras" e validação no navegador.
 - [x] Conferir a leitura do PDF do PGDAS-D com um extrato real (out/2026: DAS 3.739,34 confere).
+
+# Fonte numérica em padrão contábil
+- [x] Números em Times New Roman (Tinos como reserva web), textos em Inter, algarismos tabulares.
+- [x] Conferir no navegador: DRE, Balanço, Indicadores, Valuation e NCG pintando fonte serifada.
