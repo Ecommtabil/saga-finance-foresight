@@ -4,6 +4,8 @@ import { EmptyState } from "@/components/saga/EmptyState";
 import { FinancialTable } from "@/components/saga/FinancialTable";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useSaga } from "@/lib/saga/context";
+import { rotulo } from "@/lib/saga/parser";
+import { EditarNomesContas } from "@/components/saga/EditarNomesContas";
 
 export const Route = createFileRoute("/balanco")({
   head: () => ({
@@ -38,6 +40,7 @@ function BalancoPage() {
   return (
     <div className="space-y-6">
       <PageHeader titulo="Balanço Patrimonial" subtitulo="Ativo = Passivo + PL. 5 anos lado a lado." />
+      <div className="flex justify-end"><EditarNomesContas grupos={["bp"]} /></div>
       <div>
         <h2 className="mb-3 text-lg font-semibold">Ativo</h2>
         <FinancialTable
@@ -47,12 +50,12 @@ function BalancoPage() {
           baseAV={b.ativoTotal}
           baseAVLabel="o Ativo Total"
           rows={[
-            { label: "Caixa e Equivalentes", values: b.caixa, indent: true },
-            { label: "Contas a Receber", values: b.contasReceber, indent: true },
-            { label: "Estoques", values: b.estoques, indent: true },
-            { label: "Ativo Circulante", values: b.ativoCirculante, bold: true },
-            { label: "Ativo Não Circulante", values: b.ativoNaoCirculante, indent: true },
-            { label: "Ativo Total", values: b.ativoTotal, bold: true },
+            { label: rotulo(dados, "bp.caixa", "Caixa e Equivalentes"), values: b.caixa, indent: true },
+            { label: rotulo(dados, "bp.contasReceber", "Contas a Receber"), values: b.contasReceber, indent: true },
+            { label: rotulo(dados, "bp.estoques", "Estoques"), values: b.estoques, indent: true },
+            { label: rotulo(dados, "bp.ativoCirculante", "Ativo Circulante"), values: b.ativoCirculante, bold: true },
+            { label: rotulo(dados, "bp.ativoNaoCirculante", "Ativo Não Circulante"), values: b.ativoNaoCirculante, indent: true },
+            { label: rotulo(dados, "bp.ativoTotal", "Ativo Total"), values: b.ativoTotal, bold: true },
           ]}
         />
       </div>
@@ -65,13 +68,13 @@ function BalancoPage() {
           baseAV={b.passivoTotal}
           baseAVLabel="o Passivo + PL Total"
           rows={[
-            { label: "Fornecedores", values: b.fornecedores, indent: true },
-            { label: "Empréstimos CP", values: b.emprestimosCP, indent: true },
-            { label: "Passivo Circulante", values: b.passivoCirculante, bold: true },
-            { label: "Empréstimos LP", values: b.emprestimosLP, indent: true },
-            { label: "Passivo Não Circulante", values: b.passivoNaoCirculante, bold: true },
-            { label: "Patrimônio Líquido", values: b.patrimonioLiquido, bold: true },
-            { label: "Passivo + PL Total", values: b.passivoTotal, bold: true },
+            { label: rotulo(dados, "bp.fornecedores", "Fornecedores"), values: b.fornecedores, indent: true },
+            { label: rotulo(dados, "bp.emprestimosCP", "Empréstimos CP"), values: b.emprestimosCP, indent: true },
+            { label: rotulo(dados, "bp.passivoCirculante", "Passivo Circulante"), values: b.passivoCirculante, bold: true },
+            { label: rotulo(dados, "bp.emprestimosLP", "Empréstimos LP"), values: b.emprestimosLP, indent: true },
+            { label: rotulo(dados, "bp.passivoNaoCirculante", "Passivo Não Circulante"), values: b.passivoNaoCirculante, bold: true },
+            { label: rotulo(dados, "bp.patrimonioLiquido", "Patrimônio Líquido"), values: b.patrimonioLiquido, bold: true },
+            { label: rotulo(dados, "bp.passivoTotal", "Passivo + PL Total"), values: b.passivoTotal, bold: true },
           ]}
         />
       </div>

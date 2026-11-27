@@ -61,4 +61,6 @@ export interface DadosImportados {
   dre: DRE;
   balanco: Balanco | null; // null quando modo básico
   premissas: Premissas;
+  /** Nomes de contas personalizados (chave "dre.campo" / "bp.campo"). */
+  rotulos?: Record<string, string>;
 }

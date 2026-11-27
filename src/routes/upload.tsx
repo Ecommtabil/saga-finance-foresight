@@ -21,6 +21,7 @@ import { PreviewImportacao } from "@/components/saga/PreviewImportacao";
 import { importarFonteBruta } from "@/lib/saga/etl-client";
 import { toast } from "sonner";
 import { salvarAtual } from "@/lib/workspaces";
+import { EditarNomesContas } from "@/components/saga/EditarNomesContas";
 
 function oferecerSalvar() {
   // espera o autosave gravar os novos dados antes de salvar o projeto
@@ -123,7 +124,7 @@ function UploadPage() {
             <Download className="h-8 w-8 text-primary" />
             <CardTitle className="mt-2">1. Baixar planilha modelo</CardTitle>
             <CardDescription>
-              Modelo pré-formatado com abas Premissas, DRE e{" "}
+              Mantenha a ordem das linhas do modelo (os nomes podem ser os seus). Abas Premissas, DRE e{" "}
               {modo === "completa" ? "Balanço" : "Balanço Simplificado"}.
             </CardDescription>
           </CardHeader>
@@ -260,7 +261,12 @@ function UploadPage() {
                 v={`${(((dados.premissas.rf + dados.premissas.beta * dados.premissas.erp) * 100) || 0).toFixed(1)}% (base ke)`}
               />
             </dl>
+            <p className="mt-4 text-xs text-muted-foreground">
+              As linhas são lidas pela posição da planilha modelo, então os nomes que você usou não
+              atrapalham. Use “Ajustar nomes das contas” para personalizar como cada linha aparece.
+            </p>
             <div className="mt-6 flex flex-wrap gap-2">
+              <EditarNomesContas />
               <Button asChild>
                 <Link to="/indices">Ir para Índices Econômicos</Link>
               </Button>
