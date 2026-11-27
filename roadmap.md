@@ -57,3 +57,7 @@
 # Fonte numérica em padrão contábil
 - [x] Números em Times New Roman (Tinos como reserva web), textos em Inter, algarismos tabulares.
 - [x] Conferir no navegador: DRE, Balanço, Indicadores, Valuation e NCG pintando fonte serifada.
+
+# Diagnóstico — pontuação proporcional
+- [x] Substituir notas fixas por escala contínua, preservando limites financeiros e pesos.
+- [x] Validar notas, ranking, pesos e troca de período com 9 testes e planilha preenchida no navegador, sem erros.

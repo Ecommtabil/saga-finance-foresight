@@ -28,8 +28,9 @@ import {
   indicadoresEndividamento,
   indicadoresRentabilidade,
 } from "@/lib/saga/calculations";
-import { fmtPct, fmtMult, safeDiv } from "@/lib/saga/formatters";
+import { fmtNum, fmtPct, fmtMult, safeDiv } from "@/lib/saga/formatters";
 import { gerarDiagnosticoPDF, type DiagSecao } from "@/lib/saga/diagnostico-pdf";
+import { avaliarIndicador, mediaScores, scorePonderado, type StatusDiagnostico } from "@/lib/saga/diagnostico-score";
 
 export const Route = createFileRoute("/diagnostico")({
   head: () => ({
@@ -38,37 +39,24 @@ export const Route = createFileRoute("/diagnostico")({
       { name: "description", content: "Diagnóstico financeiro consolidado: lucratividade, gestão e endividamento." },
       { property: "og:title", content: "Diagnóstico — SAGA" },
       { property: "og:description", content: "Painel de diagnóstico com semáforo de saúde financeira." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: DiagnosticoPage,
 });
 
-type Status = "bom" | "atencao" | "ruim" | "neutro";
-
-function classificar(valor: number, bom: number, atencao: number, maiorMelhor = true): Status {
-  if (!isFinite(valor)) return "neutro";
-  if (maiorMelhor) {
-    if (valor >= bom) return "bom";
-    if (valor >= atencao) return "atencao";
-    return "ruim";
-  }
-  if (valor <= bom) return "bom";
-  if (valor <= atencao) return "atencao";
-  return "ruim";
-}
+type Status = StatusDiagnostico;
+type ScoredSecao = {
+  titulo: string;
+  cards: (DiagSecao["cards"][number] & { score: number | null })[];
+};
 
 const STATUS_STYLE: Record<Status, { dot: string; label: string; text: string }> = {
   bom: { dot: "bg-emerald-500", label: "Saudável", text: "text-emerald-700" },
   atencao: { dot: "bg-amber-500", label: "Atenção", text: "text-amber-700" },
   ruim: { dot: "bg-red-500", label: "Crítico", text: "text-red-700" },
   neutro: { dot: "bg-muted-foreground", label: "—", text: "text-muted-foreground" },
-};
-
-const STATUS_SCORE: Record<Status, number | null> = {
-  bom: 100,
-  atencao: 60,
-  ruim: 20,
-  neutro: null,
 };
 
 function classificarScore(score: number): {
@@ -119,14 +107,6 @@ function classificarScore(score: number): {
   };
 }
 
-function scoreSecao(cards: { status: Status }[]): number | null {
-  const vals = cards
-    .map((c) => STATUS_SCORE[c.status])
-    .filter((v): v is number => v !== null);
-  if (!vals.length) return null;
-  return vals.reduce((a, b) => a + b, 0) / vals.length;
-}
-
 function ScoreGauge({ score }: { score: number }) {
   const c = classificarScore(score);
   const size = 168;
@@ -156,7 +136,7 @@ function ScoreGauge({ score }: { score: number }) {
       </svg>
       <div className="absolute flex flex-col items-center">
         <span className={`text-4xl font-bold tabular-nums ${c.cor}`}>
-          {Math.round(score)}
+          {fmtNum(score, 1)}
         </span>
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
           de 100
@@ -170,21 +150,16 @@ function ScoreSummary({
   secoes,
   pesos,
 }: {
-  secoes: { titulo: string; cards: { status: Status }[] }[];
+  secoes: ScoredSecao[];
   pesos: number[];
 }) {
   const secoesScore = secoes.map((s) => ({
     titulo: s.titulo,
-    score: scoreSecao(s.cards),
+    score: mediaScores(s.cards),
   }));
-  const pares = secoesScore
-    .map((s, i) => ({ score: s.score, peso: pesos[i] ?? 0 }))
-    .filter((p): p is { score: number; peso: number } => p.score !== null);
-  const somaPesosAtivos = pares.reduce((a, b) => a + b.peso, 0);
-  const overall =
-    somaPesosAtivos > 0
-      ? pares.reduce((acc, p) => acc + p.score * p.peso, 0) / somaPesosAtivos
-      : 0;
+  const overall = scorePonderado(secoesScore.map((s, i) => ({
+    score: s.score, peso: pesos[i] ?? 0,
+  }))) ?? 0;
   const c = classificarScore(overall);
   const totalCards = secoes.reduce((acc, s) => acc + s.cards.length, 0);
   const cont = { bom: 0, atencao: 0, ruim: 0, neutro: 0 } as Record<Status, number>;
@@ -214,8 +189,9 @@ function ScoreSummary({
               <p className="mt-1 text-sm text-foreground/80">
                 Nota geral calculada a partir de <b>{totalCards}</b> indicadores nas
                 três dimensões do diagnóstico, ponderada pelos pesos ajustáveis
-                abaixo. Cada indicador contribui conforme seu status: Saudável
-                (100), Atenção (60) e Crítico (20).
+                abaixo. A nota varia proporcionalmente: 40 no limite de atenção e
+                70 no limite saudável, continuando na mesma proporção até 0 ou 100.
+                Indicadores indisponíveis não entram na média.
               </p>
               <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
@@ -234,15 +210,15 @@ function ScoreSummary({
                 )}
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 xl:grid-cols-3">
               {secoesScore.map((s, i) => {
                 const sc = s.score ?? 0;
                 const cs = classificarScore(sc);
                 const pesoRel = totalPesos > 0 ? (pesos[i] / totalPesos) * 100 : 0;
                 return (
                   <div key={s.titulo} className="rounded-md border bg-white p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <div className="flex flex-wrap items-center justify-between gap-1">
+                      <span className="min-w-0 break-words text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         {s.titulo}
                       </span>
                       <span className={`text-xs font-semibold ${cs.cor}`}>
@@ -251,7 +227,7 @@ function ScoreSummary({
                     </div>
                     <div className="mt-1 flex items-baseline gap-1">
                       <span className={`text-xl font-bold tabular-nums ${cs.cor}`}>
-                        {s.score !== null ? Math.round(sc) : "—"}
+                        {fmtNum(s.score, 1)}
                       </span>
                       <span className="text-[10px] text-muted-foreground">/100</span>
                     </div>
@@ -269,7 +245,7 @@ function ScoreSummary({
                         style={{ width: `${Math.max(0, Math.min(100, sc))}%` }}
                       />
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground">
+                    <div className="mt-1 flex flex-wrap items-center justify-between gap-1 text-[10px] text-muted-foreground">
                       <span>{cs.rotulo}</span>
                       <span className="tabular-nums">peso {pesoRel.toFixed(0)}%</span>
                     </div>
@@ -295,7 +271,7 @@ function ParametrosTab({
 }: {
   pesos: number[];
   onPesosChange: (i: number, v: number) => void;
-  secoes: DiagSecao[];
+  secoes: ScoredSecao[];
 }) {
   const [inverso, setInverso] = useState(false);
   const rotulos = ["Lucratividade", "Gestão", "Endividamento"];
@@ -309,12 +285,12 @@ function ParametrosTab({
   const ranking = secoes
     .flatMap((sec) =>
       sec.cards
-        .filter((c) => c.status !== "neutro")
+        .filter((c) => c.score !== null)
         .map((c) => ({
           titulo: c.titulo,
           secao: sec.titulo,
           status: c.status,
-          score: STATUS_SCORE[c.status] ?? 0,
+          score: c.score ?? 0,
         })),
     )
     .sort((a, b) => (inverso ? a.score - b.score : b.score - a.score));
@@ -448,7 +424,7 @@ function ParametrosTab({
                   </div>
                   <div className="shrink-0 text-right">
                     <div className={`text-sm font-bold tabular-nums ${s.text}`}>
-                      {item.score}
+                      {fmtNum(item.score, 1)}
                     </div>
                     <div className="text-[10px] text-muted-foreground">/100</div>
                   </div>
@@ -476,10 +452,12 @@ function IndicadorCard({
   delta,
   deltaLabel,
   pctPoints,
+  score,
 }: {
   titulo: string;
   valor: string;
   status: Status;
+  score: number | null;
   interpretacao: string;
   referencia: string;
   delta?: number;
@@ -487,15 +465,14 @@ function IndicadorCard({
   pctPoints?: boolean;
 }) {
   const s = STATUS_STYLE[status];
-  const scoreIndividual = STATUS_SCORE[status];
   const hasDelta = delta !== undefined && isFinite(delta);
-  const deltaPositive = hasDelta && delta! > 0.0001;
-  const deltaNegative = hasDelta && delta! < -0.0001;
+  const deltaPositive = hasDelta && delta > 0.0001;
+  const deltaNegative = hasDelta && delta < -0.0001;
   const DeltaIcon = deltaPositive ? TrendingUp : deltaNegative ? TrendingDown : Minus;
   const deltaText = hasDelta
     ? pctPoints
-      ? `${delta! > 0 ? "+" : ""}${(delta! * 100).toFixed(1)} p.p.`
-      : `${delta! > 0 ? "+" : ""}${delta!.toFixed(2)}`
+      ? `${delta > 0 ? "+" : ""}${(delta * 100).toFixed(1)} p.p.`
+      : `${delta > 0 ? "+" : ""}${delta.toFixed(2)}`
     : null;
   const semaforoAceso: Record<Status, "top" | "mid" | "bot" | null> = {
     ruim: "top",
@@ -564,7 +541,7 @@ function IndicadorCard({
             <div className="mt-1 flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
               <span>Score</span>
               <span className={`font-semibold tabular-nums ${s.text}`}>
-                {scoreIndividual !== null ? scoreIndividual : "—"}
+                {fmtNum(score, 1)}
               </span>
               <span>/100</span>
             </div>
@@ -648,14 +625,14 @@ function DiagnosticoPage() {
       ? undefined
       : curr - prevVal;
 
-  const secoes: DiagSecao[] = [
+  const secoes: ScoredSecao[] = [
     {
       titulo: "Lucratividade",
       cards: [
         {
           titulo: "Margem Bruta",
           valor: fmtPct(mBruta),
-          status: classificar(mBruta, 0.4, 0.2),
+          ...avaliarIndicador(mBruta, 0.4, 0.2),
           delta: d(mBruta, prev !== null ? m.bruta[prev] : undefined),
           deltaLabel,
           pctPoints: true,
@@ -670,7 +647,7 @@ function DiagnosticoPage() {
         {
           titulo: "Margem EBITDA",
           valor: fmtPct(mEbitda),
-          status: classificar(mEbitda, 0.15, 0.08),
+          ...avaliarIndicador(mEbitda, 0.15, 0.08),
           delta: d(mEbitda, prev !== null ? m.ebitda[prev] : undefined),
           deltaLabel,
           pctPoints: true,
@@ -685,7 +662,7 @@ function DiagnosticoPage() {
         {
           titulo: "Margem Operacional",
           valor: fmtPct(mOp),
-          status: classificar(mOp, 0.1, 0.04),
+          ...avaliarIndicador(mOp, 0.1, 0.04),
           delta: d(mOp, prev !== null ? m.operacional[prev] : undefined),
           deltaLabel,
           pctPoints: true,
@@ -700,7 +677,7 @@ function DiagnosticoPage() {
         {
           titulo: "Margem Líquida",
           valor: fmtPct(mLiq),
-          status: classificar(mLiq, 0.08, 0.03),
+          ...avaliarIndicador(mLiq, 0.08, 0.03),
           delta: d(mLiq, prev !== null ? m.liquida[prev] : undefined),
           deltaLabel,
           pctPoints: true,
@@ -720,7 +697,7 @@ function DiagnosticoPage() {
         {
           titulo: "ROE",
           valor: fmtPct(roe),
-          status: classificar(roe, 0.15, 0.08),
+          ...avaliarIndicador(roe, 0.15, 0.08),
           delta: d(roe, prev !== null ? rent.roe[prev] : undefined),
           deltaLabel,
           pctPoints: true,
@@ -735,7 +712,7 @@ function DiagnosticoPage() {
         {
           titulo: "ROA",
           valor: fmtPct(roa),
-          status: classificar(roa, 0.08, 0.04),
+          ...avaliarIndicador(roa, 0.08, 0.04),
           delta: d(roa, prev !== null ? rent.roa[prev] : undefined),
           deltaLabel,
           pctPoints: true,
@@ -750,7 +727,7 @@ function DiagnosticoPage() {
         {
           titulo: "ROIC",
           valor: fmtPct(roic),
-          status: classificar(roic, 0.12, 0.06),
+          ...avaliarIndicador(roic, 0.12, 0.06),
           delta: d(roic, prev !== null ? rent.roic[prev] : undefined),
           deltaLabel,
           pctPoints: true,
@@ -765,7 +742,7 @@ function DiagnosticoPage() {
         {
           titulo: "Giro do Ativo",
           valor: isFinite(giroAtivo) ? fmtMult(giroAtivo, 2) : "—",
-          status: classificar(giroAtivo, 1, 0.5),
+          ...avaliarIndicador(giroAtivo, 1, 0.5),
           delta: d(giroAtivo, prev !== null ? giroFor(prev) : undefined),
           deltaLabel,
           interpretacao: !isFinite(giroAtivo)
@@ -785,7 +762,7 @@ function DiagnosticoPage() {
         {
           titulo: "Dívida / PL",
           valor: isFinite(divPL) ? fmtMult(divPL, 2) : "—",
-          status: classificar(divPL, 0.5, 1, false),
+          ...avaliarIndicador(divPL, 0.5, 1, false),
           delta: d(divPL, prev !== null ? end?.dividaSobrePL[prev] : undefined),
           deltaLabel,
           interpretacao: !isFinite(divPL)
@@ -800,7 +777,7 @@ function DiagnosticoPage() {
         {
           titulo: "Dívida / Ativo",
           valor: isFinite(divAtivo) ? fmtPct(divAtivo) : "—",
-          status: classificar(divAtivo, 0.3, 0.5, false),
+          ...avaliarIndicador(divAtivo, 0.3, 0.5, false),
           delta: d(divAtivo, prev !== null ? end?.dividaSobreAtivo[prev] : undefined),
           deltaLabel,
           pctPoints: true,
@@ -816,7 +793,7 @@ function DiagnosticoPage() {
         {
           titulo: "Cobertura de Juros",
           valor: isFinite(cobJuros) ? fmtMult(cobJuros, 2) : "—",
-          status: classificar(cobJuros, 3, 1.5),
+          ...avaliarIndicador(cobJuros, 3, 1.5),
           delta: d(cobJuros, prev !== null ? end?.coberturaJuros[prev] : undefined),
           deltaLabel,
           interpretacao: !isFinite(cobJuros)
@@ -831,7 +808,7 @@ function DiagnosticoPage() {
         {
           titulo: "Liquidez Corrente",
           valor: isFinite(liqCorr) ? fmtMult(liqCorr, 2) : "—",
-          status: classificar(liqCorr, 1.5, 1),
+          ...avaliarIndicador(liqCorr, 1.5, 1),
           delta: d(liqCorr, prev !== null ? liq?.corrente[prev] : undefined),
           deltaLabel,
           interpretacao: !isFinite(liqCorr)
@@ -900,6 +877,7 @@ function DiagnosticoPage() {
                   titulo={c.titulo}
                   valor={c.valor}
                   status={c.status}
+                  score={c.score}
                   interpretacao={c.interpretacao}
                   referencia={c.referencia}
                   delta={c.delta}
