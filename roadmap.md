@@ -65,3 +65,7 @@
 # Diagnóstico — notas mais variadas
 - [x] Usar curva gradual sem saturação antecipada, preservando semáforos e pesos.
 - [x] Testar pequenas diferenças e notas altas (11 testes aprovados); conferir planilha importada, pesos e troca de período no navegador, sem erros.
+
+# Diagnóstico — referências parametrizadas
+- [x] Permitir ajustar limites por indicador, validar faixas e salvar por projeto, com restauração dos padrões.
+- [x] Reutilizar referências em notas, semáforos, interpretação e PDF; 19 testes aprovados e fluxo com importação, alteração, recarga e restauração conferido no navegador, sem erros; PDF legível validado.

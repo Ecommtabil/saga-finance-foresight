@@ -42,4 +42,5 @@
 - Companies, table versions and import history persist in a Zustand store under a `saga.*` key (rehydrated in the `/calculadoras` layout); imports always go through `montarPrevia` → `aplicarPrevia` and snapshot the previous data so the last import can be undone.
 
 ## Diagnostic scoring
-- Keep deterministic logistic diagnostic scoring and aggregation in the pure `src/lib/saga/diagnostico-score.ts` module, anchored at the existing warning/healthy thresholds; cards, ranking and group scores consume the same unrounded evaluation to avoid premature saturation and divergent scores.
+- Keep deterministic logistic diagnostic scoring and aggregation in the pure `src/lib/saga/diagnostico-score.ts` module, anchored at the configured warning/healthy thresholds; cards, ranking and group scores consume the same unrounded evaluation to avoid premature saturation and divergent scores.
+- Keep editable indicator thresholds and direction metadata in the browser-safe `diagnostico-referencias` module, validate before applying, and persist them under a project-scoped `saga.*` key; scoring, status, interpretation and exported references must all consume the same saved thresholds to prevent contradictory diagnoses.

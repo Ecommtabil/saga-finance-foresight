@@ -117,7 +117,9 @@ export function gerarDiagnosticoPDF(input: DiagPdfInput) {
       c.valor,
       STATUS_LABEL[c.status],
       c.interpretacao,
-      c.referencia,
+      // A fonte padrão do PDF não contém os glifos ≥/≤; preservar a comparação
+      // usando equivalentes ASCII evita corromper a coluna de referências.
+      c.referencia.replaceAll("≥", ">=").replaceAll("≤", "<="),
     ]);
     autoTable(doc, {
       startY: y,

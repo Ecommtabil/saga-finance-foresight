@@ -30,7 +30,11 @@ import {
 } from "@/lib/saga/calculations";
 import { fmtNum, fmtPct, fmtMult, safeDiv } from "@/lib/saga/formatters";
 import { gerarDiagnosticoPDF, type DiagSecao } from "@/lib/saga/diagnostico-pdf";
-import { avaliarIndicador, mediaScores, scorePonderado, type StatusDiagnostico } from "@/lib/saga/diagnostico-score";
+import { mediaScores, scorePonderado, type StatusDiagnostico } from "@/lib/saga/diagnostico-score";
+
+import { usePersistedState } from "@/hooks/use-persisted-state";
+import { ReferenciasDiagnosticoEditor } from "@/components/saga/ReferenciasDiagnostico";
+import { avaliarReferencia, normalizarReferencias, referenciasPadrao, textoReferencia, type ReferenciasDiagnostico } from "@/lib/saga/diagnostico-referencias";
 
 export const Route = createFileRoute("/diagnostico")({
   head: () => ({
@@ -269,10 +273,14 @@ function ParametrosTab({
   pesos,
   onPesosChange,
   secoes,
+  referencias,
+  onReferenciasChange,
 }: {
   pesos: number[];
   onPesosChange: (i: number, v: number) => void;
   secoes: ScoredSecao[];
+  referencias: ReferenciasDiagnostico;
+  onReferenciasChange: (referencias: ReferenciasDiagnostico) => void;
 }) {
   const [inverso, setInverso] = useState(false);
   const rotulos = ["Lucratividade", "Gestão", "Endividamento"];
@@ -298,6 +306,7 @@ function ParametrosTab({
 
   return (
     <div className="space-y-6">
+      <ReferenciasDiagnosticoEditor referencias={referencias} onSalvar={onReferenciasChange} />
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Parâmetros do Score</CardTitle>
@@ -577,6 +586,8 @@ function DiagnosticoPage() {
   const [anoSelecionado, setAnoSelecionado] = useState<number | null>(
     anosDisponiveis.length ? anosDisponiveis[anosDisponiveis.length - 1] : null,
   );
+  const [referenciasSalvas, setReferencias] = usePersistedState<ReferenciasDiagnostico>("saga.diagnostico.referencias", referenciasPadrao);
+  const referencias = normalizarReferencias(referenciasSalvas);
   const [pesos, setPesos] = useState<number[]>([34, 33, 33]);
   const atualizarPeso = (i: number, v: number) =>
     setPesos((prev) => prev.map((p, idx) => (idx === i ? v : p)));
@@ -633,62 +644,62 @@ function DiagnosticoPage() {
         {
           titulo: "Margem Bruta",
           valor: fmtPct(mBruta),
-          ...avaliarIndicador(mBruta, 0.4, 0.2),
+          ...avaliarReferencia(mBruta, "mBruta", referencias),
           delta: d(mBruta, prev !== null ? m.bruta[prev] : undefined),
           deltaLabel,
           pctPoints: true,
           interpretacao:
-            mBruta >= 0.4
+            mBruta >= referencias.mBruta.bom
               ? "Boa eficiência na produção/entrega, sobra saudável após CMV."
-              : mBruta >= 0.2
+              : mBruta >= referencias.mBruta.atencao
                 ? "Margem apertada — revisar custos diretos e política de preços."
                 : "Margem crítica — o CMV consome quase toda a receita.",
-          referencia: "≥ 40% saudável • 20–40% atenção",
+          referencia: textoReferencia("mBruta", referencias),
         },
         {
           titulo: "Margem EBITDA",
           valor: fmtPct(mEbitda),
-          ...avaliarIndicador(mEbitda, 0.15, 0.08),
+          ...avaliarReferencia(mEbitda, "mEbitda", referencias),
           delta: d(mEbitda, prev !== null ? m.ebitda[prev] : undefined),
           deltaLabel,
           pctPoints: true,
           interpretacao:
-            mEbitda >= 0.15
+            mEbitda >= referencias.mEbitda.bom
               ? "Geração de caixa operacional consistente."
-              : mEbitda >= 0.08
+              : mEbitda >= referencias.mEbitda.atencao
                 ? "Caixa operacional limitado — controle despesas fixas."
                 : "Operação pressiona o caixa; risco de sustentabilidade.",
-          referencia: "≥ 15% saudável • 8–15% atenção",
+          referencia: textoReferencia("mEbitda", referencias),
         },
         {
           titulo: "Margem Operacional",
           valor: fmtPct(mOp),
-          ...avaliarIndicador(mOp, 0.1, 0.04),
+          ...avaliarReferencia(mOp, "mOp", referencias),
           delta: d(mOp, prev !== null ? m.operacional[prev] : undefined),
           deltaLabel,
           pctPoints: true,
           interpretacao:
-            mOp >= 0.1
+            mOp >= referencias.mOp.bom
               ? "Operação rentável mesmo após depreciação."
-              : mOp >= 0.04
+              : mOp >= referencias.mOp.atencao
                 ? "Rentabilidade operacional baixa — avaliar eficiência."
                 : "Operação não cobre estrutura — revisão urgente.",
-          referencia: "≥ 10% saudável • 4–10% atenção",
+          referencia: textoReferencia("mOp", referencias),
         },
         {
           titulo: "Margem Líquida",
           valor: fmtPct(mLiq),
-          ...avaliarIndicador(mLiq, 0.08, 0.03),
+          ...avaliarReferencia(mLiq, "mLiq", referencias),
           delta: d(mLiq, prev !== null ? m.liquida[prev] : undefined),
           deltaLabel,
           pctPoints: true,
           interpretacao:
-            mLiq >= 0.08
+            mLiq >= referencias.mLiq.bom
               ? "Cada real de receita gera lucro final relevante."
-              : mLiq >= 0.03
+              : mLiq >= referencias.mLiq.atencao
                 ? "Lucro final apertado — pouca folga para reinvestir."
                 : "Resultado final crítico ou negativo.",
-          referencia: "≥ 8% saudável • 3–8% atenção",
+          referencia: textoReferencia("mLiq", referencias),
         },
       ],
     },
@@ -698,62 +709,62 @@ function DiagnosticoPage() {
         {
           titulo: "ROE",
           valor: fmtPct(roe),
-          ...avaliarIndicador(roe, 0.15, 0.08),
+          ...avaliarReferencia(roe, "roe", referencias),
           delta: d(roe, prev !== null ? rent.roe[prev] : undefined),
           deltaLabel,
           pctPoints: true,
           interpretacao:
-            roe >= 0.15
+            roe >= referencias.roe.bom
               ? "Excelente retorno sobre o capital do sócio."
-              : roe >= 0.08
+              : roe >= referencias.roe.atencao
                 ? "Retorno moderado — comparar com custo de oportunidade."
                 : "Retorno baixo para o risco do negócio.",
-          referencia: "≥ 15% saudável • 8–15% atenção",
+          referencia: textoReferencia("roe", referencias),
         },
         {
           titulo: "ROA",
           valor: fmtPct(roa),
-          ...avaliarIndicador(roa, 0.08, 0.04),
+          ...avaliarReferencia(roa, "roa", referencias),
           delta: d(roa, prev !== null ? rent.roa[prev] : undefined),
           deltaLabel,
           pctPoints: true,
           interpretacao:
-            roa >= 0.08
+            roa >= referencias.roa.bom
               ? "Ativos bem aproveitados na geração de lucro."
-              : roa >= 0.04
+              : roa >= referencias.roa.atencao
                 ? "Aproveitamento parcial dos ativos."
                 : "Ativos ociosos ou pouco produtivos.",
-          referencia: "≥ 8% saudável • 4–8% atenção",
+          referencia: textoReferencia("roa", referencias),
         },
         {
           titulo: "ROIC",
           valor: fmtPct(roic),
-          ...avaliarIndicador(roic, 0.12, 0.06),
+          ...avaliarReferencia(roic, "roic", referencias),
           delta: d(roic, prev !== null ? rent.roic[prev] : undefined),
           deltaLabel,
           pctPoints: true,
           interpretacao:
-            roic >= 0.12
+            roic >= referencias.roic.bom
               ? "Capital investido gera valor acima do custo típico."
-              : roic >= 0.06
+              : roic >= referencias.roic.atencao
                 ? "Retorno próximo do custo de capital — atenção."
                 : "Destruição de valor: retorno abaixo do custo de capital.",
-          referencia: "≥ 12% saudável • 6–12% atenção",
+          referencia: textoReferencia("roic", referencias),
         },
         {
           titulo: "Giro do Ativo",
           valor: isFinite(giroAtivo) ? fmtMult(giroAtivo, 2) : "—",
-          ...avaliarIndicador(giroAtivo, 1, 0.5),
+          ...avaliarReferencia(giroAtivo, "giroAtivo", referencias),
           delta: d(giroAtivo, prev !== null ? giroFor(prev) : undefined),
           deltaLabel,
           interpretacao: !isFinite(giroAtivo)
             ? "Disponível apenas no modo Contabilidade Completa."
-            : giroAtivo >= 1
+            : giroAtivo >= referencias.giroAtivo.bom
               ? "Ativos giram bem e sustentam a receita."
-              : giroAtivo >= 0.5
+              : giroAtivo >= referencias.giroAtivo.atencao
                 ? "Giro médio — parte do ativo pouco produtiva."
                 : "Ativos pesados frente à receita gerada.",
-          referencia: "≥ 1,0x saudável • 0,5–1,0x atenção",
+          referencia: textoReferencia("giroAtivo", referencias),
         },
       ],
     },
@@ -763,63 +774,63 @@ function DiagnosticoPage() {
         {
           titulo: "Dívida / PL",
           valor: isFinite(divPL) ? fmtMult(divPL, 2) : "—",
-          ...avaliarIndicador(divPL, 0.5, 1, false),
+          ...avaliarReferencia(divPL, "divPL", referencias),
           delta: d(divPL, prev !== null ? end?.dividaSobrePL[prev] : undefined),
           deltaLabel,
           interpretacao: !isFinite(divPL)
             ? "Disponível apenas no modo Contabilidade Completa."
-            : divPL <= 0.5
+            : divPL <= referencias.divPL.bom
               ? "Estrutura pouco alavancada, boa folga financeira."
-              : divPL <= 1
+              : divPL <= referencias.divPL.atencao
                 ? "Alavancagem moderada — monitorar prazos."
                 : "Alta dependência de dívida frente ao capital próprio.",
-          referencia: "≤ 0,5x saudável • 0,5–1,0x atenção",
+          referencia: textoReferencia("divPL", referencias),
         },
         {
           titulo: "Dívida / Ativo",
           valor: isFinite(divAtivo) ? fmtPct(divAtivo) : "—",
-          ...avaliarIndicador(divAtivo, 0.3, 0.5, false),
+          ...avaliarReferencia(divAtivo, "divAtivo", referencias),
           delta: d(divAtivo, prev !== null ? end?.dividaSobreAtivo[prev] : undefined),
           deltaLabel,
           pctPoints: true,
           interpretacao: !isFinite(divAtivo)
             ? "Disponível apenas no modo Contabilidade Completa."
-            : divAtivo <= 0.3
+            : divAtivo <= referencias.divAtivo.bom
               ? "Baixa participação de dívida na estrutura de ativos."
-              : divAtivo <= 0.5
+              : divAtivo <= referencias.divAtivo.atencao
                 ? "Alavancagem média sobre os ativos."
                 : "Ativos majoritariamente financiados por dívida.",
-          referencia: "≤ 30% saudável • 30–50% atenção",
+          referencia: textoReferencia("divAtivo", referencias),
         },
         {
           titulo: "Cobertura de Juros",
           valor: isFinite(cobJuros) ? fmtMult(cobJuros, 2) : "—",
-          ...avaliarIndicador(cobJuros, 3, 1.5),
+          ...avaliarReferencia(cobJuros, "cobJuros", referencias),
           delta: d(cobJuros, prev !== null ? end?.coberturaJuros[prev] : undefined),
           deltaLabel,
           interpretacao: !isFinite(cobJuros)
             ? "Disponível apenas no modo Contabilidade Completa."
-            : cobJuros >= 3
+            : cobJuros >= referencias.cobJuros.bom
               ? "EBIT cobre folgadamente as despesas financeiras."
-              : cobJuros >= 1.5
+              : cobJuros >= referencias.cobJuros.atencao
                 ? "Cobertura apertada — vulnerável a alta de juros."
                 : "EBIT insuficiente para cobrir os juros.",
-          referencia: "≥ 3,0x saudável • 1,5–3,0x atenção",
+          referencia: textoReferencia("cobJuros", referencias),
         },
         {
           titulo: "Liquidez Corrente",
           valor: isFinite(liqCorr) ? fmtMult(liqCorr, 2) : "—",
-          ...avaliarIndicador(liqCorr, 1.5, 1),
+          ...avaliarReferencia(liqCorr, "liqCorr", referencias),
           delta: d(liqCorr, prev !== null ? liq?.corrente[prev] : undefined),
           deltaLabel,
           interpretacao: !isFinite(liqCorr)
             ? "Disponível apenas no modo Contabilidade Completa."
-            : liqCorr >= 1.5
+            : liqCorr >= referencias.liqCorr.bom
               ? "Curto prazo confortável para honrar obrigações."
-              : liqCorr >= 1
+              : liqCorr >= referencias.liqCorr.atencao
                 ? "Curto prazo equilibrado, sem folga relevante."
                 : "Passivo circulante maior que o ativo circulante.",
-          referencia: "≥ 1,5x saudável • 1,0–1,5x atenção",
+          referencia: textoReferencia("liqCorr", referencias),
         },
       ],
     },
@@ -899,6 +910,8 @@ function DiagnosticoPage() {
             pesos={pesos}
             onPesosChange={atualizarPeso}
             secoes={secoes}
+            referencias={referencias}
+            onReferenciasChange={setReferencias}
           />
         </TabsContent>
       </Tabs>
