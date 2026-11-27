@@ -49,15 +49,103 @@ function lerPorPosicao(
       `A aba deve ter ${campos.length} linhas de contas na ordem da planilha modelo; foram encontradas ${linhas.length}.`,
     );
   }
+  const valores = (r: any[]) => [0, 1, 2, 3, 4].map((j) => Number(r[j + 1]) || 0);
   const out: Record<string, number[]> = {};
-  campos.forEach((c, i) => {
-    const r = linhas[i]!;
-    out[c.key] = [0, 1, 2, 3, 4].map((j) => Number(r[j + 1]) || 0);
+  if (linhas.length === campos.length) {
+    campos.forEach((c, i) => {
+      const r = linhas[i]!;
+      out[c.key] = valores(r);
+      const nome = String(r[0] ?? "").trim();
+      if (nome && norm(nome) !== norm(c.label)) rotulos[`${prefixo}.${c.key}`] = nome;
+    });
+    return out;
+  }
+  // Há linhas a mais (contas extras): casa pelo nome e soma as extras na conta anterior.
+  const idxPorNome = (nome: string) => {
+    const n = norm(nome);
+    return campos.findIndex(
+      (c) => norm(c.label) === n || (ALIASES[c.key] ?? []).some((a) => norm(a) === n),
+    );
+  };
+  const casados = linhas.map((r) => idxPorNome(String(r[0] ?? "")));
+  const usados = new Set(casados.filter((i) => i >= 0));
+  let ultimo = -1;
+  const extras: Record<string, string[]> = {};
+  const pendentes: { pk: string; delta: number[] }[] = [];
+  linhas.forEach((r, li) => {
+    let ci = casados[li]!;
     const nome = String(r[0] ?? "").trim();
-    if (nome && norm(nome) !== norm(c.label)) rotulos[`${prefixo}.${c.key}`] = nome;
+    if (ci < 0 && ultimo + 1 < campos.length && !usados.has(ultimo + 1) && !out[campos[ultimo + 1]!.key]) {
+      ci = ultimo + 1; // conta renomeada na posição esperada
+      if (nome) rotulos[`${prefixo}.${campos[ci]!.key}`] = nome;
+    }
+    if (ci >= 0) {
+      if (!out[campos[ci]!.key]) out[campos[ci]!.key] = valores(r);
+      ultimo = ci;
+      return;
+    }
+    // conta extra: soma na conta de detalhe anterior e nos subtotais que dependem dela
+    let pi = ultimo;
+    while (pi >= 0 && SUBTOTAIS.has(campos[pi]!.key)) pi--;
+    if (pi < 0) return;
+    const pk = campos[pi]!.key;
+    const base = out[pk]!;
+    const negativo = base.some((v) => v < 0);
+    const delta = valores(r).map((v) => (negativo ? -Math.abs(v) : Math.abs(v)));
+    out[pk] = base.map((v, i) => v + delta[i]!);
+    (extras[pk] ??= []).push(nome || "conta extra");
+    pendentes.push({ pk, delta });
   });
+  // subtotais que dependem da conta recebem o mesmo valor (lidos depois de todas as linhas)
+  for (const { pk, delta } of pendentes) {
+    for (const key of DEPENDENTES[pk] ?? []) {
+      if (out[key]) out[key] = out[key]!.map((v, i) => v + delta[i]!);
+    }
+  }
+  campos.forEach((c) => (out[c.key] ??= [0, 0, 0, 0, 0]));
+  for (const [pk, nomes] of Object.entries(extras)) {
+    const c = campos.find((x) => x.key === pk)!;
+    const atual = rotulos[`${prefixo}.${pk}`] ?? c.label;
+    rotulos[`${prefixo}.${pk}`] = `${atual} (inclui ${nomes.join(", ")})`;
+  }
   return out;
 }
+
+const SUBTOTAIS = new Set([
+  "receitaLiquida", "lucroBruto", "ebitda", "ebit", "lair", "lucroLiquido",
+  "ativoCirculante", "ativoNaoCirculante", "ativoTotal", "passivoCirculante",
+  "passivoNaoCirculante", "passivoTotal",
+]);
+
+const RES = ["receitaLiquida", "lucroBruto", "ebitda", "ebit", "lair", "lucroLiquido"];
+/** Subtotais que mudam quando uma conta de detalhe recebe uma linha extra. */
+const DEPENDENTES: Record<string, string[]> = {
+  receitaBruta: RES,
+  deducoes: RES,
+  cmv: RES.slice(1),
+  despOperacionais: RES.slice(2),
+  depreciacao: RES.slice(3),
+  resultadoFinanceiro: RES.slice(4),
+  impostos: ["lucroLiquido"],
+  caixa: ["ativoCirculante", "ativoTotal"],
+  contasReceber: ["ativoCirculante", "ativoTotal"],
+  estoques: ["ativoCirculante", "ativoTotal"],
+  fornecedores: ["passivoCirculante", "passivoTotal"],
+  emprestimosCP: ["passivoCirculante", "passivoTotal"],
+  emprestimosLP: ["passivoNaoCirculante", "passivoTotal"],
+  patrimonioLiquido: ["passivoTotal"],
+};
+
+const ALIASES: Record<string, string[]> = {
+  deducoes: ["Deducoes da Receita", "Deduções da Receita"],
+  cmv: ["CPV", "CSP", "Custo das Mercadorias Vendidas", "Custos"],
+  despOperacionais: ["Despesas"],
+  depreciacao: ["Depreciação e Amortização"],
+  impostos: ["IR/CSLL", "IRPJ/CSLL", "IR e CSLL"],
+  caixa: ["Caixa"],
+  passivoTotal: ["Passivo Total", "Passivo + PL"],
+  divida: ["Dívida"],
+};
 
 export const CAMPOS_DRE: { key: keyof DRE; label: string }[] = [
   { key: "receitaBruta", label: "Receita Bruta" },
