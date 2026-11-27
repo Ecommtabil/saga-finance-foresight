@@ -54,7 +54,7 @@ function DrePage() {
       {visao === "analitico" && (
         <p className="rounded-lg border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
           {quantidadeExtras > 0
-            ? `${quantidadeExtras} ${quantidadeExtras === 1 ? "conta adicionada aparece" : "contas adicionadas aparecem"} separadamente. A linha de total já inclui essas contas; não some os valores novamente.`
+            ? `${quantidadeExtras} ${quantidadeExtras === 1 ? "conta adicionada aparece" : "contas adicionadas aparecem"} dentro do respectivo grupo. O valor do grupo já inclui suas contas; não some os valores novamente.`
             : "Nenhuma conta extra foi identificada na última importação. Para detalhar uma conta como Aluguel, adicione-a à planilha e importe o arquivo novamente."}
         </p>
       )}

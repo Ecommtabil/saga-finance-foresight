@@ -64,7 +64,12 @@ export function montarLinhasDRE(dados: DadosImportados, visao: VisaoDRE): LinhaD
     const nomeBase = nomeSemConsolidacao(nome);
     const totalExtras = extras.reduce((total, extra) => somar(total, extra.valores), [0, 0, 0, 0, 0]);
     linhas.push({
-      label: `${conta.prefix}${nomeBase} — demais contas`,
+      label: conta.prefix + nomeBase,
+      values: valores,
+      bold: true,
+    });
+    linhas.push({
+      label: `${conta.prefix}Demais contas`,
       values: subtrair(valores, totalExtras),
       indent: true,
     });
@@ -75,11 +80,6 @@ export function montarLinhasDRE(dados: DadosImportados, visao: VisaoDRE): LinhaD
         indent: true,
       });
     }
-    linhas.push({
-      label: `${conta.prefix}Total ${nomeBase}`,
-      values: valores,
-      bold: true,
-    });
   }
 
   return linhas;

@@ -14,25 +14,33 @@ async function importarComAluguel() {
   return lerPlanilha(arquivo, "completa");
 }
 
-test("DRE analítico mostra Aluguel em linha própria e permite personalizar seu nome", async () => {
+test("DRE analítico mostra Aluguel como conta filha e permite personalizar seu nome", async () => {
   const dados = await importarComAluguel();
   let linhas = montarLinhasDRE(dados, "analitico");
-  expect(linhas.find((linha) => linha.label === "(-) Aluguel")?.values).toEqual([-10, -12, -15, -18, -20]);
+  const grupo = linhas.findIndex((linha) => linha.label === "(-) Despesas Operacionais");
+  const aluguel = linhas.findIndex((linha) => linha.label === "(-) Aluguel");
 
-  dados.rotulos!["dre.extra.dre-extra-0"] = "Aluguel das lojas";
+  expect(grupo).toBeGreaterThanOrEqual(0);
+  expect(aluguel).toBe(grupo + 2);
+  expect(linhas[grupo]?.bold).toBe(true);
+  expect(linhas[aluguel]?.indent).toBe(true);
+  expect(linhas[aluguel]?.values).toEqual([-10, -12, -15, -18, -20]);
+
+  dados.rotulos!["dre.extra.dre-extra-0"] = "Aluguéis das lojas";
   linhas = montarLinhasDRE(dados, "analitico");
-  expect(linhas.some((linha) => linha.label === "(-) Aluguel das lojas")).toBe(true);
+  expect(linhas.some((linha) => linha.label === "(-) Aluguéis das lojas")).toBe(true);
 });
 
-test("DRE analítico reconcilia demais contas + Aluguel com o total sem duplicar resultados", async () => {
+test("grupo Despesas Operacionais reconcilia suas contas sem linha de total duplicada", async () => {
   const dados = await importarComAluguel();
   const linhas = montarLinhasDRE(dados, "analitico");
-  const demais = linhas.find((linha) => linha.label === "(-) Despesas Operacionais — demais contas")!;
+  const grupo = linhas.find((linha) => linha.label === "(-) Despesas Operacionais")!;
+  const demais = linhas.find((linha) => linha.label === "(-) Demais contas")!;
   const aluguel = linhas.find((linha) => linha.label === "(-) Aluguel")!;
-  const total = linhas.find((linha) => linha.label === "(-) Total Despesas Operacionais")!;
 
-  expect(total.values).toEqual(dados.dre.despOperacionais);
-  expect(demais.values.map((valor, i) => valor + aluguel.values[i]!)).toEqual(total.values);
+  expect(grupo.values).toEqual(dados.dre.despOperacionais);
+  expect(demais.values.map((valor, i) => valor + aluguel.values[i]!)).toEqual(grupo.values);
+  expect(linhas.some((linha) => linha.label.includes("Total Despesas Operacionais"))).toBe(false);
   expect(linhas.find((linha) => linha.label === "= EBITDA")?.values).toEqual(dados.dre.ebitda);
   expect(linhas.find((linha) => linha.label === "= Lucro Líquido")?.values).toEqual(dados.dre.lucroLiquido);
 });
