@@ -5,7 +5,6 @@ import {
   Area,
   BarChart,
   Bar,
-  ReferenceLine,
   XAxis,
   YAxis,
   Tooltip,
@@ -34,9 +33,6 @@ import {
   crescimento,
 } from "@/lib/saga/calculations";
 import { fmtPct, fmtMult, fmtNum, fmtPctTable, fmtMoney } from "@/lib/saga/formatters";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { usePersistedState } from "@/hooks/use-persisted-state";
 import { safeDiv } from "@/lib/saga/formatters";
 import { InfoTooltip } from "@/components/saga/InfoTooltip";
 import { cn } from "@/lib/utils";
@@ -153,11 +149,6 @@ function ChartCard({
   );
 }
 
-function parseNum(v: string): number {
-  const n = Number(v.replace(/\./g, "").replace(",", "."));
-  return Number.isFinite(n) && n >= 0 ? n : 0;
-}
-
 interface LinhaPE {
   label: string;
   real: number;
@@ -272,9 +263,6 @@ function DREPontoEquilibrio({
 }
 
 function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types").DadosImportados; anoIdx: number }) {
-  const [ticketMedio, setTicketMedio] = usePersistedState<string>("saga.mc.ticketMedio", "");
-  const [potencial, setPotencial] = usePersistedState<string>("saga.mc.potencialVendas", "");
-
   const rl = dados.dre.receitaLiquida[anoIdx] ?? 0;
   const cmv = Math.abs(dados.dre.cmv[anoIdx] ?? 0);
   const despFixas = Math.abs(dados.dre.despOperacionais[anoIdx] ?? 0);
@@ -284,10 +272,6 @@ function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types
   const mcPct = safeDiv(mc, rl);
   const peValor = mcPct > 0 ? despFixas / mcPct : 0;
 
-  const ticket = parseNum(ticketMedio);
-  const pot = parseNum(potencial);
-  const peUnidades = ticket > 0 ? peValor / ticket : 0;
-  const receitaPotencial = ticket > 0 && pot > 0 ? ticket * pot : 0;
   const margemSeguranca = peValor > 0 ? (rl - peValor) / rl : 0;
   const cobertura = peValor > 0 ? rl / peValor : 0;
 
@@ -305,58 +289,17 @@ function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types
         <InfoTooltip text="Premissa simplificada: o CMV/CPV é tratado como custo variável e as despesas operacionais como fixas. Margem de contribuição = Receita líquida − CMV. Ponto de equilíbrio = Despesas fixas ÷ Margem de contribuição (%)." />
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Entradas simplificadas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="ticket" className="flex items-center gap-1.5">
-                Ticket médio (R$)
-                <InfoTooltip text="Valor médio de cada venda. Usado para converter o ponto de equilíbrio em unidades." />
-              </Label>
-              <Input
-                id="ticket"
-                inputMode="decimal"
-                placeholder="Ex.: 250,00"
-                value={ticketMedio}
-                onChange={(e) => setTicketMedio(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="potencial" className="flex items-center gap-1.5">
-                Potencial de vendas (unidades/ano)
-                <InfoTooltip text="Quantidade de vendas que a empresa consegue realizar no ano. Combinado ao ticket médio, gera a receita potencial." />
-              </Label>
-              <Input
-                id="potencial"
-                inputMode="numeric"
-                placeholder="Ex.: 5.000"
-                value={potencial}
-                onChange={(e) => setPotencial(e.target.value)}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-3">
         <Kpi titulo="Margem de Contribuição" valor={fmtMoney(mc)} sub={`${fmtPct(mcPct)} da receita líquida`} />
         <Kpi
           titulo="Ponto de Equilíbrio"
           valor={fmtMoney(peValor)}
-          sub={ticket > 0 ? `${fmtNum(peUnidades, 0)} unidades/ano` : "Informe o ticket médio para ver em unidades"}
+          sub="Receita necessária para cobrir as despesas fixas"
         />
         <Kpi
           titulo="Margem de Segurança"
           valor={fmtPct(margemSeguranca)}
           sub={margemSeguranca >= 0 ? "Receita acima do equilíbrio" : "Receita abaixo do equilíbrio"}
-        />
-        <Kpi
-          titulo="Receita Potencial"
-          valor={receitaPotencial > 0 ? fmtMoney(receitaPotencial) : "—"}
-          sub={receitaPotencial > 0 ? `Ticket × ${fmtNum(pot, 0)} unidades` : "Informe ticket e potencial"}
         />
       </div>
 
@@ -400,14 +343,6 @@ function MargemContribuicao({ dados, anoIdx }: { dados: import("@/lib/saga/types
                 <Legend iconType="plainline" wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
                 <Bar dataKey="Receita" fill="var(--chart-1)" radius={[6, 6, 0, 0]} maxBarSize={56} />
                 <Bar dataKey="Ponto de equilíbrio" fill="var(--chart-3)" radius={[6, 6, 0, 0]} maxBarSize={56} />
-                {receitaPotencial > 0 && (
-                  <ReferenceLine
-                    y={receitaPotencial}
-                    stroke="var(--chart-2)"
-                    strokeDasharray="6 4"
-                    label={{ value: "Potencial", position: "insideTopRight", fontSize: 11, fill: "var(--chart-2)" }}
-                  />
-                )}
               </BarChart>
             </ResponsiveContainer>
           </div>
