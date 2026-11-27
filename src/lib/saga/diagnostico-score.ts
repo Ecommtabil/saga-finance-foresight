@@ -1,9 +1,10 @@
 export type StatusDiagnostico = "bom" | "atencao" | "ruim" | "neutro";
 
 /**
- * Escala contínua: 40 no limite de atenção e 70 no limite saudável.
- * A distância entre esses limites vale 30 pontos também fora da faixa.
- * A nota é limitada a 0–100; o semáforo conserva os limites financeiros.
+ * Curva logística contínua: 40 no limite de atenção e 70 no saudável.
+ * A distância normalizada calibra a curva, sem notas aleatórias ou degraus.
+ * Os extremos se aproximam de 0–100 gradualmente, sem saturação antecipada.
+ * O semáforo conserva os limites financeiros; médias usam a precisão inteira.
  */
 export function avaliarIndicador(
   valor: number,
@@ -20,7 +21,15 @@ export function avaliarIndicador(
   const status = maiorMelhor
     ? valor >= bom ? "bom" : valor >= atencao ? "atencao" : "ruim"
     : valor <= bom ? "bom" : valor <= atencao ? "atencao" : "ruim";
-  const score = Math.max(0, Math.min(100, 40 + 30 * ((valor - atencao) / amplitude)));
+  const distancia = (valor - atencao) / amplitude;
+  const logitAtencao = Math.log(40 / 60);
+  const logitBom = Math.log(70 / 30);
+  const logit = logitAtencao + distancia * (logitBom - logitAtencao);
+  // Avaliação estável também para valores muito distantes dos limites.
+  const exponencial = Math.exp(logit < 0 ? logit : -logit);
+  const score = valor === atencao ? 40 : valor === bom ? 70 : logit < 0
+    ? 100 * exponencial / (1 + exponencial)
+    : 100 / (1 + exponencial);
   return { status, score };
 }
 

@@ -189,8 +189,9 @@ function ScoreSummary({
               <p className="mt-1 text-sm text-foreground/80">
                 Nota geral calculada a partir de <b>{totalCards}</b> indicadores nas
                 três dimensões do diagnóstico, ponderada pelos pesos ajustáveis
-                abaixo. A nota varia proporcionalmente: 40 no limite de atenção e
-                70 no limite saudável, continuando na mesma proporção até 0 ou 100.
+                abaixo. A nota segue uma curva gradual: 40 no limite de atenção e
+                70 no limite saudável. Desempenhos melhores continuam ganhando
+                pontos, aproximando-se de 100 sem atingir o teto tão cedo.
                 Indicadores indisponíveis não entram na média.
               </p>
               <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-muted-foreground">

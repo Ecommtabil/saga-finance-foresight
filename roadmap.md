@@ -61,3 +61,7 @@
 # Diagnóstico — pontuação proporcional
 - [x] Substituir notas fixas por escala contínua, preservando limites financeiros e pesos.
 - [x] Validar notas, ranking, pesos e troca de período com 9 testes e planilha preenchida no navegador, sem erros.
+
+# Diagnóstico — notas mais variadas
+- [x] Usar curva gradual sem saturação antecipada, preservando semáforos e pesos.
+- [x] Testar pequenas diferenças e notas altas (11 testes aprovados); conferir planilha importada, pesos e troca de período no navegador, sem erros.

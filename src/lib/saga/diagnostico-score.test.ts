@@ -1,27 +1,28 @@
 import { describe, expect, it } from "vitest";
 import { avaliarIndicador, mediaScores, scorePonderado } from "./diagnostico-score";
 
-describe("pontuação proporcional do diagnóstico", () => {
+describe("pontuação gradual do diagnóstico", () => {
   it("varia dentro da faixa de atenção em vez de repetir 60", () => {
     expect(avaliarIndicador(0.2, 0.4, 0.2)).toEqual({ status: "atencao", score: 40 });
-    expect(avaliarIndicador(0.3, 0.4, 0.2).score).toBeCloseTo(55);
-    expect(avaliarIndicador(0.35, 0.4, 0.2).score).toBeCloseTo(62.5);
+    expect(avaliarIndicador(0.3, 0.4, 0.2).score).toBeCloseTo(55.5006, 4);
+    expect(avaliarIndicador(0.35, 0.4, 0.2).score).toBeCloseTo(63.0441, 4);
   });
   it("continua proporcional acima do limite saudável, sem dar 100 imediatamente", () => {
     expect(avaliarIndicador(0.4, 0.4, 0.2)).toEqual({ status: "bom", score: 70 });
-    expect(avaliarIndicador(0.5, 0.4, 0.2).score).toBeCloseTo(85);
-    expect(avaliarIndicador(0.6, 0.4, 0.2).score).toBeCloseTo(100);
+    expect(avaliarIndicador(0.5, 0.4, 0.2).score).toBeCloseTo(81.3616, 4);
+    expect(avaliarIndicador(0.6, 0.4, 0.2).score).toBeCloseTo(89.0909, 4);
   });
   it("varia também na faixa crítica", () => {
-    expect(avaliarIndicador(0.1, 0.4, 0.2)).toEqual({ status: "ruim", score: 25 });
-    expect(avaliarIndicador(0, 0.4, 0.2).score).toBeCloseTo(10);
+    expect(avaliarIndicador(0.1, 0.4, 0.2).status).toBe("ruim");
+    expect(avaliarIndicador(0.1, 0.4, 0.2).score).toBeCloseTo(26.2726, 4);
+    expect(avaliarIndicador(0, 0.4, 0.2).score).toBeCloseTo(16, 4);
   });
   it("inverte a direção para dívida, em que menos é melhor", () => {
     expect(avaliarIndicador(1, 0.5, 1, false)).toEqual({ status: "atencao", score: 40 });
-    expect(avaliarIndicador(0.75, 0.5, 1, false).score).toBeCloseTo(55);
+    expect(avaliarIndicador(0.75, 0.5, 1, false).score).toBeCloseTo(55.5006, 4);
     expect(avaliarIndicador(0.5, 0.5, 1, false)).toEqual({ status: "bom", score: 70 });
-    expect(avaliarIndicador(0.25, 0.5, 1, false).score).toBeCloseTo(85);
-    expect(avaliarIndicador(1.25, 0.5, 1, false).score).toBeCloseTo(25);
+    expect(avaliarIndicador(0.25, 0.5, 1, false).score).toBeCloseTo(81.3616, 4);
+    expect(avaliarIndicador(1.25, 0.5, 1, false).score).toBeCloseTo(26.2726, 4);
   });
   it("não tem saltos ao atravessar os limites das faixas", () => {
     for (const limite of [0.2, 0.4]) {
@@ -34,10 +35,34 @@ describe("pontuação proporcional do diagnóstico", () => {
     }
   });
   it("limita extremos a 0–100", () => {
-    expect(avaliarIndicador(-10, 0.4, 0.2).score).toBe(0);
-    expect(avaliarIndicador(10, 0.4, 0.2).score).toBe(100);
-    expect(avaliarIndicador(10, 0.5, 1, false).score).toBe(0);
-    expect(avaliarIndicador(-10, 0.5, 1, false).score).toBe(100);
+    for (const [valor, bom, atencao, maiorMelhor] of [
+      [-10, 0.4, 0.2, true], [10, 0.4, 0.2, true],
+      [10, 0.5, 1, false], [-10, 0.5, 1, false],
+    ] as const) {
+      const { score } = avaliarIndicador(valor, bom, atencao, maiorMelhor);
+      if (score === null) throw new Error("Nota indisponível");
+      expect(score).toBeGreaterThanOrEqual(0);
+      expect(score).toBeLessThanOrEqual(100);
+    }
+  });
+  it("diferencia desempenhos fortes que antes empatavam em 100, sem aleatoriedade", () => {
+    const notas = [0.6, 0.7, 0.8].map((valor) => {
+      const { score } = avaliarIndicador(valor, 0.4, 0.2);
+      if (score === null) throw new Error("Nota indisponível");
+      expect(score).toBeGreaterThan(70);
+      expect(score).toBeLessThan(100);
+      expect(avaliarIndicador(valor, 0.4, 0.2).score).toBe(score);
+      return score;
+    });
+    expect(new Set(notas.map((nota) => nota.toFixed(1))).size).toBe(3);
+    expect(notas).toEqual([...notas].sort((a, b) => a - b));
+  });
+  it("responde a pequenas mudanças sem arredondar o indicador antes de pontuar", () => {
+    const primeira = avaliarIndicador(0.301, 0.4, 0.2).score;
+    const segunda = avaliarIndicador(0.302, 0.4, 0.2).score;
+    if (primeira === null || segunda === null) throw new Error("Nota indisponível");
+    expect(segunda).toBeGreaterThan(primeira);
+    expect(segunda - primeira).toBeLessThan(1);
   });
   it("exclui valores indisponíveis sem tratá-los como nota zero", () => {
     for (const valor of [NaN, Infinity, -Infinity]) {
